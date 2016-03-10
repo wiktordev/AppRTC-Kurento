@@ -1,0 +1,11 @@
+npm-debug.log
+.classpath
+.project
+.settings/
+.jshintrc
+node_modules/
+bower_components/
+*~
+.DS_Store
+
+/config.js
