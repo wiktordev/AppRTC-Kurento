@@ -1,0 +1,23 @@
+{
+  "name": "apprtc-kurento-demo",
+  "version": "1.0.0",
+  "authors": [
+    "Max Dörfler <max@apeunit.com>"
+  ],
+  "description": "Example App to connect Android AppRTC to Kurento",
+  "main": "index.html",
+  "license": "LGPL",
+  "homepage": "http://www.apeunit.com",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "kurento-utils": "master",
+    "jquery": "~2.2.1",
+    "bootstrap": "~3.3.6"
+  }
+}
