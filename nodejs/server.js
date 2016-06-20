@@ -99,7 +99,7 @@ apprtcWs.on('connection', function(ws) {
 		console.log('apprtcWs ' + sessionId + ' received message ', message);
 		var clientId = message.clientid ? message.clientid : "empty";
 		var roomname = message.roomid ? message.roomid : "emptyID";
-
+		console.log('rooms:'+JSON.stringify(rooms));
 		switch (message.cmd) {
 			case 'register':
 				console.log('register called');
@@ -139,16 +139,18 @@ apprtcWs.on('connection', function(ws) {
 				break;
 
 			case 'startWebRtc':
-				console.log('startWebRtc');
+				console.log('startWebRtc: rooms:'+JSON.stringify(rooms));
 				var sdpOffer = message.sdpOffer;
 				var roomName = message.roomName;
 				getRoom(roomName, function(err, room) {
 					if (!room) {
+						console.log('Room not found sending error via websocket!');
 						return ws.send(JSON.stringify({
 							id: 'error',
 							message: 'Room not found'
 						}));
 					}
+					console.log('starting WebRTC anyways');
 					// sessionId = request.session.id;
 					startWebRtc(room, sessionId, ws, sdpOffer, function(error, sdpAnswer) {
 						if (error) {
@@ -392,9 +394,12 @@ function getRoom(roomName, callback) {
 	console.log("Looking for room:", roomName);
 	for (var i = 0; i < rooms.length; i++) {
 		if (rooms[i].roomName == roomName) {
+			console.log('found room'+roomName);
 			return callback(null, rooms[i]);
 		}
+		console.log('did not find room'+roomName);
 	}
+	console.log('did not find room'+roomName);
 	return callback(null, null);
 };
 
@@ -540,7 +545,8 @@ function onIceCandidate(room, sessionId, _candidate) {
 	console.log('onIceCandidate called');
 	var receiver = room.receivers[sessionId];
 	if (!receiver) {
-		return callback('Error getting Receiver');
+		console.log('onIceCandidate no receivers');
+		return null;//callback('Error getting Receiver');
 	}
 	console.log('onIceCandidate receiver', receiver);
 

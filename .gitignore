@@ -11,3 +11,6 @@ bower_components/
 /config.js
 /jWebrtc/nbproject/private/
 /jWebrtc/build/
+/jWebrtc/dist/
+/jWebrtc2/target/
+/jWebrtc/target/

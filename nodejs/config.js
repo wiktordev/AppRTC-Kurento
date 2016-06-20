@@ -1,11 +1,11 @@
 var config = {}
 
 config.port = '7080';
-config.as_uri = "http://10.0.1.68:7080/";
+config.as_uri = "http://192.168.192.251:7080/";
 config.ws_uri = "ws://192.168.99.100:8888/kurento";
 config.outputBitrate = 3000000;
 //the url of this server, this is where appRTC connects to
-config.appRTCUrl = '10.0.1.68:7080';
+config.appRTCUrl = '192.168.192.251:7080';
 //leave uris empty to not use turn
 config.turn = {
 	"username": "akashionata",

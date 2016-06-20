@@ -1,4 +1,4 @@
-var ws = new WebSocket('ws://' + location.host + '/ws');
+var ws = new WebSocket('ws://' + location.host + '/jWebrtc/ws');
 var videoInput;
 var videoOutput;
 var roomNameInput;
