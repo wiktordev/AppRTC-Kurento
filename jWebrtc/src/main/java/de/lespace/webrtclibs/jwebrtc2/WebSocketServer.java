@@ -8,6 +8,7 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import com.google.gson.Gson;
 import java.util.ArrayList;
+import java.util.List;
 
 /** 
  * @ServerEndpoint gives the relative name for the end point
@@ -30,7 +31,7 @@ public class WebSocketServer {
     private String port; //config.port;
 
     private final String kurentoClient = null;
-    public static ArrayList<Room> rooms = null;
+    public static List<Room> rooms = new ArrayList();
     
     
     /**
