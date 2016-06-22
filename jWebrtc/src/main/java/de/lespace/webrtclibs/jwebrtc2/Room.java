@@ -5,7 +5,11 @@
  */
 package de.lespace.webrtclibs.jwebrtc2;
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.websocket.Session;
 import org.kurento.client.MediaPipeline;
+import org.kurento.client.WebRtcEndpoint;
 
 /**
  * Room!
@@ -17,10 +21,12 @@ import org.kurento.client.MediaPipeline;
         public Sender sender;
         public String senderSdpOffer;
         public MediaPipeline pipeline;
-        
+        public Map<String, Receiver> receivers;  
+                
         public Room(String roomName) {
             this.roomName = roomName;
             this.sender = new Sender();
+            this.receivers = new HashMap();
         }
                     
         /**
@@ -78,6 +84,22 @@ import org.kurento.client.MediaPipeline;
     public void setPipeline(MediaPipeline pipeline) {
         this.pipeline = pipeline;
     }
+    
+    public Receiver getOrCreateReceiver(String sessionId, Session websocket, WebRtcEndpoint endpoint){
+        if(receivers.containsKey(sessionId)){
+            return receivers.get(sessionId);
+        }
+        else{
+                Receiver receiver = new Receiver();
+                receiver.websocket = websocket;
+                receiver.sessionId = sessionId;
+                receiver.videoEndpoint = endpoint;
+                this.receivers.put(sessionId,receiver);
+        }
+        
+        
+    }
+    
     }
 
 

@@ -156,7 +156,11 @@ public class WebSocketServer {
     }
 
     private void startWebRtc(Room room, String sessionId, Session session, String sdpOffer) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if(room == null || room.equals("")) throw new IllegalArgumentException("room is null");
+        
+        Sender sender = room.getSender();
+        if(sender == null || sender.endpoint == null) throw new IllegalArgumentException("no ");
+        
     }
     
      
