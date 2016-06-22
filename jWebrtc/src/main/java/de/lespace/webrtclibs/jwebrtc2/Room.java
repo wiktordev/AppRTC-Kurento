@@ -95,6 +95,7 @@ import org.kurento.client.WebRtcEndpoint;
                 receiver.sessionId = sessionId;
                 receiver.videoEndpoint = endpoint;
                 this.receivers.put(sessionId,receiver);
+                return receiver;
         }
         
         
