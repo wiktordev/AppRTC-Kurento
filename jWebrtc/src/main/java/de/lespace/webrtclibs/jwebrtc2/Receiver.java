@@ -20,7 +20,7 @@ public class Receiver {
     
 	public String sessionId;
 	public Session websocket;
-        public WebRtcEndpoint videoEndpoint;
+        public WebRtcEndpoint endpoint;
 	//public WebRtcEndpoint audioEndpoint;
 	public List candidateQueueVideo = new ArrayList();
         //public List candidateQueueAudio = new ArrayList();

@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 import org.kurento.client.MediaPipeline;
+import org.kurento.client.WebRtcEndpoint;
 
 /** 
  * @ServerEndpoint gives the relative name for the end point
@@ -166,6 +167,9 @@ public class WebSocketServer {
         if(receiver == null) throw new IllegalArgumentException("receiver not created");
         
         MediaPipeline pipeline = room.pipeline;
+        System.out.println("got pipeline");
+        WebRtcEndpoint _webRtcEndpoint = new WebRtcEndpoint.Builder(pipeline).build();
+        receiver.endpoint = _webRtcEndpoint;
         
         
     }
