@@ -21,11 +21,12 @@ import java.util.List;
 public class WebSocketServer {
 
     static void createRoom(String roomName) {
-        Room newRoom = new Room(roomName);
-        
+        Room r = new Room(roomName);
+        rooms.add(r);
     }
     
     private String sessionId;
+    private Session session;
     private String serverUrl; //config.appRTCUrl;
     private String ws_uri; //config.ws_uri;
     private String port; //config.port;
@@ -43,6 +44,7 @@ public class WebSocketServer {
     @OnOpen
     public void onOpen(Session session){
         this.sessionId = session.getId();
+        this.session = session;
         System.out.println("apprtcWs opened with sessionId " + sessionId); 
         /*try {
            // session.getBasicRemote().sendText("Connection from J2EE Established");
@@ -122,9 +124,10 @@ public class WebSocketServer {
    
  
     public static Room getRoom(String roomName) {
-           System.out.println("Looking for room:"+ roomName);
+           System.out.println("Looking for room:"+ roomName+" rooms size:"+rooms.size());
            for (int i = 0; i < rooms.size(); i++) {
                    if (rooms.get(i).getRoomName().equals(roomName)) {
+                           System.out.println("found room:"+rooms.get(i).getRoomName());
                            return rooms.get(i);
                    }
            }
@@ -136,7 +139,7 @@ public class WebSocketServer {
            
            for (int i = 0; i < rooms.size(); i++) {
                    if (rooms.get(i).getSender()!=null && 
-                           rooms.get(i).getSender().sessionId.equals("sessionId")){
+                           rooms.get(i).getSender().getSessionId().equals("sessionId")){
                            return rooms.get(i); //return callback(null, rooms[i]);
                    }
            }

@@ -8,10 +8,7 @@ package de.lespace.webrtclibs.jwebrtc2;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -19,11 +16,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.kurento.client.IceCandidate;
 import org.kurento.client.KurentoClient;
+import org.kurento.client.MediaPipeline;
 
 /**
- *
- * @author nico
+ * WebRTCServlet which manages all communication between  web, android and ios WebRTC candidates, 
+ * turn servers and kurento media server.
+ * 
+ * @author Nico Krause
+ * @version 0.1
  */
 public class WebRTCServlet extends HttpServlet {
     
@@ -40,20 +42,7 @@ public class WebRTCServlet extends HttpServlet {
                     "}";
     
     private static final Gson gson = new GsonBuilder().create();
-
-    public KurentoClient kurentoClient() {
-      return KurentoClient.create(System.getProperty("kms.url",default_KMS_WS_URI));
-    }
     
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         handle(request, response);
@@ -130,68 +119,86 @@ public class WebRTCServlet extends HttpServlet {
         out.flush();
     }
     
-        /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
+    private void handleTurn(HttpServletRequest request, HttpServletResponse response) 
+            throws IOException {
+        PrintWriter out = response.getWriter();
+        out.print(turn);
+        out.flush();
+    }
 
     private void handleMessage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         
         String ourPath = getOurPath(request);
         String[] segs = ourPath.split(Pattern.quote( "/" ));
-        
-        /*
-        System.out.println("path parts:"+segs.length);
-        
-        for (int x = 0; x < segs.length;x++){
-            System.out.println("path part:"+segs[x]);
-        }
-        */
-        
+       
         String roomName = (segs[segs.length-2]!=null) ?  segs[segs.length-2]  :  "empty";
 	String clientId = (segs[segs.length-1]!=null)? segs[segs.length-1] : "emptyID";
-        String body = getBody(request);
+        String body = Utils.getBody(request);
         
         System.out.println("roomName:"+roomName);
         System.out.println("clientId:"+clientId);
-        //System.out.println("message"+body);
-       
-        String responseJSON = "{\"test\": \"test\"}";
-        
-        if(WebSocketServer.getRoom(roomName)==null){
+     
+        if(WebSocketServer.getRoom(roomName)!=null){
            
             JsonObject jsonMessage = gson.fromJson(body, JsonObject.class);
     
             Room room =  WebSocketServer.getRoom(roomName);
-            System.out.println("type:"+jsonMessage.get("type"));
+            System.out.println("type:"+jsonMessage.get("type")+" room: "+room.roomName);
             
             switch (jsonMessage.get("type").getAsString()) {
                 case "candidate":
-                    Sender sender = room.sender;
-                    System.out.println("candidate:"+jsonMessage.get("candidate").getAsString());
+                {
+                    String messageCandidate = jsonMessage.get("candidate").getAsString();
+                    String messageLabel = jsonMessage.get("label").getAsString();
+                    System.out.println("candidate:"+messageCandidate+" label:"+messageLabel);
                     
+                    /*String rewrittenCandidate = "{"+
+					"candidate: \""+messageCandidate+"\","+
+					"sdpMid: \"sdparta_0\","+
+					"sdpMLineIndex: \""+messageLabel+"\""+
+                                        "}";*/
+                    
+                    IceCandidate candidate = new IceCandidate(
+                             jsonMessage.get("candidate").getAsString(),
+                             "sdparta_0",
+                             jsonMessage.get("label").getAsInt()); // jsonMessage.get("sdpMid").getAsString(),
+                    
+                    Sender sender = room.getSender();
+                    
+                    if (sender.endpoint!=null) {
+                        System.out.println("appRTC Ice Candidate addIceCandidate:"+ candidate);
+                        sender.endpoint.addIceCandidate(candidate);
+                        
+                    } else {
+                       //TODO? 
+                        // System.out.println("appRTC Ice Candidate  Queueing candidate"+sender.candidateQueue);
+                        sender.candidateQueue.add(candidate);
+                    }
 
                     break;
+                }
                 case "offer":
-                    String sdpOffer = jsonMessage.get("sdpOffer").getAsString();
-                    //String roomName = message.getRoomName();
-
-                    System.out.println("sdpOffer:"+sdpOffer);
-                    System.out.println("roomName:"+roomName);
-
-
+                {
+                    if (room.getSender() !=null && room.getSender().websocket !=null) {
+                       System.out.println("websocket present");
+                       Sender sender = room.getSender();
+                       
+                        startSendWebRtc(room,jsonMessage.get("sdp").getAsString());
+                    }
+                    else{ //no websocket is present
+                            room.setSenderSdpOffer(jsonMessage.get("sdp").getAsString());
+                    }
                     break;            
-                    
+                }
                 default:
                     throw new IllegalArgumentException("something else was called");
             }
                      
         }
+        
+        String responseJSON = "{\n" +
+            "\"result\": \"SUCCESS\"\n" +
+            "}";
         
         PrintWriter out = response.getWriter();
         out.print(responseJSON);
@@ -199,49 +206,33 @@ public class WebRTCServlet extends HttpServlet {
     
     }
     
-    private void handleTurn(HttpServletRequest request, HttpServletResponse response) 
-            throws IOException {
-         
-        PrintWriter out = response.getWriter();
-        out.print(turn);
-        out.flush();
-    
+  
+    public KurentoClient kurentoClient() {
+      return KurentoClient.create(System.getProperty("kms.url",default_KMS_WS_URI));
     }
     
-    public static String getBody(HttpServletRequest request) throws IOException {
-
-    String body = null;
-    StringBuilder stringBuilder = new StringBuilder();
-    BufferedReader bufferedReader = null;
-
-    try {
+    private MediaPipeline getPipeline(Room room){
+        if(room == null || room.equals("")) throw new IllegalArgumentException("room is null");
         
-        InputStream inputStream = request.getInputStream();
-        if (inputStream != null) {
-            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            char[] charBuffer = new char[128];
-            int bytesRead = -1;
-            while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-                stringBuilder.append(charBuffer, 0, bytesRead);
-            }
-        } else {
-            stringBuilder.append("");
+        if(room.getPipeline() != null){
+            System.out.println("returning saved pipeline");
+            return room.getPipeline();
         }
-        
-    } catch (IOException ex) {
-        throw ex;
-    } finally {
-        if (bufferedReader != null) {
-            try {
-                bufferedReader.close();
-            } catch (IOException ex) {
-                throw ex;
-            }
-        }
+        System.out.println("creating new pipeline from kurento client");
+        room.pipeline = kurentoClient().createMediaPipeline();
+        return room.pipeline; 
     }
-
-    body = stringBuilder.toString();
-    return body;
-}
+    
+    private void startSendWebRtc(Room room, String sdpOffer) {
+        if(room == null || room.equals("")) throw new IllegalArgumentException("room is null");
+        
+        Sender sender = room.getSender();
+        if(sender == null || sender.endpoint == null) throw new IllegalArgumentException("no ");
+        
+    }
+    
+    public String getServletInfo() {
+        return "The WebRTCSerlvet for MSC handles communication between WebRTC candidates";
+    }// </editor-fold>
 
 }

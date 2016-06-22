@@ -5,6 +5,8 @@
  */
 package de.lespace.webrtclibs.jwebrtc2;
 
+import org.kurento.client.MediaPipeline;
+
 /**
  * Room!
  * @author Nico Krause (nico@le-space.de)
@@ -13,9 +15,12 @@ package de.lespace.webrtclibs.jwebrtc2;
 
         public String roomName;
         public Sender sender;
+        public String senderSdpOffer;
+        public MediaPipeline pipeline;
         
         public Room(String roomName) {
             this.roomName = roomName;
+            this.sender = new Sender();
         }
                     
         /**
@@ -45,25 +50,35 @@ package de.lespace.webrtclibs.jwebrtc2;
         public void setSender(Sender sender) {
             this.sender = sender;
         }
+
+    /**
+     * @return the senderSdpOffer
+     */
+    public String getSenderSdpOffer() {
+        return senderSdpOffer;
+    }
+
+    /**
+     * @param senderSdpOffer the senderSdpOffer to set
+     */
+    public void setSenderSdpOffer(String senderSdpOffer) {
+        this.senderSdpOffer = senderSdpOffer;
+    }
+
+    /**
+     * @return the pipeline
+     */
+    public MediaPipeline getPipeline() {
+        return pipeline;
+    }
+
+    /**
+     * @param pipeline the pipeline to set
+     */
+    public void setPipeline(MediaPipeline pipeline) {
+        this.pipeline = pipeline;
+    }
     }
 
 
-    class Sender {
-        
-        public String sessionId;
-
-        /**
-         * @return the sessionId
-         */
-        public String getSessionId() {
-            return sessionId;
-        }
-
-        /**
-         * @param sessionId the sessionId to set
-         */
-        public void setSessionId(String sessionId) {
-            this.sessionId = sessionId;
-        }
-
-    }
+    
