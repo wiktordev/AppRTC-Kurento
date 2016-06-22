@@ -102,7 +102,15 @@ public class WebSocketServer {
 
                 System.out.println("sdpOffer:"+sdpOffer);
                 System.out.println("roomName:"+roomName);
-
+                
+                Room room = getRoom(roomName);
+                if(room ==null){
+                    System.err.println("no such room!");
+                }else{
+                    System.out.println("starting webrtc for room:");
+                    startWebRtc(room, sessionId, session, sdpOffer);
+                }
+                    
 
                 break;            
             case "onIceCandidate":
@@ -145,6 +153,10 @@ public class WebSocketServer {
            }
            //return callback(null, null);
            return null;
+    }
+
+    private void startWebRtc(Room room, String sessionId, Session session, String sdpOffer) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
      

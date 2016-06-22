@@ -4,7 +4,8 @@ This is a simple example project in nodejs and j2ee to demonstrate the compatibi
 
 see for implementations in the named platform folder.
 
-
-
+Documentation:
+--------------
+- http://doc-kurento.readthedocs.io/en/stable/tutorials/java/tutorial-one2one-adv.html
 
 

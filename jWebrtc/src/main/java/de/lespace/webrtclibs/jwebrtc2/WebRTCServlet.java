@@ -143,6 +143,7 @@ public class WebRTCServlet extends HttpServlet {
             JsonObject jsonMessage = gson.fromJson(body, JsonObject.class);
     
             Room room =  WebSocketServer.getRoom(roomName);
+            //System.out.println("body:"+body);
             System.out.println("type:"+jsonMessage.get("type")+" room: "+room.roomName);
             
             switch (jsonMessage.get("type").getAsString()) {
@@ -171,7 +172,7 @@ public class WebRTCServlet extends HttpServlet {
                         
                     } else {
                        //TODO? 
-                        // System.out.println("appRTC Ice Candidate  Queueing candidate"+sender.candidateQueue);
+                        System.out.println("appRTC Ice Candidate  Queueing candidate"+sender.candidateQueue);
                         sender.candidateQueue.add(candidate);
                     }
 
@@ -179,11 +180,12 @@ public class WebRTCServlet extends HttpServlet {
                 }
                 case "offer":
                 {
+                   // System.out.println("offer wurde auch geschickt.");
                     if (room.getSender() !=null && room.getSender().websocket !=null) {
                        System.out.println("websocket present");
                        Sender sender = room.getSender();
                        
-                        startSendWebRtc(room,jsonMessage.get("sdp").getAsString());
+                       startSendWebRtc(room,jsonMessage.get("sdp").getAsString());
                     }
                     else{ //no websocket is present
                             room.setSenderSdpOffer(jsonMessage.get("sdp").getAsString());
@@ -228,6 +230,8 @@ public class WebRTCServlet extends HttpServlet {
         
         Sender sender = room.getSender();
         if(sender == null || sender.endpoint == null) throw new IllegalArgumentException("no ");
+        
+        
         
     }
     
