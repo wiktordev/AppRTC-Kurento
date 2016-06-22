@@ -91,27 +91,27 @@ public class WebSocketServer {
         System.out.println("apprtcWs " + session.getId() + " received message "+ message);
         System.out.println("apprtcWs  clientId:" + clientId+ " roomId:"+roomId);
         switch (message.getCmd()) {
-        case "register":
-            
-            break;
-        case "startWebRtc":
-            String sdpOffer = message.getSdpOffer();
-            //String roomName = message.getRoomName();
-            
-            System.out.println("sdpOffer:"+sdpOffer);
-            System.out.println("roomName:"+roomName);
-            
-            
-            break;            
-        case "onIceCandidate":
-            
-            break;
-        case "stop":
-            
-            break;
-        default:
-            throw new IllegalArgumentException("something else was called");
-     }
+            case "register":
+
+                break;
+            case "startWebRtc":
+                String sdpOffer = message.getSdpOffer();
+                //String roomName = message.getRoomName();
+
+                System.out.println("sdpOffer:"+sdpOffer);
+                System.out.println("roomName:"+roomName);
+
+
+                break;            
+            case "onIceCandidate":
+
+                break;
+            case "stop":
+
+                break;
+            default:
+                throw new IllegalArgumentException("something else was called");
+        }
     }
         /* 
         try {

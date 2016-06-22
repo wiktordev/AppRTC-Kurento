@@ -56,4 +56,8 @@ class Candidate {
         public void setSdpMLineIndex(String sdpMLineIndex) {
             this.sdpMLineIndex = sdpMLineIndex;
         }
+        
+        public String toString(){
+            return  "candidate:"+candidate+" sdpMid:"+sdpMid+" sdpMLineIndex:"+sdpMLineIndex;
+        }
     }

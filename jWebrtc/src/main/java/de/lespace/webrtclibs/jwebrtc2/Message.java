@@ -16,11 +16,12 @@ class Message {
         private String roomId;
         private String roomName;
         private String cmd;
+        private String type;
         private String sdpOffer;
         private Candidate candidate;
         
         public String toString(){
-                return "cmd:"+cmd+" room: "+getRoomName();
+                return "cmd:"+getCmd()+" room: "+getRoomName();
         }   
 
         /**
@@ -107,4 +108,18 @@ class Message {
         public void setRoomName(String roomName) {
             this.roomName = roomName;
         }
+
+    /**
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * @param type the type to set
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
     }
