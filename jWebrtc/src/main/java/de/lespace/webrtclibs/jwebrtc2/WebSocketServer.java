@@ -9,6 +9,7 @@ import javax.websocket.server.ServerEndpoint;
 import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
+import org.kurento.client.MediaPipeline;
 
 /** 
  * @ServerEndpoint gives the relative name for the end point
@@ -159,7 +160,13 @@ public class WebSocketServer {
         if(room == null || room.equals("")) throw new IllegalArgumentException("room is null");
         
         Sender sender = room.getSender();
-        if(sender == null || sender.endpoint == null) throw new IllegalArgumentException("no ");
+        if(sender == null || sender.endpoint == null) throw new IllegalArgumentException("sender has no endpoint");
+        
+        Receiver receiver = room.getOrCreateReceiver(sessionId, session, null);
+        if(receiver == null) throw new IllegalArgumentException("receiver not created");
+        
+        MediaPipeline pipeline = room.pipeline;
+        
         
     }
     
