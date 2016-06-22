@@ -93,7 +93,7 @@ import org.kurento.client.WebRtcEndpoint;
                 Receiver receiver = new Receiver();
                 receiver.websocket = websocket;
                 receiver.sessionId = sessionId;
-                receiver.Receiver.this.endpoint = endpoint;
+                receiver.endpoint = endpoint;
                 this.receivers.put(sessionId,receiver);
                 return receiver;
         }

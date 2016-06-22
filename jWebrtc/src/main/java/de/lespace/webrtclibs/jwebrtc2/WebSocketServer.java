@@ -7,10 +7,17 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.kurento.client.EventListener;
 import org.kurento.client.MediaPipeline;
+import org.kurento.client.OnIceCandidateEvent;
 import org.kurento.client.WebRtcEndpoint;
+import org.kurento.jsonrpc.JsonUtils;
 
 /** 
  * @ServerEndpoint gives the relative name for the end point
@@ -134,10 +141,10 @@ public class WebSocketServer {
    
  
     public static Room getRoom(String roomName) {
-           System.out.println("Looking for room:"+ roomName+" rooms size:"+rooms.size());
+          // System.out.println("Looking for room:"+ roomName+" rooms size:"+rooms.size());
            for (int i = 0; i < rooms.size(); i++) {
                    if (rooms.get(i).getRoomName().equals(roomName)) {
-                           System.out.println("found room:"+rooms.get(i).getRoomName());
+                          // System.out.println("found room:"+rooms.get(i).getRoomName());
                            return rooms.get(i);
                    }
            }
@@ -157,7 +164,7 @@ public class WebSocketServer {
            return null;
     }
 
-    private void startWebRtc(Room room, String sessionId, Session session, String sdpOffer) {
+    private void startWebRtc(Room room, String sessionId, final Session session, String sdpOffer) {
         if(room == null || room.equals("")) throw new IllegalArgumentException("room is null");
         
         Sender sender = room.getSender();
@@ -168,8 +175,40 @@ public class WebSocketServer {
         
         MediaPipeline pipeline = room.pipeline;
         System.out.println("got pipeline");
+        
         WebRtcEndpoint _webRtcEndpoint = new WebRtcEndpoint.Builder(pipeline).build();
         receiver.endpoint = _webRtcEndpoint;
+        
+        String sdpAnswer = receiver.endpoint.processOffer(sdpOffer);
+        sender.endpoint.connect(receiver.endpoint);
+        
+        receiver.endpoint.addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
+              @Override
+              public void onEvent(OnIceCandidateEvent event) {
+                JsonObject response = new JsonObject();
+                response.addProperty("id", "iceCandidate");
+                response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
+                  synchronized (session) {
+                    try {
+                        session.getBasicRemote().sendText(response.toString());
+                    } catch (IOException ex) {
+                        Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                 }
+              }
+        });
+        
+        receiver.endpoint.gatherCandidates();
+        receiver.endpoint.connect(sender.endpoint);
+        
+        /*
+        if (receiver.candidateQueueVideo!=null) {
+                while (receiver.candidateQueueVideo.size()>0) {
+                       // console.log("adding candidate from queue");
+                        candidate = receiver.candidateQueueVideo;
+                        receiver.videoEndpoint.addIceCandidate(candidate);
+                }
+        }*/
         
         
     }

@@ -310,6 +310,7 @@ app.all('/message/:roomname/:clientId', function(req, res) {
 				if (room.sender && room.sender.websocket) {
 					var sender = room.sender;
 					console.log('yay websocket is present');
+					
 					var onCandidate = function(event) {
 						// console.log("onCandidate");
 						var candidate = kurento.register.complexTypes.IceCandidate(event.candidate);
@@ -324,6 +325,7 @@ app.all('/message/:roomname/:clientId', function(req, res) {
 						};
 						sender.websocket.send(JSON.stringify(candidateAnswer));
 					};
+
 					startSendWebRtc(room, message.sdp, onCandidate, function(error, sdpAnswer) {
 						console.log('started webrtc in POST', error);
 						var sendSdpAnswer = {
@@ -462,6 +464,7 @@ function startSendWebRtc(room, sdpOffer, onCandidate, callback) {
 };
 
 function startWebRtc(room, sessionId, ws, sdpOffer, callback) {
+	
 	if (!room) {
 		return callback('startWebRtc: No Room');
 	}

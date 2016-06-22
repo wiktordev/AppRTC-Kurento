@@ -137,28 +137,19 @@ public class WebRTCServlet extends HttpServlet {
         
         System.out.println("roomName:"+roomName);
         System.out.println("clientId:"+clientId);
-     
-        if(WebSocketServer.getRoom(roomName)!=null){
-           
-            JsonObject jsonMessage = gson.fromJson(body, JsonObject.class);
-    
-            Room room =  WebSocketServer.getRoom(roomName);
-            //System.out.println("body:"+body);
-            System.out.println("type:"+jsonMessage.get("type")+" room: "+room.roomName);
-            
-            switch (jsonMessage.get("type").getAsString()) {
+        
+        JsonObject jsonMessage = gson.fromJson(body, JsonObject.class);
+        String type = jsonMessage.get("type").getAsString();
+        
+        Room room = WebSocketServer.getRoom(roomName);
+        
+        if(room!=null){
+            switch (type) {
                 case "candidate":
                 {
                     String messageCandidate = jsonMessage.get("candidate").getAsString();
                     String messageLabel = jsonMessage.get("label").getAsString();
-                    System.out.println("candidate:"+messageCandidate+" label:"+messageLabel);
-                    
-                    /*String rewrittenCandidate = "{"+
-					"candidate: \""+messageCandidate+"\","+
-					"sdpMid: \"sdparta_0\","+
-					"sdpMLineIndex: \""+messageLabel+"\""+
-                                        "}";*/
-                    
+
                     IceCandidate candidate = new IceCandidate(
                              jsonMessage.get("candidate").getAsString(),
                              "sdparta_0",
@@ -167,12 +158,12 @@ public class WebRTCServlet extends HttpServlet {
                     Sender sender = room.getSender();
                     
                     if (sender.endpoint!=null) {
-                        System.out.println("appRTC Ice Candidate addIceCandidate:"+ candidate);
+                      //  System.out.println("appRTC Ice Candidate addIceCandidate:"+ candidate);
                         sender.endpoint.addIceCandidate(candidate);
                         
                     } else {
-                       //TODO? 
-                        System.out.println("appRTC Ice Candidate  Queueing candidate"+sender.candidateQueue);
+                  
+                       // System.out.println("appRTC Ice Candidate  Queueing candidate"+sender.candidateQueue);
                         sender.candidateQueue.add(candidate);
                     }
 
@@ -180,11 +171,11 @@ public class WebRTCServlet extends HttpServlet {
                 }
                 case "offer":
                 {
-                   // System.out.println("offer wurde auch geschickt.");
+                     System.out.println("offer wurde auch geschickt.");
+                     //only necessary when register happend over websocket 
                     if (room.getSender() !=null && room.getSender().websocket !=null) {
                        System.out.println("websocket present");
                        Sender sender = room.getSender();
-                       
                        startSendWebRtc(room,jsonMessage.get("sdp").getAsString());
                     }
                     else{ //no websocket is present
@@ -196,6 +187,9 @@ public class WebRTCServlet extends HttpServlet {
                     throw new IllegalArgumentException("something else was called");
             }
                      
+        }else{
+            
+            System.out.println("no room!!!!!!!!!!!!!");
         }
         
         String responseJSON = "{\n" +
