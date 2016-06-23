@@ -99,7 +99,7 @@ apprtcWs.on('connection', function(ws) {
 		console.log('apprtcWs ' + sessionId + ' received message ', message);
 		var clientId = message.clientid ? message.clientid : "empty";
 		var roomname = message.roomid ? message.roomid : "emptyID";
-		console.log('rooms:'+JSON.stringify(rooms));
+	
 		switch (message.cmd) {
 			case 'register':
 				console.log('register called');
@@ -111,6 +111,7 @@ apprtcWs.on('connection', function(ws) {
 							error: err
 						}));
 					}
+					
 					if (!room) {
 						console.error("Room not found");
 						ws.send(JSON.stringify({
@@ -118,6 +119,7 @@ apprtcWs.on('connection', function(ws) {
 							error: 'Room not found'
 						}));
 					}
+
 					if (!room.sender) {
 						room.sender = new Sender({
 							sessionId: sessionId,
@@ -129,6 +131,7 @@ apprtcWs.on('connection', function(ws) {
 						room.sender.clientId = clientId;
 						room.sender.sessionId = sessionId;
 					}
+
 					// console.log('sender created', room.sender);
 					// console.log(room);
 					//TODO: what if already offered?
@@ -139,7 +142,7 @@ apprtcWs.on('connection', function(ws) {
 				break;
 
 			case 'startWebRtc':
-				console.log('startWebRtc: rooms:'+JSON.stringify(rooms));
+				
 				var sdpOffer = message.sdpOffer;
 				var roomName = message.roomName;
 				getRoom(roomName, function(err, room) {
@@ -313,7 +316,7 @@ app.all('/message/:roomname/:clientId', function(req, res) {
 					
 					var onCandidate = function(event) {
 						// console.log("onCandidate");
-						var candidate = kurento.register.complexTypes.IceCandidate(event.candidate);
+					var candidate = kurento.register.complexTypes.IceCandidate(event.candidate);
 						var candidateAnswer = {
 							msg: {
 								type: 'candidate',
@@ -551,7 +554,7 @@ function onIceCandidate(room, sessionId, _candidate) {
 		console.log('onIceCandidate no receivers');
 		return null;//callback('Error getting Receiver');
 	}
-	console.log('onIceCandidate receiver', receiver);
+	//console.log('onIceCandidate receiver', receiver);
 
 	if (receiver.videoEndpoint) {
 		console.info('Adding candidate');
