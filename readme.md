@@ -10,6 +10,9 @@ see for implementations in the named platform folder.
 
 
 ###Todo:
+- implement simple call response within browser use kurento one2one-call example
+- android version works on websocket only / port android project 
+
 - login user (websocket session id + username) and get list of logged in users in android and 
 - user calls another user from both sides
 - call user - receiver accept / cancel call 

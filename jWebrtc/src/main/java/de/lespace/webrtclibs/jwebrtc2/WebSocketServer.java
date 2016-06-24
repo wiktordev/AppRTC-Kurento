@@ -61,7 +61,7 @@ public class WebSocketServer {
     @OnMessage
     public void onMessage(String _message, Session session){
         
-       // System.out.println("apprtcWs " + session.getId() + " received message "+ _message);
+        System.out.println("apprtcWs " + session.getId() + " received message "+ _message);
         JsonObject jsonMessage = gson.fromJson(_message, JsonObject.class);
         UserSession user = registry.getBySession(session);
 

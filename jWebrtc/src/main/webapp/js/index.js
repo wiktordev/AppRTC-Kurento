@@ -15,7 +15,7 @@
  *
  */
 
-var ws = new WebSocket('wss://' + location.host + '/ws');
+var ws = new WebSocket('ws://' + location.host + '/jWebrtc/ws');
 var videoInput;
 var videoOutput;
 var webRtcPeer;
