@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import javax.servlet.http.HttpServletRequest;
+import org.kurento.client.KurentoClient;
+import org.kurento.client.MediaPipeline;
 
 /**
  *
@@ -17,6 +19,22 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class Utils {
     
+    public static KurentoClient kurentoClient() {
+      return KurentoClient.create(System.getProperty("kms.url",Config.default_KMS_WS_URI));
+    }
+    
+    public static MediaPipeline getPipeline(Room room){
+        if(room == null || room.equals("")) throw new IllegalArgumentException("room is null");
+        
+        if(room.getPipeline() != null){
+            System.out.println("returning saved pipeline");
+            return room.getPipeline();
+        }
+        
+        System.out.println("creating new pipeline to kurento server: ");
+        room.pipeline = kurentoClient().createMediaPipeline();
+        return room.pipeline; 
+    }
     public static String getBody(HttpServletRequest request) throws IOException {
 
     String body = null;

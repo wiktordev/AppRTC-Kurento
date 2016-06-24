@@ -10,16 +10,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.kurento.client.EventListener;
 import org.kurento.client.IceCandidate;
-import org.kurento.client.MediaPipeline;
 import org.kurento.client.OnIceCandidateEvent;
-import org.kurento.client.WebRtcEndpoint;
 import org.kurento.jsonrpc.JsonUtils;
+import org.slf4j.LoggerFactory;
 
 /** 
  * @ServerEndpoint gives the relative name for the end point
@@ -30,46 +28,21 @@ import org.kurento.jsonrpc.JsonUtils;
  */
 @ServerEndpoint("/ws") 
 public class WebSocketServer {
-
-    static Room createRoom(String roomName) {
-        Room r = new Room(roomName);
-        rooms.add(r);
-        System.out.println("now rooms:"+rooms.toString()+" regisered.");
-        return r;
-    }
     
-    private String sessionId;
-    private Session session;
-    private String serverUrl; //config.appRTCUrl;
-    private String ws_uri; //config.ws_uri;
-    private String port; //config.port;
     private static final Gson gson = new GsonBuilder().create();   
-    private final String kurentoClient = null;
-    public static List<Room> rooms = new ArrayList();
-    private Room room;
+    private final ConcurrentHashMap<String, CallMediaPipeline> pipelines = new ConcurrentHashMap(); //<String, CallMediaPipeline>
+    public static UserRegistry registry = new UserRegistry();
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(WebSocketServer.class);
     
-    
-    /**
-     * @OnOpen allows us to intercept the creation of a new session.
-     * The session class allows us to send data to the user.
-     * In the method onOpen, we'll let the user know that the handshake was 
-     * successful.
-     */
     @OnOpen
     public void onOpen(Session session){
-        this.sessionId = session.getId();
-        this.session = session;
-        System.out.println("apprtcWs opened with sessionId " + sessionId); 
+        System.out.println("apprtcWs opened with sessionId " + session.getId()); 
     }
     
     @OnError
     public void onError(Session session, Throwable error){
-        System.out.println("apprtcWs Error " + sessionId );
+        System.out.println("apprtcWs Error " + session.getId() );
         if(error!=null)System.err.println(" error:"+ error); 
-        //TODO 
-        //getRoomBySession(sessionId)  
-        //stopReceive(room)
-        //stopSend(room()
     }
     
     /**
@@ -79,10 +52,6 @@ public class WebSocketServer {
     @OnClose
     public void onClose(Session session){
         System.out.println("apprtcWs closed connection " + session.getId() + " ");
-        //TODO 
-        //getRoomBySession(sessionId)  
-        //stopReceive(room)
-        //stopSend(room()
     }
  
     /**
@@ -94,208 +63,268 @@ public class WebSocketServer {
         
        // System.out.println("apprtcWs " + session.getId() + " received message "+ _message);
         JsonObject jsonMessage = gson.fromJson(_message, JsonObject.class);
-        
-        String cmd = jsonMessage.get("cmd").getAsString();
-        switch (cmd) {
-            case "register":
-            {
-                System.out.println("register callled");
-                String roomid = jsonMessage.get("roomid").getAsString();
-                
-                Room room = getRoom(roomid);
-                if(room ==null){
-                    System.out.println("no such room  -creating room");
-                    System.out.println("creating room");
-                    room = createRoom(roomid);
-                    System.out.println("room created!"+roomid);
-                }
-                
-                room.sender.websocket = session;
-                room.sender.sessionId = session.getId();
-                
-                System.out.println("registered sender with sessionId:"+room.sender.sessionId+" and room "+room.roomName);
-            }
-                break;
-            case "startWebRtc":
-            {
-                String sdpOffer = jsonMessage.get("sdpOffer").getAsString();
-                String roomName = jsonMessage.get("roomName").getAsString();
-                
-                Room room = getRoom(roomName);
-                if(room ==null){
-                   
-                    System.err.println("responding to websocket: Room not found");
-                    JsonObject response = new JsonObject();
-                    response.add("msg", JsonUtils.toJsonObject(new JsonObject()));
-                    response.addProperty("error", "Room not found");
-                    synchronized (session) {
-                    try {
-                        session.getBasicRemote().sendText(response.toString());
-                    } catch (IOException ex) {
-                        Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                 }
-                }else{
-                    System.out.println("starting webrtc for room:"+roomName);
-                    startWebRtc(room, sessionId, session, sdpOffer);
-                }
-                    
-            }
-                break;            
-            case "onIceCandidate":
-            {
-                //System.out.println("onIceCandidate:"+jsonMessage.toString());
-                String roomName = jsonMessage.get("roomName").getAsString();                
-                Room room = getRoom(roomName);
-                if (room==null) {
-                    try {
-                         JsonObject response = new JsonObject();
-                         response.addProperty("id", "error");
-                         response.addProperty("message","Room not found");
-                         session.getBasicRemote().sendText(response.toString());
-                    
-                    } catch (IOException ex) {
-                        Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-                    } 
-                    break;
-                 }
-				
-                //console.log('onIceCandidate called');
-                Receiver receiver = room.receivers.get(session.getId());
-                if (receiver == null) {
-                        System.err.println("onIceCandidate no receivers");
-                        break; 
-                }
-                System.out.println("onIceCandidate: room has current receiver:"+receiver.sessionId);
-             
-                JsonObject candidateJson = jsonMessage.get("candidate").getAsJsonObject();
-                
-                IceCandidate candidate = new IceCandidate(
-                        candidateJson.get("candidate").getAsString(),
-                        candidateJson.get("sdpMid").getAsString(), 
-                        candidateJson.get("sdpMLineIndex").getAsInt()
-                );
-              
-                if (receiver.endpoint!=null) {
-                        receiver.endpoint.addIceCandidate(candidate);
-                } else {
-                        System.out.println("Queueing candidate");
-                        receiver.candidateQueue.add(candidate);
-                }
-                
-                break;
-            }
-            case "stop":
+        UserSession user = registry.getBySession(session);
 
-                break;
-            case "send":
-                System.out.println("stopped transmission");
-                
-                break; 
-            default:
-                throw new IllegalArgumentException("something else was called");
+        if (user != null) {
+          log.debug("Incoming message from user '{}': {}", user.getName(), jsonMessage);
+        } else {
+          log.debug("Incoming message from new user: {}", jsonMessage);
+        }
+
+        switch (jsonMessage.get("id").getAsString()) {
+          case "register":
+            try {
+              register(session, jsonMessage);
+            } catch (Exception e) {
+              handleErrorResponse(e, session, "resgisterResponse");
+            }
+            break;
+          case "call":
+            try {
+              call(user, jsonMessage);
+            } catch (Exception e) {
+              handleErrorResponse(e, session, "callResponse");
+            }
+            break;
+          case "incomingCallResponse":
+            {
+                try{
+                    incomingCallResponse(user, jsonMessage);
+                } catch (IOException ex) {
+                    Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            break;
+          case "onIceCandidate": {
+            JsonObject candidate = jsonMessage.get("candidate").getAsJsonObject();
+            if (user != null) {
+              IceCandidate cand = new IceCandidate(candidate.get("candidate").getAsString(),
+                  candidate.get("sdpMid").getAsString(), candidate.get("sdpMLineIndex").getAsInt());
+              user.addCandidate(cand);
+            }
+            break;
+          }
+          case "stop":
+            {
+                try {
+                    stop(session);
+                } catch (IOException ex) {
+                    Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            break;
+          default:
+            break;
         }
     }
-        /* 
+
+    private void handleErrorResponse(Exception throwable, Session session, String responseId){
         try {
-            session.getBasicRemote().sendText(message);
+            stop(session);
         } catch (IOException ex) {
-            ex.printStackTrace();
-        }*/
-   
- 
-    public static Room getRoom(String roomName) {
-          // System.out.println("Looking for room:"+ roomName+" rooms size:"+rooms.size());
-           for (int i = 0; i < rooms.size(); i++) {
-                   if (rooms.get(i).getRoomName().equals(roomName)) {
-                          // System.out.println("found room:"+rooms.get(i).getRoomName());
-                           return rooms.get(i);
-                   }
-           }
-           return null;
-   }
-
-    public static Room getRoomBySession(String sessionId) {
-           System.out.println("Looking for room with session:");
-           
-           for (int i = 0; i < rooms.size(); i++) {
-                   if (rooms.get(i).getSender()!=null && 
-                           rooms.get(i).getSender().getSessionId().equals("sessionId")){
-                           return rooms.get(i); //return callback(null, rooms[i]);
-                   }
-           }
-           //return callback(null, null);
-           return null;
+            Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        log.error(throwable.getMessage(), throwable);
+        JsonObject response = new JsonObject();
+        response.addProperty("id", responseId);
+        response.addProperty("response", "rejected");
+        response.addProperty("message", throwable.getMessage());
+        try {
+            session.getBasicRemote().sendText(response.toString());
+        } catch (IOException ex) {
+            Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
-    private void startWebRtc(Room room, String sessionId, final Session session, String sdpOffer) {
-        if(room == null || room.equals("")) throw new IllegalArgumentException("room is null");
-        
-        Sender sender = room.getSender();
-        if(sender == null || sender.endpoint == null) throw new IllegalArgumentException("sender has no endpoint");
-        
-        final Receiver receiver = room.getOrCreateReceiver(sessionId, session, null);
-        if(receiver == null) throw new IllegalArgumentException("receiver not created");
-        
-        MediaPipeline pipeline = room.pipeline;
-        System.out.println("got pipeline");
-        
-        WebRtcEndpoint _webRtcEndpoint = new WebRtcEndpoint.Builder(pipeline).build();
-        receiver.endpoint = _webRtcEndpoint;
-        
-        if (receiver.candidateQueue!=null) {
-                while (receiver.candidateQueue.size()>0) {
-                    System.out.println("adding ice candidates from candidateQueue:"+receiver.candidateQueue.size()+"' left");
-                    IceCandidate candidate = receiver.candidateQueue.remove(receiver.candidateQueue.size()-1);
-                    receiver.endpoint.addIceCandidate(candidate);
-                }
-        }
-        
-        String sdpAnswer = receiver.endpoint.processOffer(sdpOffer);
-        sender.endpoint.connect(receiver.endpoint);
-        System.out.println("connected sender endpoint with receiver endpoint");
-         
-       receiver.endpoint.addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
+  private void register(Session session, JsonObject jsonMessage) throws IOException {
+    String name = jsonMessage.getAsJsonPrimitive("name").getAsString();
+    Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO, "register called:"+name);
+    UserSession caller = new UserSession(session, name);
+    String responseMsg = "accepted";
+    if (name.isEmpty()) {
+      responseMsg = "rejected: empty user name";
+    } else if (registry.exists(name)) {
+      responseMsg = "rejected: user '" + name + "' already registered";
+    } else {
+      registry.register(caller);
+    }
+
+    JsonObject response = new JsonObject();
+    response.addProperty("id", "resgisterResponse");
+    response.addProperty("response", responseMsg);
+    caller.sendMessage(response);
+  }
+
+  private void call(UserSession caller, JsonObject jsonMessage) throws IOException {
+    String to = jsonMessage.get("to").getAsString();
+    String from = jsonMessage.get("from").getAsString();
+    JsonObject response = new JsonObject();
+
+    if (registry.exists(to)) {
+      
+      caller.setSdpOffer(jsonMessage.getAsJsonPrimitive("sdpOffer").getAsString());
+      caller.setCallingTo(to);
+
+      response.addProperty("id", "incomingCall");
+      response.addProperty("from", from);
+
+      UserSession callee = registry.getByName(to);
+      callee.sendMessage(response);
+      callee.setCallingFrom(from);
+    } else {
+      
+      response.addProperty("id", "callResponse");
+      response.addProperty("response", "rejected: user '" + to + "' is not registered");
+
+      caller.sendMessage(response);
+    }
+  }
+
+  private void incomingCallResponse(final UserSession callee, JsonObject jsonMessage)
+      throws IOException {
+    
+    String callResponse = jsonMessage.get("callResponse").getAsString();
+    String from = jsonMessage.get("from").getAsString();
+    final UserSession calleer = registry.getByName(from);
+    String to = calleer.getCallingTo();
+
+    if ("accept".equals(callResponse)) {
+      log.debug("Accepted call from '{}' to '{}'", from, to);
+
+      CallMediaPipeline pipeline = null;
+      try {
+        pipeline = new CallMediaPipeline(Utils.kurentoClient());
+        pipelines.put(calleer.getSessionId(), pipeline);
+        pipelines.put(callee.getSessionId(), pipeline);
+
+        callee.setWebRtcEndpoint(pipeline.getCalleeWebRtcEp());
+        pipeline.getCalleeWebRtcEp()
+            .addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
               @Override
               public void onEvent(OnIceCandidateEvent event) {
-                System.out.println("receiver endpoint onIceCandidate:");
                 JsonObject response = new JsonObject();
                 response.addProperty("id", "iceCandidate");
                 response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
-                  synchronized (session) {
-                    try {
-                        System.out.println("sending candidate to receiver.");
-                        receiver.websocket.getBasicRemote().sendText(response.toString());
-                    } catch (IOException ex) {
-                        Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                 }
+                try {
+                  synchronized (callee.getSession()) {
+                    callee.getSession().getBasicRemote().sendText(response.toString());
+                  }
+                } catch (IOException e) {
+                  log.debug(e.getMessage());
+                }
               }
-        });
-        
-        System.out.println("sending sdpAnswer over websocket back to sender"+sdpAnswer);
-        synchronized (receiver.websocket) {
-            try {
-                System.out.println("sdpAnswer sent to "+sender.websocket.getId());
-                System.out.println(sdpAnswer);
-                JsonObject sdpAnswerJson = new JsonObject();
-                sdpAnswerJson.addProperty("id", "startResponse");
-                sdpAnswerJson.addProperty("sdpAnswer", sdpAnswer);
-					
-                session.getBasicRemote().sendText(sdpAnswerJson.toString());
-            
-            } catch (IOException ex) {
-                Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        receiver.endpoint.gatherCandidates();
-        receiver.endpoint.connect(sender.endpoint);
-        
+            });
 
-        
-        
+        calleer.setWebRtcEndpoint(pipeline.getCallerWebRtcEp());
+        pipeline.getCallerWebRtcEp()
+            .addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
+
+              @Override
+              public void onEvent(OnIceCandidateEvent event) {
+                JsonObject response = new JsonObject();
+                response.addProperty("id", "iceCandidate");
+                response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
+                try {
+                  synchronized (calleer.getSession()) {
+                    calleer.getSession().getBasicRemote().sendText(response.toString());
+                  }
+                } catch (IOException e) {
+                  log.debug(e.getMessage());
+                }
+              }
+            });
+
+        String calleeSdpOffer = jsonMessage.get("sdpOffer").getAsString();
+        String calleeSdpAnswer = pipeline.generateSdpAnswerForCallee(calleeSdpOffer);
+        JsonObject startCommunication = new JsonObject();
+        startCommunication.addProperty("id", "startCommunication");
+        startCommunication.addProperty("sdpAnswer", calleeSdpAnswer);
+
+        synchronized (callee) {
+          callee.sendMessage(startCommunication);
+        }
+
+        pipeline.getCalleeWebRtcEp().gatherCandidates();
+
+        String callerSdpOffer = registry.getByName(from).getSdpOffer();
+        String callerSdpAnswer = pipeline.generateSdpAnswerForCaller(callerSdpOffer);
+        JsonObject response = new JsonObject();
+        response.addProperty("id", "callResponse");
+        response.addProperty("response", "accepted");
+        response.addProperty("sdpAnswer", callerSdpAnswer);
+
+        synchronized (calleer) {
+          calleer.sendMessage(response);
+        }
+
+        pipeline.getCallerWebRtcEp().gatherCandidates();
+
+      } catch (Throwable t) {
+          
+        log.error(t.getMessage(), t);
+
+        if (pipeline != null) {
+          pipeline.release();
+        }
+       
+        pipelines.entrySet();
+        pipelines.remove(calleer.getSessionId());
+        pipelines.remove(callee.getSessionId());
+
+        JsonObject response = new JsonObject();
+        response.addProperty("id", "callResponse");
+        response.addProperty("response", "rejected");
+        calleer.sendMessage(response);
+
+        response = new JsonObject();
+        response.addProperty("id", "stopCommunication");
+        callee.sendMessage(response);
+      }
+
+    } else {
+      JsonObject response = new JsonObject();
+      response.addProperty("id", "callResponse");
+      response.addProperty("response", "rejected");
+      calleer.sendMessage(response);
     }
+  }
+
+  public void stop(Session session) throws IOException {
     
+    String sessionId = session.getId();
+    
+    if (pipelines.containsKey(sessionId)) {
+       
+      CallMediaPipeline pipeline = pipelines.remove(sessionId);
+      pipeline.release();
+
+      // Both users can stop the communication. A 'stopCommunication'
+      // message will be sent to the other peer.
+      UserSession stopperUser = registry.getBySession(session);
+      if (stopperUser != null) {
+        UserSession stoppedUser = (stopperUser.getCallingFrom() != null)
+            ? registry.getByName(stopperUser.getCallingFrom())
+            : stopperUser.getCallingTo() != null ? registry.getByName(stopperUser.getCallingTo())
+                : null;
+
+        if (stoppedUser != null) {
+          JsonObject message = new JsonObject();
+          message.addProperty("id", "stopCommunication");
+          stoppedUser.sendMessage(message);
+          stoppedUser.clear();
+        }
+        stopperUser.clear();
+      }
+
+    }
+  }
+
+
+
+ 
+
+
+
      
    
 }

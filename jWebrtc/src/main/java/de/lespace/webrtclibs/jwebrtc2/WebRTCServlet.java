@@ -10,6 +10,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.kurento.client.EventListener;
 import org.kurento.client.IceCandidate;
-import org.kurento.client.KurentoClient;
 import org.kurento.client.MediaPipeline;
 import org.kurento.client.OnIceCandidateEvent;
 import org.kurento.client.WebRtcEndpoint;
@@ -34,22 +35,9 @@ import org.kurento.jsonrpc.JsonUtils;
  * @version 0.1
  */
 public class WebRTCServlet extends HttpServlet {
-    
-    String default_KMS_WS_URI = "ws://192.168.43.251:8888/kurento";
-    //String default_KMS_WS_URI = "ws://www.le-space.de:8888/kurento";
-    String serverUrl = "192.168.43.251:8080/jWebrtc";
-    //String turn = "{}";
-    String turn = "{\n" +
-                    "	\"username\": \"akashionata\",\n" +
-                    "	\"password\": \"silkroad2015\",\n" +
-                    "	\"uris\": [\n" +
-                    "		\"turn:5.9.154.226:3478\",\n" +
-                    "		\"turn:5.9.154.226:3478?transport=udp\",\n" +
-                    "		\"turn:5.9.154.226:3478?transport=tcp\"\n" +
-                    "	]\n" +
-                    "}";
-    
+        
     private static final Gson gson = new GsonBuilder().create();
+    private List<Room> rooms = new ArrayList();
     
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -84,20 +72,20 @@ public class WebRTCServlet extends HttpServlet {
         int lastSlashPos = ourPath.lastIndexOf("/");
         String roomName = ourPath.substring(lastSlashPos+1);
         
-        if(WebSocketServer.getRoom(roomName)==null){
-            WebSocketServer.createRoom(roomName);
+        if(getRoom(roomName)==null){
+            createRoom(roomName);
         }
         
         String clientId =  UUID.randomUUID().toString();
 
         System.out.println("joining room \t\t:"+ roomName);
         System.out.println("generated client Id\t:"+clientId);
-        System.out.println("serverUrl from config\t:"+serverUrl);
+        System.out.println("serverUrl from config\t:"+Config.serverUrl);
         
         String responseJSON = "{"+
 	    "\"params\" : {"+
 	    "\"is_initiator\": true,"+
-	    "\"room_link\": \"http://" + serverUrl + "/r/" + roomName+"\","+
+	    "\"room_link\": \"http://" + Config.serverUrl + "/r/" + roomName+"\","+
 	    "\"version_info\": {\"gitHash\": \"029b6dc4742cae3bcb6c5ac6a26d65167c522b9f\", \"branch\": \"master\", \"time\": \"Wed Dec 9 16:08:29 2015 +0100\"},"+
 	    "\"messages\": [],"+
 	    "\"error_messages\": [],"+
@@ -105,12 +93,12 @@ public class WebRTCServlet extends HttpServlet {
 	    "\"bypass_join_confirmation\": \"false\","+
 	    "\"media_constraints\": {\"audio\": true, \"video\": true},"+
 	    "\"include_loopback_js\": \"\","+
-	    "\"turn_url\": \"http://" + serverUrl + "/turn\","+
+	    "\"turn_url\": \"http://" + Config.serverUrl + "/turn\","+
 	    "\"is_loopback\": \"false\","+
-	    "\"wss_url\": \"ws://" + serverUrl + "/ws\","+
+	    "\"wss_url\": \"ws://" + Config.serverUrl + "/ws\","+
 	    "\"pc_constraints\": {\"optional\": []},"+
 	    "\"pc_config\": {\"rtcpMuxPolicy\": \"require\", \"bundlePolicy\": \"max-bundle\", \"iceServers\": []},"+
-	    "\"wss_post_url\": \"http://" + serverUrl + "\","+
+	    "\"wss_post_url\": \"http://" + Config.serverUrl + "\","+
 	    "\"offer_options\": {},"+
 	    "\"warning_messages\": [],"+
 	    "\"room_id\": \""+roomName+"\","+
@@ -128,7 +116,7 @@ public class WebRTCServlet extends HttpServlet {
     private void handleTurn(HttpServletRequest request, HttpServletResponse response) 
             throws IOException {
         PrintWriter out = response.getWriter();
-        out.print(turn);
+        out.print(Config.turn);
         out.flush();
     }
 
@@ -145,14 +133,12 @@ public class WebRTCServlet extends HttpServlet {
         JsonObject jsonMessage = gson.fromJson(body, JsonObject.class);
         String type = jsonMessage.get("type").getAsString();
         
-        Room room = WebSocketServer.getRoom(roomName);
+        Room room = getRoom(roomName);
         
         if(room!=null){
             switch (type) {
                 case "candidate":
                 {
-                    //String messageCandidate = jsonMessage.get("candidate").getAsString();
-                   // String messageLabel = jsonMessage.get("label").getAsString();
 
                     IceCandidate candidate = new IceCandidate(
                              jsonMessage.get("candidate").getAsString(),
@@ -176,7 +162,7 @@ public class WebRTCServlet extends HttpServlet {
                      //only necessary when register happend over websocket 
                     if (room.getSender() !=null && room.getSender().websocket !=null) {
                        System.out.println("websocket present startSendWebRtc");                     
-                       startSendWebRtc(room,jsonMessage.get("sdp").getAsString());
+                       startPostWebRtc(room,jsonMessage.get("sdp").getAsString());
                     }
                     else{ //no websocket is present
                             room.setSenderSdpOffer(jsonMessage.get("sdp").getAsString());
@@ -202,29 +188,13 @@ public class WebRTCServlet extends HttpServlet {
     
     }
     
-  
-    public KurentoClient kurentoClient() {
-      return KurentoClient.create(System.getProperty("kms.url",default_KMS_WS_URI));
-    }
     
-    private MediaPipeline getPipeline(Room room){
-        if(room == null || room.equals("")) throw new IllegalArgumentException("room is null");
-        
-        if(room.getPipeline() != null){
-            System.out.println("returning saved pipeline");
-            return room.getPipeline();
-        }
-        System.out.println("creating new pipeline to kurento server: "+default_KMS_WS_URI);
-        room.pipeline = kurentoClient().createMediaPipeline();
-        return room.pipeline; 
-    }
-    
-    private void startSendWebRtc(Room room, String sdpOffer) {
+    private void startPostWebRtc(Room room, String sdpOffer) {
        
         if(room == null || room.equals("")) throw new IllegalArgumentException("room is null");
         final Sender sender = room.getSender();
         if(sender == null) throw new IllegalArgumentException("no sender in room");  
-        MediaPipeline pipeline = getPipeline(room);
+        MediaPipeline pipeline = Utils.getPipeline(room);
         WebRtcEndpoint _webRtcEndpoint = new WebRtcEndpoint.Builder(pipeline).build();
         sender.endpoint = _webRtcEndpoint;
         System.out.println("endpoint of sender created.");
@@ -287,7 +257,36 @@ public class WebRTCServlet extends HttpServlet {
         sender.endpoint.gatherCandidates();
         
     }
+        public Room getRoom(String roomName) {
+          // System.out.println("Looking for room:"+ roomName+" rooms size:"+rooms.size());
+           for (int i = 0; i < rooms.size(); i++) {
+                   if (rooms.get(i).getRoomName().equals(roomName)) {
+                          // System.out.println("found room:"+rooms.get(i).getRoomName());
+                           return rooms.get(i);
+                   }
+           }
+           return null;
+   }
+
+    public  Room getRoomBySession(String sessionId) {
+           System.out.println("Looking for room with session:");
+           
+           for (int i = 0; i < rooms.size(); i++) {
+                   if (rooms.get(i).getSender()!=null && 
+                           rooms.get(i).getSender().getSessionId().equals("sessionId")){
+                           return rooms.get(i); //return callback(null, rooms[i]);
+                   }
+           }
+           //return callback(null, null);
+           return null;
+    }
     
+    public Room createRoom(String roomName) {
+        Room r = new Room(roomName);
+        rooms.add(r);
+        System.out.println("now rooms:"+rooms.toString()+" regisered.");
+        return r;
+    }
     public String getServletInfo() {
         return "The WebRTCSerlvet for MSC handles communication between WebRTC candidates";
     }// </editor-fold>
