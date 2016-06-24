@@ -11,14 +11,20 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.kurento.client.EventListener;
 import org.kurento.client.IceCandidate;
 import org.kurento.client.KurentoClient;
 import org.kurento.client.MediaPipeline;
+import org.kurento.client.OnIceCandidateEvent;
+import org.kurento.client.WebRtcEndpoint;
+import org.kurento.jsonrpc.JsonUtils;
 
 /**
  * WebRTCServlet which manages all communication between  web, android and ios WebRTC candidates, 
@@ -29,8 +35,10 @@ import org.kurento.client.MediaPipeline;
  */
 public class WebRTCServlet extends HttpServlet {
     
-    String default_KMS_WS_URI = "";
+    String default_KMS_WS_URI = "ws://192.168.43.251:8888/kurento";
+    //String default_KMS_WS_URI = "ws://www.le-space.de:8888/kurento";
     String serverUrl = "192.168.43.251:8080/jWebrtc";
+    //String turn = "{}";
     String turn = "{\n" +
                     "	\"username\": \"akashionata\",\n" +
                     "	\"password\": \"silkroad2015\",\n" +
@@ -86,8 +94,6 @@ public class WebRTCServlet extends HttpServlet {
         System.out.println("generated client Id\t:"+clientId);
         System.out.println("serverUrl from config\t:"+serverUrl);
         
-        //String responseJSON = "{\"params\": {\"test\":\"test2\"}}";
-        
         String responseJSON = "{"+
 	    "\"params\" : {"+
 	    "\"is_initiator\": true,"+
@@ -132,11 +138,9 @@ public class WebRTCServlet extends HttpServlet {
         String[] segs = ourPath.split(Pattern.quote( "/" ));
        
         String roomName = (segs[segs.length-2]!=null) ?  segs[segs.length-2]  :  "empty";
-	String clientId = (segs[segs.length-1]!=null)? segs[segs.length-1] : "emptyID";
+	String clientid = (segs[segs.length-1]!=null)? segs[segs.length-1] : "emptyID"; //not used ... 
         String body = Utils.getBody(request);
-        
-        System.out.println("roomName:"+roomName);
-        System.out.println("clientId:"+clientId);
+       
         
         JsonObject jsonMessage = gson.fromJson(body, JsonObject.class);
         String type = jsonMessage.get("type").getAsString();
@@ -147,8 +151,8 @@ public class WebRTCServlet extends HttpServlet {
             switch (type) {
                 case "candidate":
                 {
-                    String messageCandidate = jsonMessage.get("candidate").getAsString();
-                    String messageLabel = jsonMessage.get("label").getAsString();
+                    //String messageCandidate = jsonMessage.get("candidate").getAsString();
+                   // String messageLabel = jsonMessage.get("label").getAsString();
 
                     IceCandidate candidate = new IceCandidate(
                              jsonMessage.get("candidate").getAsString(),
@@ -158,12 +162,9 @@ public class WebRTCServlet extends HttpServlet {
                     Sender sender = room.getSender();
                     
                     if (sender.endpoint!=null) {
-                      //  System.out.println("appRTC Ice Candidate addIceCandidate:"+ candidate);
                         sender.endpoint.addIceCandidate(candidate);
                         
                     } else {
-                  
-                       // System.out.println("appRTC Ice Candidate  Queueing candidate"+sender.candidateQueue);
                         sender.candidateQueue.add(candidate);
                     }
 
@@ -171,11 +172,10 @@ public class WebRTCServlet extends HttpServlet {
                 }
                 case "offer":
                 {
-                     System.out.println("offer wurde auch geschickt.");
+                     System.out.println("offer wurde von android geschickt.");
                      //only necessary when register happend over websocket 
                     if (room.getSender() !=null && room.getSender().websocket !=null) {
-                       System.out.println("websocket present");
-                       Sender sender = room.getSender();
+                       System.out.println("websocket present startSendWebRtc");                     
                        startSendWebRtc(room,jsonMessage.get("sdp").getAsString());
                     }
                     else{ //no websocket is present
@@ -214,18 +214,77 @@ public class WebRTCServlet extends HttpServlet {
             System.out.println("returning saved pipeline");
             return room.getPipeline();
         }
-        System.out.println("creating new pipeline from kurento client");
+        System.out.println("creating new pipeline to kurento server: "+default_KMS_WS_URI);
         room.pipeline = kurentoClient().createMediaPipeline();
         return room.pipeline; 
     }
     
     private void startSendWebRtc(Room room, String sdpOffer) {
+       
         if(room == null || room.equals("")) throw new IllegalArgumentException("room is null");
+        final Sender sender = room.getSender();
+        if(sender == null) throw new IllegalArgumentException("no sender in room");  
+        MediaPipeline pipeline = getPipeline(room);
+        WebRtcEndpoint _webRtcEndpoint = new WebRtcEndpoint.Builder(pipeline).build();
+        sender.endpoint = _webRtcEndpoint;
+        System.out.println("endpoint of sender created.");
+        if(sender.candidateQueue!=null & sender.candidateQueue.size()>0){
+            while (sender.candidateQueue.size()>0) {
+                System.out.println("adding ice candidates from candidateQueue:"+sender.candidateQueue.size()+"' left");
+                IceCandidate candidate = sender.candidateQueue.remove(sender.candidateQueue.size()-1);
+                sender.endpoint.addIceCandidate(candidate);    
+            }
+        }
         
-        Sender sender = room.getSender();
-        if(sender == null || sender.endpoint == null) throw new IllegalArgumentException("no ");
+        String sdpAnswer = sender.endpoint.processOffer(sdpOffer);
+        System.out.println("got sdpAnswer after offer from sender.endpoint ");
+        sender.endpoint.addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
+              @Override
+              public void onEvent(OnIceCandidateEvent event) {
+                
+                System.out.println("getting type:"+event.getType()+" sender.websocket.id:"+(sender.websocket.getId()));
+               
+                JsonObject response = new JsonObject();
+                
+                    JsonObject msgJson = new JsonObject();
+                    msgJson.addProperty("type", "candidate");
+                    msgJson.addProperty("label", event.getCandidate().getSdpMLineIndex());
+                    msgJson.addProperty("id", event.getCandidate().getSdpMid());
+                    msgJson.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
+             
+                response.add("msg", msgJson);
+                response.addProperty("error","");
+
+                synchronized (sender.websocket) {
+                    try {
+                        System.out.println("response to websocket: "+sender.websocket.getId());
+                        sender.websocket.getBasicRemote().sendText(response.getAsString());
+                    } catch (IOException ex) {
+                        Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                 }
+              }
+        });
+       
+        JsonObject sendSdpAnswer =  new JsonObject(); 
         
+        JsonObject msgJson = new JsonObject();
+        msgJson.addProperty("type", "answer");
+        msgJson.addProperty("sdp", sdpAnswer);
+        sendSdpAnswer.add("msg", msgJson);
+        sendSdpAnswer.addProperty("error","");
         
+        System.out.println("sending sdpAnswer over websocket back to sender"+msgJson.toString());
+        synchronized (sender.websocket) {
+            try {
+                System.out.println("sdpAnswer sent to "+sender.websocket.getId());
+                sender.websocket.getBasicRemote().sendText(sendSdpAnswer.toString());
+            
+            } catch (IOException ex) {
+                Logger.getLogger(WebRTCServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        sender.endpoint.gatherCandidates();
         
     }
     

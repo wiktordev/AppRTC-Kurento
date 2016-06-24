@@ -8,6 +8,7 @@ package de.lespace.webrtclibs.jwebrtc2;
 import java.util.ArrayList;
 import java.util.List;
 import javax.websocket.Session;
+import org.kurento.client.IceCandidate;
 import org.kurento.client.WebRtcEndpoint;
 
 /**
@@ -21,8 +22,6 @@ public class Receiver {
 	public String sessionId;
 	public Session websocket;
         public WebRtcEndpoint endpoint;
-	//public WebRtcEndpoint audioEndpoint;
-	public List candidateQueueVideo = new ArrayList();
-        //public List candidateQueueAudio = new ArrayList();
+	public List<IceCandidate> candidateQueue = new ArrayList();
         
 }

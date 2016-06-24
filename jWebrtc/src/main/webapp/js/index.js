@@ -94,6 +94,7 @@ function setState(nextState) {
 		case I_CAN_START:
 			$('#start').attr('disabled', false);
 			$('#start').attr('onclick', 'startWebRtc()');
+                        $('#register').attr('onclick', 'register()');
 			$('#stop').attr('disabled', true);
 			$('#stop').removeAttr('onclick');
 			break;
@@ -185,6 +186,15 @@ function startResponse(message) {
 	setState(I_CAN_STOP);
 	console.log('SDP answer received from server. Processing ...');
 	webRtcPeer.processAnswer(message.sdpAnswer);
+}
+
+function register(){
+    console.log('registering client');
+    var message = {
+			cmd : 'register',
+			roomid: getRoomname()
+		}
+     sendMessage(message);
 }
 
 function stop() {

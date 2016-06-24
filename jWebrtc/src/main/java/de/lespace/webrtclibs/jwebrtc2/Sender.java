@@ -7,6 +7,8 @@ package de.lespace.webrtclibs.jwebrtc2;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.websocket.Session;
+import org.kurento.client.IceCandidate;
 import org.kurento.client.WebRtcEndpoint;
 
 /**
@@ -17,9 +19,9 @@ class Sender {
         
         public String sessionId;
         public String clientId;
-        public String websocket; 
+        public Session websocket; 
         public WebRtcEndpoint endpoint; 
-        public List candidateQueue = new ArrayList();
+        public List<IceCandidate> candidateQueue = new ArrayList();
         
         public Sender(){
             
@@ -55,14 +57,14 @@ class Sender {
         /**
          * @return the websocket
          */
-        public String getWebsocket() {
+        public Session getWebsocket() {
             return websocket;
         }
 
         /**
          * @param websocket the websocket to set
          */
-        public void setWebsocket(String websocket) {
+        public void setWebsocket(Session websocket) {
             this.websocket = websocket;
         }
 
