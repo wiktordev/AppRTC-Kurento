@@ -29,6 +29,7 @@ public class UserRegistry {
   }
 
   public UserSession getByName(String name) {
+      System.out.println("getting user:"+name);
     return usersByName.get(name);
   }
 
