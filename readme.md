@@ -2,7 +2,10 @@
 
 This is a simple example project in nodejs and j2ee to demonstrate the compatibility of the [AppRTCDemo](https://github.com/njovy/AppRTCDemo) Android App with the [Kurento Media Server](http://www.kurento.org/).
 
-see for implementations in the named platform folder.
+See for implementations in the named platform folder.
+This version doesn't have a servlet for the Android Version and works together with a modified, pure websocket version of AppRTC for Android see: 
+
+pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo 
 
 ###Documentation:
 -----------------
@@ -10,17 +13,13 @@ see for implementations in the named platform folder.
 
 
 ###Todo:
-- implement simple call response within browser use kurento one2one-call example
-- android version works on websocket only / port android project 
-
-- login user (websocket session id + username) and get list of logged in users in android and 
-- user calls another user from both sides
-- call user - receiver accept / cancel call 
-
-
+- login user (websocket session id + username) and 
+- get list of logged in users for android, ios and browser 
 - recording 
 - screensharing
 - widget for browser
-- switch video on/off 
-- mute audio
 
+
+###Done
+- 2016-06-28 - implement simple call response within browser use kurento one2one-call example
+- 2016-06-28 - android version works on websocket only / port android project 
