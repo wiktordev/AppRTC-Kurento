@@ -3,7 +3,7 @@
 This is a simple example project in nodejs and j2ee to demonstrate the compatibility of the [AppRTCDemo](https://github.com/njovy/AppRTCDemo) Android App with the [Kurento Media Server](http://www.kurento.org/).
 
 See for implementations in the named platform folder.
-This version doesn't have a servlet for the Android Version and works together with a modified, pure websocket version of AppRTC for Android see: 
+This version doesn't have a servlet for the Android version and works together with a modified, pure websocket version of AppRTC for Android see: 
 
 pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo 
 
