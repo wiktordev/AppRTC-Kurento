@@ -133,20 +133,21 @@ public class WebRTCServlet extends HttpServlet {
     }
 
     private void handleMessage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        
+        System.out.println("test1...");
+       
         String ourPath = getOurPath(request);
         String[] segs = ourPath.split(Pattern.quote( "/" ));
        
         String roomName = (segs[segs.length-2]!=null) ?  segs[segs.length-2]  :  "empty";
 	String clientid = (segs[segs.length-1]!=null)? segs[segs.length-1] : "emptyID"; //not used ... 
         String body = Utils.getBody(request);
-       
+        System.out.println("test2...");
         
         JsonObject jsonMessage = gson.fromJson(body, JsonObject.class);
         String type = jsonMessage.get("type").getAsString();
-        
+         System.out.println("tes3...");
         Room room = WebSocketServer.getRoom(roomName);
-        
+        System.out.println("test4..."+roomName);
         if(room!=null){
             switch (type) {
                 case "candidate":

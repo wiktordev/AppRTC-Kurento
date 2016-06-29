@@ -195,14 +195,7 @@ public class WebSocketServer {
             default:
                 throw new IllegalArgumentException("something else was called");
         }
-    }
-        /* 
-        try {
-            session.getBasicRemote().sendText(message);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }*/
-   
+    }   
  
     public static Room getRoom(String roomName) {
           // System.out.println("Looking for room:"+ roomName+" rooms size:"+rooms.size());
