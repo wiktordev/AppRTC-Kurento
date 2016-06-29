@@ -11,6 +11,7 @@ This is the branch 0.1 which implements the original version which works partly 
 
 
 ###Todo:
+- improve logging on server with logging framework
 - login user (websocket session id + username) and get list of logged in users in android and 
 - user calls another user from both sides
 - call user - receiver accept / cancel call 
