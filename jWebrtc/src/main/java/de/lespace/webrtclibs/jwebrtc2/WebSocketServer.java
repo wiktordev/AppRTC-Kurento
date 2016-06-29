@@ -86,7 +86,7 @@ public class WebSocketServer {
             try {
               register(session, jsonMessage);
             } catch (Exception e) {
-              handleErrorResponse(e, session, "resgisterResponse");
+              handleErrorResponse(e, session, "registerResponse");
             }
             break;
           case "call":

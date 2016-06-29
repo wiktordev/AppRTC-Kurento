@@ -13,13 +13,15 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 
 
 ###Todo:
-- login user (websocket session id + username) and 
-- get list of logged in users for android, ios and browser 
+
+- get list of logged in users for android, ios and browser (call 'onlineUsers')
+- if new user registered (call 'register') send and update websocket message ('registerResponse') to all connect users and update  userlist on client
 - recording 
 - screensharing
 - widget for browser
 
 
 ###Done
+- 2016-06-28 - login user (websocket session id + username) and 
 - 2016-06-28 - implement simple call response within browser use kurento one2one-call example
 - 2016-06-28 - android version works on websocket only / port android project 

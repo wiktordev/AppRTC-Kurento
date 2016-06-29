@@ -19,7 +19,7 @@ public class Config {
                     "	\"password\": \"silkroad2015\",\n" +
                     "	\"uris\": [\n" +
                     "		\"turn:5.9.154.226:3478\"\n" +
- //                   "		\"turn:5.9.154.226:3478?transport=udp\",\n" +
+ //                   "		\"turn:5.9.154.226:3478?transport=udp\",\n" +  do not add multipe turn servers
  //                   "		\"turn:5.9.154.226:3478?transport=tcp\"\n" +
                     "	]\n" +
                     "}";
