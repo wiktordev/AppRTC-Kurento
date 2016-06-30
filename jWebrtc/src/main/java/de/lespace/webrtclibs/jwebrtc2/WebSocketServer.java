@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -85,6 +86,7 @@ public class WebSocketServer {
           case "register":
             try {
               register(session, jsonMessage);
+              updateRegisteredUsers();
             } catch (Exception e) {
               handleErrorResponse(e, session, "resgisterResponse");
             }
@@ -216,6 +218,23 @@ public class WebSocketServer {
     responseJSON.addProperty("message", message);
     caller.sendMessage(responseJSON);
     
+    Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO, "Sent response: " + responseJSON);
+  }
+  
+  private void updateRegisteredUsers() throws IOException {
+      List<String> userList = registry.getRegisteredUsers();
+      String userListJson = new Gson().toJson(userList);
+      
+      JsonObject responseJSON = new JsonObject();
+      responseJSON.addProperty("id", "registeredUsers");
+      responseJSON.addProperty("response", userListJson);
+      responseJSON.addProperty("message", "");
+      
+      Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO, "Updating user list on clients: " + responseJSON);
+      
+      for (UserSession userSession : registry.getUserSessions()) {
+          userSession.sendMessage(responseJSON);
+      }
   }
 
   private void call(UserSession caller, JsonObject jsonMessage) throws IOException {

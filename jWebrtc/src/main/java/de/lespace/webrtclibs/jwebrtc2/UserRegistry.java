@@ -5,6 +5,9 @@
  */
 package de.lespace.webrtclibs.jwebrtc2;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.Session;
 
@@ -48,6 +51,14 @@ public class UserRegistry {
       usersBySessionId.remove(session.getId());
     }
     return user;
+  }
+  
+  public List<String> getRegisteredUsers() {
+      return Collections.list(usersByName.keys());
+  }
+  
+  public List<UserSession> getUserSessions() {
+      return new ArrayList<UserSession>(usersByName.values());
   }
 
 }

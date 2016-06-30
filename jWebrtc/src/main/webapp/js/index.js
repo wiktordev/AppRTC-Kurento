@@ -97,6 +97,10 @@ ws.onmessage = function(message) {
 	case 'registerResponse':
 		registerResponse(parsedMessage);
 		break;
+        case 'registeredUsers':
+                // server sends a list of all registered users including the user on this client
+                updateRegisteredUsers(JSON.parse(parsedMessage.response));
+                break;
 	case 'callResponse':
 		callResponse(parsedMessage);
 		break;
@@ -131,6 +135,19 @@ function registerResponse(message) {
 		console.log(errorMessage);
 		alert('Error registering user. See console for further information.');
 	}
+}
+
+function updateRegisteredUsers(userList) {
+    console.log("User list: " + userList);
+    var peers = $("#peer");
+    var name;
+    for (var i = 0; i < userList.length; i++) {
+    	//options += '<option value="' + result[i].ImageFolderID + '">' + result[i].Name + '</option>';
+        name = userList[i];
+        if (name != $('#name').val()) {
+            peers.append($("<option />").val(name).text(name));
+        }
+    }
 }
 
 function callResponse(message) {
@@ -259,7 +276,8 @@ function onOfferCall(error, offerSdp) {
 	var message = {
 		id : 'call',
 		from : document.getElementById('name').value,
-		to : document.getElementById('peer').value,
+		//to : document.getElementById('peer').value,
+                to: $('#peer').val(),
 		sdpOffer : offerSdp
 	};
 	sendMessage(message);
