@@ -35,9 +35,9 @@ import org.kurento.jsonrpc.JsonUtils;
  */
 public class WebRTCServlet extends HttpServlet {
     
-    String default_KMS_WS_URI = "ws://192.168.43.251:8888/kurento";
+    String default_KMS_WS_URI = "ws://10.0.1.68:8888/kurento";
     //String default_KMS_WS_URI = "ws://www.le-space.de:8888/kurento";
-    String serverUrl = "192.168.43.251:8080/jWebrtc";
+    String serverUrl = "10.0.1.68:8080/jWebrtc";
     //String turn = "{}";
     String turn = "{\n" +
                     "	\"username\": \"akashionata\",\n" +
