@@ -11,6 +11,15 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 -----------------
 - Kurennto Java Tutorial http://doc-kurento.readthedocs.io/en/stable/tutorials/java/tutorial-one2one-adv.html
 
+###Installation:
+- run this jWebRTC Project in Netbeans (we use Glassfish at the moment)
+- Have a look at Config.java and adjust your ip-addresses for your application server (this server) and kurento media server, also adjust your turn server
+- start kurento server
+- connect your mobile phone with the same network as your application server
+- install AppRTC for Android from https://github.com/inspiraluna/AppRTCDemo 
+- open browser at http://localhost:8080 and register user 'johann' on browser
+- register second user e.g. 'christina' under settings in Android App
+- call 'johann' from android (you should see your video and the video of the browser in both devices) 
 
 ###Todo:
 
