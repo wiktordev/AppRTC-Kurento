@@ -133,7 +133,7 @@ public class WebRTCServlet extends HttpServlet {
     }
 
     private void handleMessage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("test1...");
+       // System.out.println("test1...");
        
         String ourPath = getOurPath(request);
         String[] segs = ourPath.split(Pattern.quote( "/" ));
@@ -141,13 +141,13 @@ public class WebRTCServlet extends HttpServlet {
         String roomName = (segs[segs.length-2]!=null) ?  segs[segs.length-2]  :  "empty";
 	String clientid = (segs[segs.length-1]!=null)? segs[segs.length-1] : "emptyID"; //not used ... 
         String body = Utils.getBody(request);
-        System.out.println("test2...");
+    //    System.out.println("test2...");
         
         JsonObject jsonMessage = gson.fromJson(body, JsonObject.class);
         String type = jsonMessage.get("type").getAsString();
-         System.out.println("tes3...");
+        // System.out.println("tes3...");
         Room room = WebSocketServer.getRoom(roomName);
-        System.out.println("test4..."+roomName);
+       // System.out.println("test4..."+roomName);
         if(room!=null){
             switch (type) {
                 case "candidate":
@@ -247,11 +247,11 @@ public class WebRTCServlet extends HttpServlet {
                
                 JsonObject response = new JsonObject();
                 
-                    JsonObject msgJson = new JsonObject();
-                    msgJson.addProperty("type", "candidate");
-                    msgJson.addProperty("label", event.getCandidate().getSdpMLineIndex());
-                    msgJson.addProperty("id", event.getCandidate().getSdpMid());
-                    msgJson.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
+                JsonObject msgJson = new JsonObject();
+                msgJson.addProperty("type", "candidate");
+                msgJson.addProperty("label", event.getCandidate().getSdpMLineIndex());
+                msgJson.addProperty("id", event.getCandidate().getSdpMid());
+                msgJson.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
              
                 response.add("msg", msgJson);
                 response.addProperty("error","");
@@ -266,7 +266,7 @@ public class WebRTCServlet extends HttpServlet {
                  }
               }
         });
-       
+       System.out.println("now sending sdp answer...");
         JsonObject sendSdpAnswer =  new JsonObject(); 
         
         JsonObject msgJson = new JsonObject();
@@ -275,7 +275,7 @@ public class WebRTCServlet extends HttpServlet {
         sendSdpAnswer.add("msg", msgJson);
         sendSdpAnswer.addProperty("error","");
         
-        System.out.println("sending sdpAnswer over websocket back to sender"+msgJson.toString());
+        System.out.println("sending sdpAnswer over websocket back to sender"+sendSdpAnswer.toString());
         synchronized (sender.websocket) {
             try {
                 System.out.println("sdpAnswer sent to "+sender.websocket.getId());
