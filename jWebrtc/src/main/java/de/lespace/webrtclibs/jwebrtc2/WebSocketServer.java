@@ -42,6 +42,7 @@ public class WebSocketServer {
     @OnError
     public void onError(Session session, Throwable error){
         System.out.println("apprtcWs Error " + session.getId() );
+        error.getStackTrace();
         if(error!=null)System.err.println(" error:"+ error); 
     }
     
