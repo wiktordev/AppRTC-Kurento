@@ -13,13 +13,15 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 
 
 ###Todo:
+- fix logging slf4j for maven
 - login user (websocket session id + username) and 
-- get list of logged in users for android, ios and browser 
+
 - recording 
 - screensharing
-- widget for browser
+- widget for browser http://shootitlive.com/2012/07/developing-an-embeddable-javascript-widget/
 
 
 ###Done
+- 2016-07-09 - get list of logged in users for android, ios and browser 
 - 2016-06-28 - implement simple call response within browser use kurento one2one-call example
 - 2016-06-28 - android version works on websocket only / port android project 

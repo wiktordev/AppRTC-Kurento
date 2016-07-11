@@ -86,10 +86,12 @@ public class WebSocketServer {
           break; 
           case "register":
             try {
-              register(session, jsonMessage);
-              updateRegisteredUsers();
+                boolean registered = register(session, jsonMessage);
+                //if(registered)
+                    sendRegisteredUsers();
             } catch (Exception e) {
-              handleErrorResponse(e, session, "resgisterResponse");
+              e.printStackTrace();
+              handleErrorResponse(e, session, "registerResponse");
             }
             break;
           case "call":
@@ -114,12 +116,13 @@ public class WebSocketServer {
                 //this is how it works when it comes from a android
               if(jsonMessage.has("sdpMLineIndex") &&  jsonMessage.has("sdpMLineIndex")){
                   
-                    System.out.println("apprtcWs candidate is coming from android ");
+                    System.out.println("apprtcWs candidate is coming from android or ios ");
                   
                     IceCandidate candAndroid = new IceCandidate(
                                    jsonMessage.get("candidate").getAsString(),
                                    jsonMessage.get("sdpMid").getAsString(),
-                                   jsonMessage.get("sdpMLineIndex").getAsInt());  
+                                   jsonMessage.get("sdpMLineIndex").getAsInt()); 
+                    
                     user.addCandidate(candAndroid);
               }
               else{
@@ -170,36 +173,38 @@ public class WebSocketServer {
     
     private void appConfig(Session session, JsonObject jsonMessage) throws IOException{
      
+        //when removing unecessary params - check android for reading nullpointer
         String responseJSON = "{"+
 	    "\"params\" : {"+
                 "\"is_initiator\": true,"+
-                "\"version_info\": {\"gitHash\": \"029b6dc4742cae3bcb6c5ac6a26d65167c522b9f\", \"branch\": \"master\", \"time\": \"Wed Dec 9 16:08:29 2015 +0100\"},"+
-                "\"messages\": [],"+
-                "\"error_messages\": [],"+
-                //"\"client_id\": "+ jsonMessage.get("clientId").toString() +","+
-                "\"bypass_join_confirmation\": \"false\","+
-                "\"media_constraints\": {\"audio\": true, \"video\": true},"+
+                 "\"version_info\": {\"gitHash\": \"029b6dc4742cae3bcb6c5ac6a26d65167c522b9f\", \"branch\": \"master\", \"time\": \"Wed Dec 9 16:08:29 2015 +0100\"},"+
+                 "\"messages\": [],"+
+                  "\"error_messages\": [],"+
+                 "\"client_id\": \"\","+
+                 "\"bypass_join_confirmation\": \"false\","+
+                 "\"media_constraints\": {\"audio\": true, \"video\": true},"+
                 "\"include_loopback_js\": \"\","+
                 "\"turn_url\": \"http://" + Config.serverUrl + "/turn\","+
                 "\"is_loopback\": \"false\","+
                 "\"pc_constraints\": {\"optional\": []},"+
-                "\"pc_config\": {\"rtcpMuxPolicy\": \"require\", \"bundlePolicy\": \"max-bundle\", \"iceServers\": "+Config.turn+"},"+
+                 "\"pc_config\": {\"rtcpMuxPolicy\": \"require\", \"bundlePolicy\": \"max-bundle\", \"iceServers\": "+Config.turn+"},"+
                 "\"offer_options\": {},"+
                 "\"warning_messages\": [],"+
               //  "\"room_id\": "+jsonMessage.get("roomId").toString()+","+
                 "\"turn_transports\": \"\""+
-	    "},"+
+            "},"+
 	    "\"result\": \"SUCCESS\""+
 	 "}";
-        
+
         session.getBasicRemote().sendText(responseJSON);
         Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO, "send app config to :"+session.getId());
     }
 
-  private void register(Session session, JsonObject jsonMessage) throws IOException {
+  private boolean register(Session session, JsonObject jsonMessage) throws IOException {
     
     String name = jsonMessage.getAsJsonPrimitive("name").getAsString();
     Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO, "register called:"+name);
+    boolean registered = false;
     UserSession caller = new UserSession(session, name);
     String response = "accepted";
     String message = "";
@@ -208,9 +213,10 @@ public class WebSocketServer {
       message = "empty user name";
     } else if (registry.exists(name)) {
       response = "skipped"; 
-      message = "user '" + name + "' already registered";
+      message = "user " + name + " already registered";
     } else {
       registry.register(caller);
+      registered = true;
     }
 
     JsonObject responseJSON = new JsonObject();
@@ -220,9 +226,10 @@ public class WebSocketServer {
     caller.sendMessage(responseJSON);
     
     Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO, "Sent response: " + responseJSON);
+    return registered;
   }
   
-  private void updateRegisteredUsers() throws IOException {
+  private void sendRegisteredUsers() throws IOException {
       List<String> userList = registry.getRegisteredUsers();
       String userListJson = new Gson().toJson(userList);
       
@@ -280,13 +287,9 @@ public class WebSocketServer {
       
       CallMediaPipeline pipeline = null;
       try {
-          System.out.println("Test 0.1");
         pipeline = new CallMediaPipeline(Utils.kurentoClient());
-        System.out.println("Test 0.2");
         pipelines.put(calleer.getSessionId(), pipeline);
-        System.out.println("Test 0.3");
         pipelines.put(callee.getSessionId(), pipeline);
-         System.out.println("Test 1");
         callee.setWebRtcEndpoint(pipeline.getCalleeWebRtcEp());
         pipeline.getCalleeWebRtcEp()
             .addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
@@ -304,7 +307,7 @@ public class WebSocketServer {
                 }
               }
             });
-           System.out.println("Test 2");
+        
         calleer.setWebRtcEndpoint(pipeline.getCallerWebRtcEp());
         pipeline.getCallerWebRtcEp()
             .addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
@@ -324,7 +327,6 @@ public class WebSocketServer {
               }
             });
         
-        System.out.println("Test 3");
         String calleeSdpOffer = jsonMessage.get("sdpOffer").getAsString();
         String calleeSdpAnswer = pipeline.generateSdpAnswerForCallee(calleeSdpOffer);
         JsonObject startCommunication = new JsonObject();
@@ -336,8 +338,7 @@ public class WebSocketServer {
         }
 
         pipeline.getCalleeWebRtcEp().gatherCandidates();
-
-        System.out.println("Test 4");
+        
         String callerSdpOffer = registry.getByName(from).getSdpOffer();
         String callerSdpAnswer = pipeline.generateSdpAnswerForCaller(callerSdpOffer);
         JsonObject response = new JsonObject();
@@ -362,7 +363,7 @@ public class WebSocketServer {
         pipelines.entrySet();
         pipelines.remove(calleer.getSessionId());
         pipelines.remove(callee.getSessionId());
-         System.out.println("Test 5");
+      
         JsonObject response = new JsonObject();
         response.addProperty("id", "callResponse");
         response.addProperty("response", "rejected");
@@ -374,11 +375,10 @@ public class WebSocketServer {
       }
 
     } else {
-           System.out.println("Test 6");
-      JsonObject response = new JsonObject();
-      response.addProperty("id", "callResponse");
-      response.addProperty("response", "rejected");
-      calleer.sendMessage(response);
+        JsonObject response = new JsonObject();
+        response.addProperty("id", "callResponse");
+        response.addProperty("response", "rejected");
+        calleer.sendMessage(response);
     }
   }
 
