@@ -40,6 +40,7 @@ function setRegisterState(nextState) {
 		break;
 	case REGISTERED:
 		disableButton('#register');
+		enableButton('#check-status', 'checkOnlineStatus()');
 		setCallState(NO_CALL);
 		break;
 	default:
@@ -97,10 +98,10 @@ ws.onmessage = function(message) {
 	case 'registerResponse':
 		registerResponse(parsedMessage);
 		break;
-        case 'registeredUsers':
-                // server sends a list of all registered users including the user on this client
-                updateRegisteredUsers(JSON.parse(parsedMessage.response));
-                break;
+  case 'registeredUsers':
+          // server sends a list of all registered users including the user on this client
+          updateRegisteredUsers(JSON.parse(parsedMessage.response));
+          break;
 	case 'callResponse':
 		callResponse(parsedMessage);
 		break;
