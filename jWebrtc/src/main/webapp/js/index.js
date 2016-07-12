@@ -120,6 +120,9 @@ ws.onmessage = function(message) {
 				return console.error('Error adding candidate: ' + error);
 		});
 		break;
+	case 'responseOnlineStatus':
+		setOnlineStatus(parsedMessage);
+		break;
 	default:
 		console.error('Unrecognized message', parsedMessage);
 	}
@@ -148,6 +151,17 @@ function updateRegisteredUsers(userList) {
             peers.append($("<option />").val(name).text(name));
         }
     }
+}
+
+function setOnlineStatus(message) {
+	var statusTextElement = $("#online-status");
+	if (message.response == 'offline') {
+		statusTextElement.text(message.response);
+	} else if (message.response == 'busy') {
+		statusTextElement.text(message.response);
+	} else if (message.response == 'online') {
+		statusTextElement.text(message.response);
+	}
 }
 
 function callResponse(message) {
@@ -244,6 +258,20 @@ function register() {
 	};
 	sendMessage(message);
 	document.getElementById('peer').focus();
+}
+
+function checkOnlineStatus() {
+	var user = $('#user-status').val();
+	if (user == '') {
+		window.alert('You must insert a user name');
+		return;
+	}
+
+	var message = {
+		id : 'checkOnlineStatus',
+		user : user
+	};
+	sendMessage(message);
 }
 
 function call() {

@@ -147,7 +147,7 @@ public class WebSocketServer {
 			}
 		}
 			break;
-		case "onlineStatus":
+		case "checkOnlineStatus":
 			try {
 				queryOnlineStatus(session, jsonMessage);
 			} catch (IOException e) {
@@ -159,26 +159,29 @@ public class WebSocketServer {
 		}
 	}
 
-	// determine one of the status OFFLINE, BUSY, or ONLINE of the user given in the jsonMessage
+	// determine one of the status OFFLINE, BUSY, or ONLINE of the user given in
+	// the jsonMessage
 	private void queryOnlineStatus(Session session, JsonObject jsonMessage) throws IOException {
 		String user = jsonMessage.getAsJsonPrimitive("user").getAsString();
-		
+
 		JsonObject responseJSON = new JsonObject();
 		responseJSON.addProperty("id", "responseOnlineStatus");
-		
+
 		UserSession userSession = registry.getByName(user);
 		if (userSession == null) {
-			responseJSON.addProperty("message", "offline");
+			responseJSON.addProperty("response", "offline");
 		} else {
 			if (userSession.isBusy()) {
-				responseJSON.addProperty("message", "busy");
+				responseJSON.addProperty("response", "busy");
 			} else {
-				responseJSON.addProperty("message", "online");
+				responseJSON.addProperty("response", "online");
 			}
 		}
-		
+
 		UserSession asking = registry.getBySession(session);
-		asking.sendMessage(responseJSON);
+		if (asking != null) {
+			asking.sendMessage(responseJSON);
+		}
 	}
 
 	private void handleErrorResponse(Exception throwable, Session session, String responseId) {
