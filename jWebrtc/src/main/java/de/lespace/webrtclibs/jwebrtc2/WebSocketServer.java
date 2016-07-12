@@ -56,6 +56,8 @@ public class WebSocketServer {
 	@OnClose
 	public void onClose(Session session) {
 		System.out.println("apprtcWs closed connection " + session.getId() + " ");
+		
+		// TODO unregister user
 	}
 
 	/**
