@@ -23,9 +23,6 @@ var response;
 var callerMessage;
 var from;
 
-var me = 'micha';
-var myConsultant = {name: '', status: ''};
-
 var registerName = null;
 var registerState = null;
 const NOT_REGISTERED = 0;
@@ -81,25 +78,12 @@ function setCallState(nextState) {
 }
 
 window.onload = function() {
+	console = new Console();
 	setRegisterState(NOT_REGISTERED);
-	/*console = new Console();
 	var drag = new Draggabilly(document.getElementById('videoSmall'));
 	videoInput = document.getElementById('videoInput');
 	videoOutput = document.getElementById('videoOutput');
-	document.getElementById('name').focus();*/
-
-	//registerUser("micha");
-	//checkOnlineStatus("ann");
-
-	ws.onopen = function() {
-		console.log("ws connection now open");
-
-		registerUser("micha");
-		if (REGISTERED) {
-			myConsultant.name = $('#webrtc-online-status').attr('data-peer');
-			checkOnlineStatus(myConsultant);
-		}
-	}
+	document.getElementById('name').focus();
 }
 
 window.onbeforeunload = function() {
@@ -115,9 +99,9 @@ ws.onmessage = function(message) {
 		registerResponse(parsedMessage);
 		break;
   case 'registeredUsers':
-    // server sends a list of all registered users including the user on this client
-    updateRegisteredUsers(JSON.parse(parsedMessage.response));
-    break;
+          // server sends a list of all registered users including the user on this client
+          updateRegisteredUsers(JSON.parse(parsedMessage.response));
+          break;
 	case 'callResponse':
 		callResponse(parsedMessage);
 		break;
@@ -143,10 +127,6 @@ ws.onmessage = function(message) {
 	default:
 		console.error('Unrecognized message', parsedMessage);
 	}
-}
-
-ws.onerror = function(error) {
-	console.log("WebSocket error: " + error);
 }
 
 function registerResponse(message) {
@@ -175,18 +155,14 @@ function updateRegisteredUsers(userList) {
 }
 
 function setOnlineStatus(message) {
-	var statusTextElement = $("#webrtc-online-status");
-	/*if (message.response == 'offline') {
+	var statusTextElement = $("#online-status");
+	if (message.response == 'offline') {
 		statusTextElement.text(message.response);
 	} else if (message.response == 'busy') {
 		statusTextElement.text(message.response);
 	} else if (message.response == 'online') {
 		statusTextElement.text(message.response);
-	}*/
-	if (message.message == myConsultant.name) {
-		myConsultant.status = message.response;
 	}
-	statusTextElement.text(myConsultant.name + ' is ' + myConsultant.status);
 }
 
 function callResponse(message) {
@@ -275,18 +251,6 @@ function register() {
 		window.alert('You must insert your user name');
 		return;
 	}
-	/*setRegisterState(REGISTERING);
-
-	var message = {
-		id : 'register',
-		name : name
-	};
-	sendMessage(message);*/
-	registerUser(name);
-	document.getElementById('peer').focus();
-}
-
-function registerUser(name) {
 	setRegisterState(REGISTERING);
 
 	var message = {
@@ -294,9 +258,10 @@ function registerUser(name) {
 		name : name
 	};
 	sendMessage(message);
+	document.getElementById('peer').focus();
 }
 
-/*function checkOnlineStatus() {
+function checkOnlineStatus() {
 	var user = $('#user-status').val();
 	if (user == '') {
 		window.alert('You must insert a user name');
@@ -306,14 +271,6 @@ function registerUser(name) {
 	var message = {
 		id : 'checkOnlineStatus',
 		user : user
-	};
-	sendMessage(message);
-}*/
-
-function checkOnlineStatus(user) {
-	var message = {
-		id : 'checkOnlineStatus',
-		user : user.name
 	};
 	sendMessage(message);
 }
@@ -387,7 +344,7 @@ function onIceCandidate(candidate) {
 
 function sendMessage(message) {
 	var jsonMessage = JSON.stringify(message);
-	console.log('Sending message: ' + jsonMessage);
+	console.log('Senging message: ' + jsonMessage);
 	ws.send(jsonMessage);
 }
 

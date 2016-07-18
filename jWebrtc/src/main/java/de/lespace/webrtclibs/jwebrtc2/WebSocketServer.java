@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
 @ServerEndpoint("/ws")
 public class WebSocketServer {
 
+	private static final String USER_STATUS_BUSY = "busy";
+	private static final String USER_STATUS_OFFLINE = "offline";
+	private static final String USER_STATUS_ONLINE = "online";
 	private static final Gson gson = new GsonBuilder().create();
 	private final ConcurrentHashMap<String, CallMediaPipeline> pipelines = new ConcurrentHashMap(); // <String,
 																									// CallMediaPipeline>
@@ -58,6 +61,12 @@ public class WebSocketServer {
 		System.out.println("apprtcWs closed connection " + session.getId() + " ");
 		
 		// TODO unregister user
+		UserSession user = registry.getBySession(session);
+		try {
+			publishOnlineStatus(user.getName(), USER_STATUS_OFFLINE);
+		} catch (IOException e) {
+			System.err.println("Something wnet wrong! " + e.getMessage());
+		}
 	}
 
 	/**
@@ -95,8 +104,11 @@ public class WebSocketServer {
 		case "register":
 			try {
 				boolean registered = register(session, jsonMessage);
-				// if(registered)
-				sendRegisteredUsers();
+				if(registered) {
+					user = registry.getBySession(session);
+					sendRegisteredUsers();
+					publishOnlineStatus(user.getName(), USER_STATUS_ONLINE);
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				handleErrorResponse(e, session, "registerResponse");
@@ -171,18 +183,43 @@ public class WebSocketServer {
 
 		UserSession userSession = registry.getByName(user);
 		if (userSession == null) {
-			responseJSON.addProperty("response", "offline");
+			responseJSON.addProperty("response", USER_STATUS_OFFLINE);
 		} else {
 			if (userSession.isBusy()) {
-				responseJSON.addProperty("response", "busy");
+				responseJSON.addProperty("response", USER_STATUS_BUSY);
 			} else {
-				responseJSON.addProperty("response", "online");
+				responseJSON.addProperty("response", USER_STATUS_ONLINE);
 			}
 		}
+		responseJSON.addProperty("message", user);
 
 		UserSession asking = registry.getBySession(session);
 		if (asking != null) {
 			asking.sendMessage(responseJSON);
+		}
+	}
+	
+	/**
+	 * Publishes the online status of the given user to all other users.
+	 * 
+	 * @param user
+	 * @param status
+	 * @throws IOException
+	 */
+	public void publishOnlineStatus(String user, String status) throws IOException {
+		List<String> userList = registry.getRegisteredUsers();
+		String userListJson = new Gson().toJson(userList);
+
+		JsonObject responseJSON = new JsonObject();
+		responseJSON.addProperty("id", "responseOnlineStatus");
+		responseJSON.addProperty("response", status);
+		responseJSON.addProperty("message", user);
+
+		Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO,
+				"Publishing online status to clients: " + responseJSON);
+
+		for (UserSession userSession : registry.getUserSessions()) {
+			userSession.sendMessage(responseJSON);
 		}
 	}
 
@@ -373,6 +410,9 @@ public class WebSocketServer {
 				}
 
 				pipeline.getCallerWebRtcEp().gatherCandidates();
+				
+				publishOnlineStatus(calleer.getName(), USER_STATUS_BUSY);
+				publishOnlineStatus(callee.getName(), USER_STATUS_BUSY);
 
 			} catch (Throwable t) {
 
