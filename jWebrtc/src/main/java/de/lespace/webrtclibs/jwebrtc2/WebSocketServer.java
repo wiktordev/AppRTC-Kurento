@@ -54,6 +54,11 @@ public class WebSocketServer {
     @OnClose
     public void onClose(Session session){
         System.out.println("apprtcWs closed connection " + session.getId() + " ");
+        try {
+            stop(session,true);
+        } catch (IOException ex) {
+            Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
  
     /**
@@ -142,7 +147,7 @@ public class WebSocketServer {
           case "stop":
             {
                 try {
-                    stop(session);
+                    stop(session,false);
                 } catch (IOException ex) {
                     Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -155,7 +160,7 @@ public class WebSocketServer {
 
     private void handleErrorResponse(Exception throwable, Session session, String responseId){
         try {
-            stop(session);
+            stop(session,false);
         } catch (IOException ex) {
             Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -262,6 +267,7 @@ public class WebSocketServer {
 
       UserSession callee = registry.getByName(to);
       System.out.println("callee:"+callee.getName()+" sending response:"+response.toString());
+     
       callee.sendMessage(response);
       callee.setCallingFrom(from);
     } else {
@@ -382,12 +388,12 @@ public class WebSocketServer {
     }
   }
 
-  public void stop(Session session) throws IOException {
+  public void stop(Session session, boolean killSession) throws IOException {
     
     String sessionId = session.getId();
-    
+   
     if (pipelines.containsKey(sessionId)) {
-       
+      System.out.println("stopping  media connection of websocket id:"+sessionId);
       CallMediaPipeline pipeline = pipelines.remove(sessionId);
       pipeline.release();
 
@@ -408,8 +414,13 @@ public class WebSocketServer {
         }
         stopperUser.clear();
       }
-
+     
     }
+    if(killSession)  {
+        System.out.println("killing usersession from of websocket id:"+sessionId);
+        registry.removeBySession(session);
+    } //remove usre from session must register again at the moment right or not?
+
   }
 
    
