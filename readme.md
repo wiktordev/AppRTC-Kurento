@@ -12,16 +12,20 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 - Kurennto Java Tutorial http://doc-kurento.readthedocs.io/en/stable/tutorials/java/tutorial-one2one-adv.html
 
 
+##nice2have 
+- widget - super simple widget in an iframe and with user parameter
+- widget - javascript minifiyen und testen ob man es via remote in ein anderen webserver benutzen kann.
+
 ###Todo:
 - fix logging slf4j for maven
-- login user (websocket session id + username) and 
-
 - recording 
 - screensharing
 - widget for browser http://shootitlive.com/2012/07/developing-an-embeddable-javascript-widget/
 
 
 ###Done
+- 2016-07-11 - user registration and update of user dropdown
+- 2016-07-19 - widget in alpha status works
 - 2016-07-09 - get list of logged in users for android, ios and browser 
 - 2016-06-28 - implement simple call response within browser use kurento one2one-call example
 - 2016-06-28 - android version works on websocket only / port android project 
