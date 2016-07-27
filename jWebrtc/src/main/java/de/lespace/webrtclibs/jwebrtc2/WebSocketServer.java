@@ -296,6 +296,7 @@ public class WebSocketServer {
         pipeline = new CallMediaPipeline(Utils.kurentoClient());
         pipelines.put(calleer.getSessionId(), pipeline);
         pipelines.put(callee.getSessionId(), pipeline);
+        System.out.println("created both pipelines...");
         callee.setWebRtcEndpoint(pipeline.getCalleeWebRtcEp());
         pipeline.getCalleeWebRtcEp()
             .addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
@@ -313,8 +314,9 @@ public class WebSocketServer {
                 }
               }
             });
-        
+       
         calleer.setWebRtcEndpoint(pipeline.getCallerWebRtcEp());
+         System.out.println("created both webrtcendpoints...");
         pipeline.getCallerWebRtcEp()
             .addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
 
@@ -333,13 +335,18 @@ public class WebSocketServer {
               }
             });
         
+        System.out.println("preparing sending startCommunication to called person...");
+        
         String calleeSdpOffer = jsonMessage.get("sdpOffer").getAsString();
         String calleeSdpAnswer = pipeline.generateSdpAnswerForCallee(calleeSdpOffer);
+        System.out.println("i have callee offer and answer as it seems");
+        
         JsonObject startCommunication = new JsonObject();
         startCommunication.addProperty("id", "startCommunication");
         startCommunication.addProperty("sdpAnswer", calleeSdpAnswer);
 
         synchronized (callee) {
+           System.out.println("sending startCommunication message to callee");
           callee.sendMessage(startCommunication);
         }
 
@@ -353,6 +360,7 @@ public class WebSocketServer {
         response.addProperty("sdpAnswer", callerSdpAnswer);
 
         synchronized (calleer) {
+              System.out.println("sending callResponse message to caller");
           calleer.sendMessage(response);
         }
 
@@ -361,7 +369,8 @@ public class WebSocketServer {
       } catch (Throwable t) {
           
         log.error(t.getMessage(), t);
-
+        System.err.println("rejecting call reason:"+t.getMessage());
+        
         if (pipeline != null) {
           pipeline.release();
         }
@@ -419,6 +428,7 @@ public class WebSocketServer {
     if(killSession)  {
         System.out.println("killing usersession from of websocket id:"+sessionId);
         registry.removeBySession(session);
+        sendRegisteredUsers(); //update userlist on all clients when somebody disconnects
     } //remove usre from session must register again at the moment right or not?
 
   }

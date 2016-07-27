@@ -13,6 +13,7 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 
 
 ###Todo:
+- when websocket closes user is not deleted from registry
 - fix logging slf4j for maven
 - login user (websocket session id + username) and 
 
