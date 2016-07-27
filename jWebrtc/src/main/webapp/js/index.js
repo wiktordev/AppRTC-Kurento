@@ -189,6 +189,8 @@ function incomingCall(message) {
 	setCallState(PROCESSING_CALL);
 	if (confirm('User ' + message.from
 			+ ' is calling you. Do you accept the call?')) {
+
+		console.log("accepting call");
 		showSpinner(videoInput, videoOutput);
 
 		from = message.from;
