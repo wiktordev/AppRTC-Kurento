@@ -394,7 +394,8 @@ function onIceCandidate(candidate) {
 
 function sendMessage(message) {
 	var jsonMessage = JSON.stringify(message);
-	console.log('Senging message: ' + jsonMessage); ws.send(jsonMessage);
+	console.log('Senging message: ' + jsonMessage);
+	ws.send(jsonMessage);
 }
 
 function showSpinner() {
