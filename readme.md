@@ -21,7 +21,7 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 - widget for browser http://shootitlive.com/2012/07/developing-an-embeddable-javascript-widget/
  
 - Merge recorded videos of call participants into a split screen view
-  - ffmpeg -i input1.mp4 -i input2.mp4 -filter_complex '[0:v]pad=iw*2:ih[int];[int][1:v]overlay=W/2:0[vid]' -map [vid] -c:v libx264 -crf 23 -preset veryfast output.mp4
+  - ffmpeg -i input1.mp4 -i input2.mp4 -filter_complex '[0:v]pad=iw*2:ih[int];[int][1:v]overlay=W/2:0[vid]' -map [vid] -c:v libx264 -crf 23 -preset veryfast output.mp4 (http://superuser.com/a/537482)
   - Build new Docker image based upon fiware/stream-oriented-kurento including ffmpeg
   - Share folder of recorded videos with host (necessary in production?)
 
