@@ -49,9 +49,10 @@ function setRegisterState(nextState) {
 }
 
 var callState = null;
-const NO_CALL = 0;
-const PROCESSING_CALL = 1;
-const IN_CALL = 2;
+const NO_CALL = 0;					// client is idle
+const PROCESSING_CALL = 1;	// client is about to call someone (ringing the phone)
+const IN_CALL = 2;					// client is talking with someone
+const IN_PLAY = 4;					// client is replaying a record
 
 function setCallState(nextState) {
 	switch (nextState) {
@@ -70,6 +71,11 @@ function setCallState(nextState) {
 		enableButton('#terminate', 'stop()');
 		disableButton('#play');
 		break;
+	case IN_PLAY:
+		disableButton('#call');
+		enableButton('#terminate', 'stop()');
+		disableButton('#play');
+		break;
 	default:
 		return;
 	}
@@ -80,8 +86,8 @@ window.onload = function() {
 	console = new Console();
 	setRegisterState(NOT_REGISTERED);
 	var drag = new Draggabilly(document.getElementById('videoSmall'));
-	videoInput = document.getElementById('videoInput');
-	videoOutput = document.getElementById('videoOutput');
+	videoInput = document.getElementById('videoInput');		// <video>-element
+	videoOutput = document.getElementById('videoOutput');	// <video>-element
 	document.getElementById('name').focus();
 }
 
@@ -97,10 +103,10 @@ ws.onmessage = function(message) {
 	case 'registerResponse':
 		registerResponse(parsedMessage);
 		break;
-        case 'registeredUsers':
-                // server sends a list of all registered users including the user on this client
-                updateRegisteredUsers(JSON.parse(parsedMessage.response));
-                break;
+	case 'registeredUsers':
+		// server sends a list of all registered users including the user on this client
+		updateRegisteredUsers(JSON.parse(parsedMessage.response));
+		break;
 	case 'callResponse':
 		callResponse(parsedMessage);
 		break;
@@ -120,6 +126,12 @@ ws.onmessage = function(message) {
 				return console.error('Error adding candidate: ' + error);
 		});
 		break;
+	case 'playResponse':
+		playResponse(parsedMessage);
+		break;
+	case 'playEnd':
+		playEnd();
+		break;
 	default:
 		console.error('Unrecognized message', parsedMessage);
 	}
@@ -138,16 +150,32 @@ function registerResponse(message) {
 }
 
 function updateRegisteredUsers(userList) {
-    console.log("User list: " + userList);
-    var peers = $("#peer");
-    var name;
-    for (var i = 0; i < userList.length; i++) {
-    	//options += '<option value="' + result[i].ImageFolderID + '">' + result[i].Name + '</option>';
-        name = userList[i];
-        if (name != $('#name').val()) {
-            peers.append($("<option />").val(name).text(name));
-        }
-    }
+	console.log("User list: " + userList);
+	var peers = $("#peer");
+	var name;
+	for (var i = 0; i < userList.length; i++) {
+		//options += '<option value="' + result[i].ImageFolderID + '">' + result[i].Name + '</option>';
+		name = userList[i];
+		if (name != $('#name').val()) {
+			peers.append($("<option />").val(name).text(name));
+		}
+	}
+}
+
+function playResponse(message) {
+	if (message.response != 'accepted') {
+		hideSpinner(videoOutput);
+		document.getElementById('videoSmall').style.display = 'block';
+		alert(message.error);
+		document.getElementById('peer').focus();
+		setCallState(NO_CALL);
+	} else {
+		setCallState(IN_PLAY);
+		webRtcPeer.processAnswer(message.sdpAnswer, function(error) {
+			if (error)
+				return console.error(error);
+		});
+	}
 }
 
 function callResponse(message) {
@@ -175,7 +203,7 @@ function startCommunication(message) {
 }
 
 function incomingCall(message) {
-	// If bussy just reject without disturbing user
+	// If busy just reject without disturbing user
 	if (callState != NO_CALL) {
 		var response = {
 			id : 'incomingCallResponse',
@@ -189,6 +217,8 @@ function incomingCall(message) {
 	setCallState(PROCESSING_CALL);
 	if (confirm('User ' + message.from
 			+ ' is calling you. Do you accept the call?')) {
+
+		console.log("accepting call");
 		showSpinner(videoInput, videoOutput);
 
 		from = message.from;
@@ -269,21 +299,69 @@ function call() {
 			});
 }
 
+function play() {
+	var peer = document.getElementById('peer').value;
+	if (peer == '') {
+		window.alert('You must specify the peer name');
+		document.getElementById('peer').focus;
+		return;
+	}
+
+	document.getElementById('videoSmall').display = 'none';
+	setCallState(IN_PLAY);
+	showSpinner(videoOutput);
+
+	var options = {
+		remoteVideo: videoOutput,
+		onicecandidate: onIceCandidate
+	}
+	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options,
+		function(error) {
+			if (error) {
+				return console.error(error);
+			}
+			this.generateOffer(onOfferPlay);
+		}
+	)
+}
+
 function onOfferCall(error, offerSdp) {
-	if (error)
+	if (error) {
 		return console.error('Error generating the offer');
+	}
 	console.log('Invoking SDP offer callback function');
 	var message = {
 		id : 'call',
 		from : document.getElementById('name').value,
 		//to : document.getElementById('peer').value,
-                to: $('#peer').val(),
+		to : $('#peer').val(),
 		sdpOffer : offerSdp
 	};
 	sendMessage(message);
 }
 
+function onOfferPlay(error, offerSdp) {
+	if (error) {
+		return console.error('Error generating the offer');
+	}
+	console.log('Invoking SDP offer callback function');
+	var message = {
+		id : 'play',
+		user : document.getElementById('peer').value,
+		sdpOffer : offerSdp
+	};
+	sendMessage(message);
+}
+
+function playEnd() {
+	setCallState(NO_CALL);
+	hideSpinner(videoInput, videoOutput);
+	document.getElementById('videoSmall').style.display = 'block';
+}
+
 function stop(message) {
+	console.log("Stopping");
+	var stopMessageId = (callState == IN_CALL || callState == PROCESSING_CALL) ? 'stop' : 'stopPlay';
 	setCallState(NO_CALL);
 	if (webRtcPeer) {
 		webRtcPeer.dispose();
@@ -291,12 +369,13 @@ function stop(message) {
 
 		if (!message) {
 			var message = {
-				id : 'stop'
+				id : stopMessageId
 			}
 			sendMessage(message);
 		}
 	}
 	hideSpinner(videoInput, videoOutput);
+	document.getElementById('videoSmall').display = 'block';
 }
 
 function onError() {
@@ -304,7 +383,7 @@ function onError() {
 }
 
 function onIceCandidate(candidate) {
-	console.log("Local candidate" + JSON.stringify(candidate));
+	console.log("Local candidate " + JSON.stringify(candidate));
 
 	var message = {
 		id : 'onIceCandidate',
@@ -315,8 +394,7 @@ function onIceCandidate(candidate) {
 
 function sendMessage(message) {
 	var jsonMessage = JSON.stringify(message);
-	console.log('Senging message: ' + jsonMessage);
-	ws.send(jsonMessage);
+	console.log('Senging message: ' + jsonMessage); ws.send(jsonMessage);
 }
 
 function showSpinner() {
