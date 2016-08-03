@@ -11,11 +11,9 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.Session;
 
-
-
 /**
- * Map of users registered in the system. This class has a concurrent hash map to store users, using
- * its name as key in the map.
+ * Map of users registered in the system. This class has a concurrent hash map
+ * to store users, using its name as key in the map.
  * 
  * @author Boni Garcia (bgarcia@gsyc.es)
  * @author Micael Gallego (micael.gallego@gmail.com)
@@ -23,43 +21,48 @@ import javax.websocket.Session;
  */
 public class UserRegistry {
 
-  private ConcurrentHashMap<String, UserSession> usersByName = new ConcurrentHashMap<>();
-  private ConcurrentHashMap<String, UserSession> usersBySessionId = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, UserSession> usersByName = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, UserSession> usersBySessionId = new ConcurrentHashMap<>();
 
-  public void register(UserSession user) {
-    usersByName.put(user.getName(), user);
-    usersBySessionId.put(user.getSession().getId(), user);
-  }
+	public void register(UserSession user) {
+		usersByName.put(user.getName(), user);
+		usersBySessionId.put(user.getSession().getId(), user);
+	}
 
-  public UserSession getByName(String name) {
-      System.out.println("getting user:"+name);
-    return usersByName.get(name);
-  }
+	public UserSession getByName(String name) {
+		return usersByName.get(name);
+	}
 
-  public UserSession getBySession(Session session) {
-    return usersBySessionId.get(session.getId());
-  }
+	/**
+	 * Returns the user to whom the session belongs. If no user is found, null
+	 * is returned.
+	 * 
+	 * @param session
+	 * @return The corresponding user or null, if no such user is registered
+	 */
+	public UserSession getBySession(Session session) {
+		return usersBySessionId.get(session.getId());
+	}
 
-  public boolean exists(String name) {
-    return usersByName.keySet().contains(name);
-  }
+	public boolean exists(String name) {
+		return usersByName.keySet().contains(name);
+	}
 
-  public UserSession removeBySession(Session session) {
-    final UserSession user = getBySession(session);
-    if (user != null) {
-      usersByName.remove(user.getName());
-      usersBySessionId.remove(session.getId());
-    }
-    return user;
-  }
-  
-  public List<String> getRegisteredUsers() {
-      return Collections.list(usersByName.keys());
-  }
-  
-  public List<UserSession> getUserSessions() {
-      return new ArrayList<UserSession>(usersByName.values());
-  }
+	public UserSession removeBySession(Session session) {
+		final UserSession user = getBySession(session);
+		if (user != null) {
+			usersByName.remove(user.getName());
+			usersBySessionId.remove(session.getId());
+		}
+		return user;
+	}
+
+	public List<String> getRegisteredUsers() {
+		return Collections.list(usersByName.keys());
+	}
+
+	public List<UserSession> getUserSessions() {
+		return new ArrayList<UserSession>(usersByName.values());
+	}
 
 }
-
