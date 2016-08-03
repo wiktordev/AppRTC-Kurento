@@ -43,7 +43,7 @@ public class CallMediaPipeline {
 	// TODO define as environment variables
 	public static final String RECORDING_DIR = "file:///kurento/record/";
 	
-	public static final String RECORDING_PATH = RECORDING_DIR + df.format(new Date()) + "-";
+//	public static final String RECORDING_PATH = RECORDING_DIR + df.format(new Date()) + "-";
 	public static final String RECORDING_EXT = ".webm";
 
 	private MediaPipeline pipeline;
@@ -53,13 +53,15 @@ public class CallMediaPipeline {
 	private RecorderEndpoint callerRecorder;
 
 	public CallMediaPipeline(KurentoClient kurento, String from, String to) {
+		String date = df.format(new Date());
+		
 		try {
 			this.pipeline = kurento.createMediaPipeline();
 			this.callerWebRtcEp = new WebRtcEndpoint.Builder(pipeline).build();
 			this.calleeWebRtcEp = new WebRtcEndpoint.Builder(pipeline).build();
 			
-			this.callerRecorder = new RecorderEndpoint.Builder(pipeline, RECORDING_PATH + from + RECORDING_EXT).build();
-			this.calleeRecorder = new RecorderEndpoint.Builder(pipeline, RECORDING_PATH + to + RECORDING_EXT).build();
+			this.callerRecorder = new RecorderEndpoint.Builder(pipeline, RECORDING_DIR + date + "-" + from + RECORDING_EXT).build();
+			this.calleeRecorder = new RecorderEndpoint.Builder(pipeline, RECORDING_DIR + date + "-" + to + RECORDING_EXT).build();
 
 			this.callerWebRtcEp.connect(this.calleeWebRtcEp);
 			this.callerWebRtcEp.connect(this.callerRecorder);
