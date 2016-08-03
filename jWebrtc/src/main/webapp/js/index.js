@@ -360,7 +360,8 @@ function playEnd() {
 }
 
 function stop(message) {
-	var stopMessageId = (callState == IN_CALL) ? 'stop' : 'stopPlay';
+	console.log("Stopping");
+	var stopMessageId = (callState == IN_CALL || callState == PROCESSING_CALL) ? 'stop' : 'stopPlay';
 	setCallState(NO_CALL);
 	if (webRtcPeer) {
 		webRtcPeer.dispose();

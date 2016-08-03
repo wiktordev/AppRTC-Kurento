@@ -41,7 +41,7 @@ public class CallMediaPipeline {
 	private static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-S");
 
 	// TODO define as environment variables
-	public static final String RECORDING_DIR = "file:///tmp/";
+	public static final String RECORDING_DIR = "file:///kurento/record/";
 	
 	public static final String RECORDING_PATH = RECORDING_DIR + df.format(new Date()) + "-";
 	public static final String RECORDING_EXT = ".webm";
@@ -62,7 +62,10 @@ public class CallMediaPipeline {
 			this.calleeRecorder = new RecorderEndpoint.Builder(pipeline, RECORDING_PATH + to + RECORDING_EXT).build();
 
 			this.callerWebRtcEp.connect(this.calleeWebRtcEp);
+			this.callerWebRtcEp.connect(this.callerRecorder);
+			
 			this.calleeWebRtcEp.connect(this.callerWebRtcEp);
+			this.calleeWebRtcEp.connect(this.calleeRecorder);
 		} catch (Throwable t) {
 			if (this.pipeline != null) {
 				pipeline.release();
@@ -94,6 +97,7 @@ public class CallMediaPipeline {
 	}
 
 	public void record() {
+		log.debug("Start recording...");
 		calleeRecorder.record();
 		callerRecorder.record();
 	}

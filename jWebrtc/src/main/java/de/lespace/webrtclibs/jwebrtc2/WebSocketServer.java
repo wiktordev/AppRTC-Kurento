@@ -499,7 +499,6 @@ public class WebSocketServer {
 
 				pipeline.getCallerWebRtcEp().gatherCandidates();
 
-				// this is new for recording:
 				pipeline.record();
 
 			} catch (Throwable t) {
