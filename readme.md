@@ -17,6 +17,7 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 	http://stackoverflow.com/questions/531593/how-to-use-a-property-file-with-glassfish
 	
 - fix logging slf4j for maven
+<<<<<<< HEAD
 - recording 
 - screensharing  
 		http://doc-kurento.readthedocs.io/en/stable/mastering/kurento_utils_js.html
@@ -28,5 +29,21 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 - 2016-08-01 - login user (websocket session id + username) and 
 - 2016-08-01 - when websocket closes user is not deleted from registry
 - 2016-07-09 - get list of logged in users for android, ios and browser 
+=======
+- login user (websocket session id + username) and 
+
+- screensharing
+- widget for browser http://shootitlive.com/2012/07/developing-an-embeddable-javascript-widget/
+ 
+- Merge recorded videos of call participants into a split screen view
+  - ffmpeg -i input1.mp4 -i input2.mp4 -filter_complex '[0:v]pad=iw*2:ih[int];[int][1:v]overlay=W/2:0[vid]' -map [vid] -c:v libx264 -crf 23 -preset veryfast output.mp4 (http://superuser.com/a/537482)
+  - Build new Docker image based upon fiware/stream-oriented-kurento including ffmpeg
+  - Share folder of recorded videos with host (necessary in production?)
+
+
+###Done
+- 2016-08-02 - recording
+- 2016-07-09 - get list of logged in users for android, ios and browser
+>>>>>>> c890db08822a4de0fb08664818affbf56f91efa9
 - 2016-06-28 - implement simple call response within browser use kurento one2one-call example
-- 2016-06-28 - android version works on websocket only / port android project 
+- 2016-06-28 - android version works on websocket only / port android project

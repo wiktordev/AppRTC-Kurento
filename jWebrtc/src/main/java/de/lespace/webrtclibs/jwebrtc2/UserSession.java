@@ -109,5 +109,10 @@ public class UserSession {
     this.webRtcEndpoint = null;
     this.candidateList.clear();
   }
+
+public void setPlayingWebRtcEndpoint(WebRtcEndpoint webRtcEndpoint) {
+	// TODO Auto-generated method stub
+	
+}
 }
 
