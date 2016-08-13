@@ -20,7 +20,11 @@ import org.kurento.client.MediaPipeline;
 public class Utils {
     
     public static KurentoClient kurentoClient() {
-      return KurentoClient.create(System.getProperty("kms.url", Config.default_KMS_WS_URI));
+        
+      String kmsURL =  System.getProperty("DEFAULT_KMS_WS_URI");
+      if(kmsURL==null || kmsURL.equals(""))
+          kmsURL = Config.DEFAULT_KMS_WS_URI;
+      return KurentoClient.create(System.getProperty("kms.url", kmsURL));
     }
     
     public static MediaPipeline getPipeline(Room room){

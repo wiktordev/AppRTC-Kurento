@@ -279,6 +279,14 @@ public class WebSocketServer {
 	 */
 	private void appConfig(Session session, JsonObject jsonMessage) throws IOException {
 
+                String serverURL =  System.getProperty("DEFAULT_SERVER_URL");
+                if(serverURL==null || serverURL.equals(""))
+                    serverURL = Config.DEFAULT_SERVER_URL;
+                
+                String turnConfig =  System.getProperty("TURN_CONFIG");
+                if(turnConfig==null || turnConfig.equals(""))
+                    turnConfig = Config.TURN_CONFIG;
+                
 		// when removing unecessary params - check android for reading
 		// nullpointer
 		String responseJSON = "{" + "\"params\" : {" + "\"is_initiator\": true,"
@@ -286,10 +294,10 @@ public class WebSocketServer {
 				+ "\"messages\": []," + "\"error_messages\": []," + "\"client_id\": \"\","
 				+ "\"bypass_join_confirmation\": \"false\","
 				+ "\"media_constraints\": {\"audio\": true, \"video\": true}," + "\"include_loopback_js\": \"\","
-				+ "\"turn_url\": \"http://" + Config.serverUrl + "/turn\"," + "\"is_loopback\": \"false\","
+				+ "\"turn_url\": \"http://" + serverURL + "/turn\"," + "\"is_loopback\": \"false\","
 				+ "\"pc_constraints\": {\"optional\": []},"
 				+ "\"pc_config\": {\"rtcpMuxPolicy\": \"require\", \"bundlePolicy\": \"max-bundle\", \"iceServers\": "
-				+ Config.turn + "}," + "\"offer_options\": {}," + "\"warning_messages\": []," +
+				+ turnConfig + "}," + "\"offer_options\": {}," + "\"warning_messages\": []," +
 				// "\"room_id\": "+jsonMessage.get("roomId").toString()+","+
 				"\"turn_transports\": \"\"" + "}," + "\"result\": \"SUCCESS\"" + "}";
 
