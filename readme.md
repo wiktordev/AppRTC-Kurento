@@ -9,20 +9,24 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 
 ###Documentation:
 -----------------
-- Kurennto Java Tutorial http://doc-kurento.readthedocs.io/en/stable/tutorials/java/tutorial-one2one-adv.html
+- Kurento Java Tutorial http://doc-kurento.readthedocs.io/en/stable/tutorials/java/tutorial-one2one-adv.html
 
 
 ###Todo:
-- when websocket closes user is not deleted from registry
+- config parameter in Ressource Bundle or property files 
+	http://stackoverflow.com/questions/531593/how-to-use-a-property-file-with-glassfish
+	
 - fix logging slf4j for maven
-- login user (websocket session id + username) and 
-
 - recording 
-- screensharing
-- widget for browser http://shootitlive.com/2012/07/developing-an-embeddable-javascript-widget/
+- screensharing  
+		http://doc-kurento.readthedocs.io/en/stable/mastering/kurento_utils_js.html
+- widget for browser 
+		http://shootitlive.com/2012/07/developing-an-embeddable-javascript-widget/
 
 
 ###Done
+- 2016-08-01 - login user (websocket session id + username) and 
+- 2016-08-01 - when websocket closes user is not deleted from registry
 - 2016-07-09 - get list of logged in users for android, ios and browser 
 - 2016-06-28 - implement simple call response within browser use kurento one2one-call example
 - 2016-06-28 - android version works on websocket only / port android project 
