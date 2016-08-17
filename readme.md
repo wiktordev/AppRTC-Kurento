@@ -11,8 +11,8 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 -----------------
 - Kurento Java Tutorial http://doc-kurento.readthedocs.io/en/stable/tutorials/java/tutorial-one2one-adv.html
 
-
 ###Todo:
+- (browser) update options.iceServers after appConfig response 
 - fix logging slf4j for maven
 - screensharing  
 		http://doc-kurento.readthedocs.io/en/stable/mastering/kurento_utils_js.html
@@ -27,11 +27,17 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 - wenn closing socket registered user should be deregistered too!
 - turnConfig in WebSocketServer.java too much - needs clean up! check ios / android / web client 
 
+##Probleme
+- es scheint auch so, dass auf dem produktiv server die websocket sessions auch nicht im browser gelöscht werden wenn man einen browser schließt. 
+- es scheint so, als wenn sich die sessions und pipelines nach einem call nicht mehr schließen und deswegen ein neuer call nicht mehr möglich ist.
+- ich habe mich (Mac) beim telefonat mit einem Linux-Rechner selbst gehört. War sehr unangenehm.
+- 
 
 
 ###Done
-
-
+- 2016-08-17 - change turn server config in server - because it produces wrong format
+- 2016-08-14 - create self signed certificate for netbeans glassfish
+- 2016-08-14 - add system properties
 - 2016-08-13  - config parameter in Ressource Bundle or property files 
 				http://stackoverflow.com/questions/531593/how-to-use-a-property-file-with-glassfish
 				http://stackoverflow.com/questions/1094121/application-configuration-files-for-glassfish-java-ee-5-web-services

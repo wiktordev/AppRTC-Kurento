@@ -140,6 +140,7 @@ ws.onmessage = function(message) {
 function registerResponse(message) {
 	if (message.response == 'accepted') {
 		setRegisterState(REGISTERED);
+                console.log( message.message);
 	} else {
 		setRegisterState(NOT_REGISTERED);
 		var errorMessage = message.message ? message.message
@@ -220,7 +221,7 @@ function incomingCall(message) {
 
 		console.log("accepting call");
 		showSpinner(videoInput, videoOutput);
-
+                var iceServers = {"iceServers":[{"urls":"turn:5.9.154.226:3478?transport=tcp","username":"akashionata","credential":"silkroad2015"}]};
 		from = message.from;
 		var options = {
 			localVideo : videoInput,
@@ -228,6 +229,8 @@ function incomingCall(message) {
 			onicecandidate : onIceCandidate,
 			onerror : onError
 		}
+                options.configuration  = iceServers;
+                console.log(options.iceServers);
 		webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 				function(error) {
 					if (error) {

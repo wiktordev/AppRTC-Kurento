@@ -16,14 +16,14 @@ public class Config {
     //public static String default_KMS_WS_URI = "ws://192.168.43.251:8888/kurento";
     //public static String serverUrl = "192.168.43.251:8080/jWebrtc"; //without protokoll
     
-    public static String DEFAULT_KMS_WS_URI = "ws://ws://192.168.43.251:8888/kurento";
-    public static String DEFAULT_SERVER_URL = "ws://192.168.43.251:8080/jWebrtc"; //without protokoll
+    public static String DEFAULT_KMS_WS_URI = "ws://213.30.210.247:8888/kurento";
+    //public static String DEFAULT_SERVER_URL = "192.168.11.81/jWebrtc"; //without protokoll
 
     //public static String default_KMS_WS_URI = "ws://192.168.0.16:8888/kurento";
 //    public static String default_KMS_WS_URI = "ws://192.168.43.251:8888/kurento";
    // public static String serverUrl = "192.168.0.16:8080/jWebrtc"; //without protokoll
 
-    
+    /*
     public static String TURN_CONFIG = "{\n" +
                     "	\"username\": \"akashionata\",\n" +
                     "	\"password\": \"silkroad2015\",\n" +
@@ -32,6 +32,6 @@ public class Config {
  //                   "		\"turn:5.9.154.226:3478?transport=udp\",\n" +
  //                   "		\"turn:5.9.154.226:3478?transport=tcp\"\n" +
                     "	]\n" +
-                    "}";
+                    "}"; */
     
 }

@@ -39,15 +39,15 @@ public class WebSocketServer {
 
 	@OnOpen
 	public void onOpen(Session session) {
-		// System.out.println("apprtcWs opened with sessionId " +
-		// session.getId());
-		log.debug("apprtcWs opened with sessionId {}", session.getId());
+		//System.out.println("apprtcWs opened with sessionId " +
+		//session.getId());
+		log.error("apprtcWs opened with sessionId {}", session.getId());
 	}
 
 	@OnError
 	public void onError(Session session, Throwable error) {
 		// System.out.println("apprtcWs Error " + session.getId() );
-		log.debug("apprtcWs Error [{}]", session.getId());
+		log.error("apprtcWs Error [{}]", session.getId());
 		error.getStackTrace();
 		if (error != null) {
 			// System.err.println(" error:"+ error);
@@ -63,7 +63,7 @@ public class WebSocketServer {
 	public void onClose(Session session) {
 		// System.out.println("apprtcWs closed connection " + session.getId() +
 		// " ");
-		log.debug("apprtcWs closed connection [{}]", session.getId());
+		log.error("apprtcWs closed connection [{}]", session.getId());
 		try {
 			stop(session, true);
 			registry.removeBySession(session);
@@ -89,15 +89,15 @@ public class WebSocketServer {
 
 		// System.out.println("apprtcWs " + session.getId() + " received message
 		// " + _message);
-		log.debug("apprtcWs [{}] received message: {}", session.getId(), _message);
+		log.error("apprtcWs [{}] received message: {}", session.getId(), _message);
 		JsonObject jsonMessage = gson.fromJson(_message, JsonObject.class);
 
 		UserSession user = registry.getBySession(session);
 
 		if (user != null) {
-			log.debug("Incoming message from user '{}': {}", user.getName(), jsonMessage);
+			log.error("Incoming message from user '{}': {}", user.getName(), jsonMessage);
 		} else {
-			log.debug("Incoming message from new user: {}", jsonMessage);
+			log.error("Incoming message from new user: {}", jsonMessage);
 		}
 
 		switch (jsonMessage.get("id").getAsString()) {
@@ -141,12 +141,12 @@ public class WebSocketServer {
 
 				if (jsonMessage.has("sdpMLineIndex") && jsonMessage.has("sdpMLineIndex")) {
 					// this is how it works when it comes from a android
-					log.debug("apprtcWs candidate is coming from android or ios");
+					log.error("apprtcWs candidate is coming from android or ios");
 					candidateJson = jsonMessage;
 
 				} else {
 					// this is how it works when it comes from a browser
-					log.debug("apprtcWs candidate is coming from web");
+					log.error("apprtcWs candidate is coming from web");
 					candidateJson = jsonMessage.get("candidate").getAsJsonObject();
 				}
 
@@ -186,7 +186,7 @@ public class WebSocketServer {
 
 	private void play(final UserSession userSession, JsonObject jsonMessage) {
 		String user = jsonMessage.get("user").getAsString();
-		log.debug("Playing recorded call of user [{}]", user);
+		log.error("Playing recorded call of user [{}]", user);
 
 		JsonObject response = new JsonObject();
 		response.addProperty("id", "playResponse");
@@ -279,32 +279,39 @@ public class WebSocketServer {
 	 */
 	private void appConfig(Session session, JsonObject jsonMessage) throws IOException {
 
-                String serverURL =  System.getProperty("DEFAULT_SERVER_URL");
+              /*  String serverURL =  System.getProperty("DEFAULT_SERVER_URL");
                 if(serverURL==null || serverURL.equals(""))
                     serverURL = Config.DEFAULT_SERVER_URL;
+                */
                 
-                String turnConfig =  System.getProperty("TURN_CONFIG");
-                if(turnConfig==null || turnConfig.equals(""))
-                    turnConfig = Config.TURN_CONFIG;
+                String turnUsername = System.getProperty("TURN_USERNAME");
+                if(turnUsername==null || turnUsername.equals("")) turnUsername = "akashionata";
                 
-		// when removing unecessary params - check android for reading
-		// nullpointer
-		String responseJSON = "{" + "\"params\" : {" + "\"is_initiator\": true,"
-				+ "\"version_info\": {\"gitHash\": \"029b6dc4742cae3bcb6c5ac6a26d65167c522b9f\", \"branch\": \"master\", \"time\": \"Wed Dec 9 16:08:29 2015 +0100\"},"
-				+ "\"messages\": []," + "\"error_messages\": []," + "\"client_id\": \"\","
-				+ "\"bypass_join_confirmation\": \"false\","
-				+ "\"media_constraints\": {\"audio\": true, \"video\": true}," + "\"include_loopback_js\": \"\","
-				+ "\"turn_url\": \"http://" + serverURL + "/turn\"," + "\"is_loopback\": \"false\","
-				+ "\"pc_constraints\": {\"optional\": []},"
-				+ "\"pc_config\": {\"rtcpMuxPolicy\": \"require\", \"bundlePolicy\": \"max-bundle\", \"iceServers\": "
-				+ turnConfig + "}," + "\"offer_options\": {}," + "\"warning_messages\": []," +
-				// "\"room_id\": "+jsonMessage.get("roomId").toString()+","+
-				"\"turn_transports\": \"\"" + "}," + "\"result\": \"SUCCESS\"" + "}";
-
+                String turnPassword = System.getProperty("TURN_PASSWORD");
+                if(turnPassword==null || turnPassword.equals("")) turnUsername = "silkroad2015";
+                
+                String turnUrl = System.getProperty("TURN_URL");
+                if(turnUrl==null || turnUrl.equals("")) turnUrl = "turn:5.9.154.226:3478?transport=tcp";
+                
+                
+                
+                String turnConfig = "{\n" +
+                "	\"username\": \""+turnUsername+"\",\n" +
+                "	\"password\": \""+turnPassword+"\",\n" +
+                "	\"uris\": [\n" +
+                "		\""+turnUrl+"\"\n" +
+//                   "		\"turn:5.9.154.226:3478?transport=udp\",\n" +
+//                   "		\"turn:5.9.154.226:3478?transport=tcp\"\n" +
+                "	]\n" +
+                "}";
+                
+		String responseJSON = "{" + "\"params\" : {" 
+				+ "\"pc_config\": {\"iceServers\": "+ turnConfig + "}" +
+				"}," + "\"result\": \"SUCCESS\"" + "}";
+                log.error(responseJSON);
 		session.getBasicRemote().sendText(responseJSON);
-		// Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO,
-		// "send app config to :" + session.getId());
-		log.info("send app config to: {}", session.getId());
+
+		log.error("send app config to: {}", session.getId());
 	}
 
 	/**
@@ -321,7 +328,7 @@ public class WebSocketServer {
 		String name = jsonMessage.getAsJsonPrimitive("name").getAsString();
 		// Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO,
 		// "register called:" + name);
-		log.info("register called: {}", name);
+		log.error("register called: {}", name);
 
 		boolean registered = false;
 		UserSession caller = new UserSession(session, name);
@@ -346,7 +353,7 @@ public class WebSocketServer {
 
 		// Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO,
 		// "Sent response: " + responseJSON);
-		log.info("Sent response: {}", responseJSON);
+		log.error("Sent response: {}", responseJSON);
 		return registered;
 	}
 
@@ -366,10 +373,14 @@ public class WebSocketServer {
 
 		// Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO,
 		// "Updating user list on clients: " + responseJSON);
-		log.info("Updating user list on clients: {}", responseJSON);
+		log.error("Updating user list on clients: {}", responseJSON);
 
 		for (UserSession userSession : registry.getUserSessions()) {
-			userSession.sendMessage(responseJSON);
+                       if(userSession.getSession().isOpen()){
+                            userSession.sendMessage(responseJSON);
+                       }else{
+                           registry.removeBySession(userSession.getSession());
+                       }
 		}
 	}
 
@@ -378,7 +389,7 @@ public class WebSocketServer {
 		String from = jsonMessage.get("from").getAsString();
 
 		// System.out.println("call from :" + from + " to:" + to);
-		log.info("call from [{}] to [{}]", from, to);
+		log.error("call from [{}] to [{}]", from, to);
 
 		JsonObject response = new JsonObject();
 
@@ -393,13 +404,13 @@ public class WebSocketServer {
 
 			// System.out.println("callee:" + callee.getName() + " sending
 			// response:" + response.toString());
-			log.info("Sending response [{}] to callee [{}]", response.toString(), callee.getName());
+			log.error("Sending response [{}] to callee [{}]", response.toString(), callee.getName());
 
 			callee.sendMessage(response);
 			callee.setCallingFrom(from);
 		} else {
 			// System.out.println("to does not exist!");
-			log.warn("Callee [{}] does not exist! Rejecting call.", to);
+			log.error("Callee [{}] does not exist! Rejecting call.", to);
 
 			response.addProperty("id", "callResponse");
 			response.addProperty("response", "rejected: user '" + to + "' is not registered");
@@ -418,7 +429,7 @@ public class WebSocketServer {
 
 			// System.out.println("Accepted call from '" + from + "' to " + to +
 			// "");
-			log.info("Accepted call from [{}] to [{}]", from, to);
+			log.error("Accepted call from [{}] to [{}]", from, to);
 
 			CallMediaPipeline pipeline = null;
 			try {
@@ -427,7 +438,7 @@ public class WebSocketServer {
 				pipelines.put(callee.getSessionId(), pipeline.getPipeline());
 
 				// System.out.println("created both pipelines...");
-				log.trace("created both pipelines...");
+				log.error("created both pipelines...");
 
 				// give the callee his webRtcEp from the pipeline
 				callee.setWebRtcEndpoint(pipeline.getCalleeWebRtcEp());
@@ -466,26 +477,26 @@ public class WebSocketServer {
 						}
 					}
 				});
-				log.trace("created both webrtcendpoints...");
+				log.error("created both webrtcendpoints...");
 
 				// System.out.println("preparing sending startCommunication to
 				// called person...");
-				log.trace("preparing sending startCommunication to called person...");
+				log.error("preparing sending startCommunication to called person...");
 
 				String calleeSdpOffer = jsonMessage.get("sdpOffer").getAsString();
 				String calleeSdpAnswer = pipeline.generateSdpAnswerForCallee(calleeSdpOffer);
 				// System.out.println("i have callee offer and answer as it
 				// seems");
-				log.debug("i have callee offer and answer as it seems");
+				log.error("i have callee offer and answer as it seems");
 
 				JsonObject startCommunication = new JsonObject();
 				startCommunication.addProperty("id", "startCommunication");
 				startCommunication.addProperty("sdpAnswer", calleeSdpAnswer);
 
 				synchronized (callee) {
-					// System.out.println("sending startCommunication message to
+                                        //System.out.println("sending startCommunication message to
 					// callee");
-					log.debug("sending startCommunication message to callee");
+					log.error("sending startCommunication message to callee");
 					callee.sendMessage(startCommunication);
 				}
 
@@ -501,7 +512,7 @@ public class WebSocketServer {
 				synchronized (caller) {
 					// System.out.println("sending callResponse message to
 					// caller");
-					log.debug("sending callResponse message to caller");
+					log.error("sending callResponse message to caller");
 					caller.sendMessage(response);
 				}
 
@@ -514,7 +525,7 @@ public class WebSocketServer {
 				log.error(t.getMessage(), t);
 				// System.err.println("rejecting call reason:" +
 				// t.getMessage());
-				log.warn("Rejecting call! Reason: {}", t.getMessage());
+				log.error("Rejecting call! Reason: {}", t.getMessage());
 
 				if (pipeline != null) {
 					pipeline.release();
@@ -548,7 +559,7 @@ public class WebSocketServer {
 		if (pipelines.containsKey(sessionId)) {
 			// System.out.println("stopping media connection of websocket id:" +
 			// sessionId);
-			log.info("Stopping media connection of websocket id [{}]", sessionId);
+			log.error("Stopping media connection of websocket id [{}]", sessionId);
 
 			MediaPipeline pipeline = pipelines.remove(sessionId);
 			pipeline.release();
@@ -574,7 +585,7 @@ public class WebSocketServer {
 		if (killSession) {
 			// System.out.println("killing usersession from of websocket id:" +
 			// sessionId);
-			log.info("Killing usersession from of websocket id [{}]", sessionId);
+			log.error("Killing usersession from of websocket id [{}]", sessionId);
 
 			registry.removeBySession(session);
 			sendRegisteredUsers(); // update userlist on all clients when
