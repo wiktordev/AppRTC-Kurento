@@ -15,7 +15,10 @@
  *
  */
 
+
+        
 var ws = new WebSocket('wss://' + location.host + '/jWebrtc/ws');
+
 var videoInput;
 var videoOutput;
 var webRtcPeer;
@@ -26,9 +29,16 @@ var myConsultant = {name: '', status: ''};
 
 var registerName = null;
 var registerState = null;
+var callState = null;
+
+const NO_CALL = 0;					// client is idle
+const PROCESSING_CALL = 1;                              // client is about to call someone (ringing the phone)
+const IN_CALL = 2;					// client is talking with someone
+const IN_PLAY = 4;
 const NOT_REGISTERED = 0;
 const REGISTERING = 1;
 const REGISTERED = 2;
+
 
 function setRegisterState(nextState) {
 	switch (nextState) {
@@ -49,11 +59,7 @@ function setRegisterState(nextState) {
 	registerState = nextState;
 }
 
-var callState = null;
-const NO_CALL = 0;					// client is idle
-const PROCESSING_CALL = 1;	// client is about to call someone (ringing the phone)
-const IN_CALL = 2;					// client is talking with someone
-const IN_PLAY = 4;					// client is replaying a record
+					// client is replaying a record
 
 function setCallState(nextState) {
 	switch (nextState) {
@@ -82,15 +88,26 @@ function setCallState(nextState) {
 	}
 	callState = nextState;
 }
-
+function checkOnlineStatus(user) {
+	var message = {
+		id : 'checkOnlineStatus',
+		user : user.name
+	};
+	sendMessage(message);
+}
 window.onload = function() {
-	console = new Console();
-	setRegisterState(NOT_REGISTERED);
-	var drag = new Draggabilly(document.getElementById('videoSmall'));
-	videoInput = document.getElementById('videoInput');		// <video>-element
-	videoOutput = document.getElementById('videoOutput');	// <video>-element
-	document.getElementById('name').focus();
-        
+    
+        setRegisterState(NOT_REGISTERED);
+
+	ws.onopen = function() {
+		console.log("ws connection now open");
+
+		registerUser($('#webrtc-online-status').attr('data-me'));
+		if (REGISTERED) {
+			myConsultant.name = $('#webrtc-online-status').attr('data-peer');
+			checkOnlineStatus(myConsultant);
+		}
+	}
 }
 
 window.onbeforeunload = function() {
@@ -129,7 +146,7 @@ ws.onmessage = function(message) {
 		});
 		break;
         case 'responseOnlineStatus':
-		//setOnlineStatus(parsedMessage);
+		setOnlineStatus(parsedMessage);
                 break;
 	case 'playResponse':
 		playResponse(parsedMessage);
@@ -292,6 +309,16 @@ function register() {
 	document.getElementById('peer').focus();
 }
 
+function registerUser(name) {
+	setRegisterState(REGISTERING);
+
+	var message = {
+		id : 'register',
+		name : name
+	};
+	sendMessage(message);
+}
+
 function call() {
 	if (document.getElementById('peer').value == '') {
 		window.alert('You must specify the peer name');
@@ -441,8 +468,8 @@ function enableButton(id, functionName) {
 
 /**
  * Lightbox utility (to display media pipeline image in a modal dialog)
- */
+ 
 $(document).delegate('*[data-toggle="lightbox"]', 'click', function(event) {
 	event.preventDefault();
 	$(this).ekkoLightbox();
-});
+});*/

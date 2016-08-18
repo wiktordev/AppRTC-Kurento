@@ -24,18 +24,25 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @ServerEndpoint gives the relative name for the end point This will be
- *                 accessed via ws://localhost:8080/EchoChamber/echo Where
- *                 "localhost" is the address of the host, "EchoChamber" is the
- *                 name of the package and "echo" is the address to access this
+ *                 accessed via ws://localhost:8080/jWebrtc/ws Where
+ *                 "localhost" is the address of the host, "jWebrtc" is the
+ *                 name of the package and "ws" is the address to access this
  *                 class from the server
  */
 @ServerEndpoint("/ws")
 public class WebSocketServer {
 
 	private static final Gson gson = new GsonBuilder().create();
-	private final ConcurrentHashMap<String, MediaPipeline> pipelines = new ConcurrentHashMap<String, MediaPipeline>();
-	public static UserRegistry registry = new UserRegistry();
-	private static final Logger log = LoggerFactory.getLogger(WebSocketServer.class);
+	
+        private final ConcurrentHashMap<String, MediaPipeline> pipelines = new ConcurrentHashMap<String, MediaPipeline>();
+	
+        public static UserRegistry registry = new UserRegistry();
+	
+        private static final String USER_STATUS_BUSY = "busy";
+	private static final String USER_STATUS_OFFLINE = "offline";
+	private static final String USER_STATUS_ONLINE = "online";
+        
+        private static final Logger log = LoggerFactory.getLogger(WebSocketServer.class);
 
 	@OnOpen
 	public void onOpen(Session session) {
@@ -61,9 +68,15 @@ public class WebSocketServer {
 	 */
 	@OnClose
 	public void onClose(Session session) {
-		// System.out.println("apprtcWs closed connection " + session.getId() +
-		// " ");
 		log.error("apprtcWs closed connection [{}]", session.getId());
+                
+                UserSession user = registry.getBySession(session);
+		try {
+			publishOnlineStatus(user.getName(), USER_STATUS_OFFLINE);
+		} catch (IOException e) {
+                    log.error(e.getLocalizedMessage(), e);
+		}
+                
 		try {
 			stop(session, true);
 			registry.removeBySession(session);
@@ -110,10 +123,15 @@ public class WebSocketServer {
 			break;
 		case "register":
 			try {
-				register(session, jsonMessage);
-				sendRegisteredUsers();
+                            
+                                boolean registered = register(session, jsonMessage);
+				if(registered) {
+					user = registry.getBySession(session);
+					sendRegisteredUsers();
+					publishOnlineStatus(user.getName(), USER_STATUS_ONLINE);
+				}
+				
 			} catch (Exception e) {
-				e.printStackTrace();
 				handleErrorResponse(e, session, "registerResponse");
 			}
 			break;
@@ -161,9 +179,15 @@ public class WebSocketServer {
 				stop(session, false);
 				releasePipeline(user);
 			} catch (IOException ex) {
-				// Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE,
-				// null, ex);
 				log.error(ex.getLocalizedMessage(), ex);
+			}
+			break;
+                case "checkOnlineStatus":
+			try {
+				queryOnlineStatus(session, jsonMessage);
+			} catch (IOException e) {
+                            log.error(e.getLocalizedMessage(), e);
+				//Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, e);
 			}
 			break;
 		case "play":
@@ -174,6 +198,59 @@ public class WebSocketServer {
 			break;
 		default:
 			break;
+		}
+	}
+        
+        /**
+         * determine one of the status OFFLINE, BUSY, or ONLINE of 
+         * the user given in the jsonMessage
+        */ 
+	private void queryOnlineStatus(Session session, JsonObject jsonMessage) throws IOException {
+		String user = jsonMessage.getAsJsonPrimitive("user").getAsString();
+
+		JsonObject responseJSON = new JsonObject();
+		responseJSON.addProperty("id", "responseOnlineStatus");
+
+		UserSession userSession = registry.getByName(user);
+		if (userSession == null) {
+			responseJSON.addProperty("response", USER_STATUS_OFFLINE);
+		} else {
+			if (userSession.isBusy()) {
+				responseJSON.addProperty("response", USER_STATUS_BUSY);
+			} else {
+				responseJSON.addProperty("response", USER_STATUS_ONLINE);
+			}
+		}
+		responseJSON.addProperty("message", user);
+
+		UserSession asking = registry.getBySession(session);
+		if (asking != null) {
+			asking.sendMessage(responseJSON);
+		}
+	}
+	
+	/**
+	 * Publishes the online status of the given user to all other users.
+	 * 
+	 * @param user
+	 * @param status
+	 * @throws IOException
+	 */
+	public void publishOnlineStatus(String user, String status) throws IOException {
+		List<String> userList = registry.getRegisteredUsers();
+		String userListJson = new Gson().toJson(userList);
+
+		JsonObject responseJSON = new JsonObject();
+		responseJSON.addProperty("id", "responseOnlineStatus");
+		responseJSON.addProperty("response", status);
+		responseJSON.addProperty("message", user);
+
+                
+                log.error("ublishing online status to clients:"+responseJSON);
+
+
+		for (UserSession userSession : registry.getUserSessions()) {
+			userSession.sendMessage(responseJSON);
 		}
 	}
 

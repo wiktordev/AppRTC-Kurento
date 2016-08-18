@@ -109,6 +109,10 @@ public class UserSession {
     this.webRtcEndpoint = null;
     this.candidateList.clear();
   }
+  
+    public boolean isBusy() {
+            return this.webRtcEndpoint != null;
+    }
 
 public void setPlayingWebRtcEndpoint(WebRtcEndpoint webRtcEndpoint) {
 	// TODO Auto-generated method stub
