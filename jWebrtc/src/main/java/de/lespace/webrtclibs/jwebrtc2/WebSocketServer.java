@@ -34,7 +34,7 @@ public class WebSocketServer {
 
 	private static final Gson gson = new GsonBuilder().create();
 	
-        private final ConcurrentHashMap<String, MediaPipeline> pipelines = new ConcurrentHashMap<String, MediaPipeline>();
+        private static final ConcurrentHashMap<String, MediaPipeline> pipelines = new ConcurrentHashMap<String, MediaPipeline>();
 	
         public static UserRegistry registry = new UserRegistry();
 	
@@ -46,9 +46,10 @@ public class WebSocketServer {
 
 	@OnOpen
 	public void onOpen(Session session) {
-		//System.out.println("apprtcWs opened with sessionId " +
-		//session.getId());
 		log.error("apprtcWs opened with sessionId {}", session.getId());
+                UserSession newUser = new UserSession(session, "webuser@"+session.getId());
+		registry.register(newUser);
+		System.out.println("registered Users:"+registry.getRegisteredUsers());
 	}
 
 	@OnError
@@ -79,7 +80,7 @@ public class WebSocketServer {
                 
 		try {
 			stop(session, true);
-			registry.removeBySession(session);
+			//registry.removeBySession(session);
 		} catch (IOException ex) {
 			// Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE,
 			// null, ex);
@@ -176,9 +177,10 @@ public class WebSocketServer {
 			break;
 		case "stop":
 			try {
+                            System.out.println("received stop...");
 				stop(session, false);
-				releasePipeline(user);
-			} catch (IOException ex) {
+				//releasePipeline(user);
+                            } catch (IOException ex) {
 				log.error(ex.getLocalizedMessage(), ex);
 			}
 			break;
@@ -187,6 +189,7 @@ public class WebSocketServer {
 				queryOnlineStatus(session, jsonMessage);
 			} catch (IOException e) {
                             log.error(e.getLocalizedMessage(), e);
+                            e.printStackTrace();
 				//Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, e);
 			}
 			break;
@@ -204,13 +207,13 @@ public class WebSocketServer {
         /**
          * determine one of the status OFFLINE, BUSY, or ONLINE of 
          * the user given in the jsonMessage
+         * and sends the answer back to the calling session (wether or not the user is registered)
         */ 
 	private void queryOnlineStatus(Session session, JsonObject jsonMessage) throws IOException {
-		String user = jsonMessage.getAsJsonPrimitive("user").getAsString();
-
+            
+		String user = jsonMessage.get("user").getAsString();
 		JsonObject responseJSON = new JsonObject();
 		responseJSON.addProperty("id", "responseOnlineStatus");
-
 		UserSession userSession = registry.getByName(user);
 		if (userSession == null) {
 			responseJSON.addProperty("response", USER_STATUS_OFFLINE);
@@ -223,10 +226,12 @@ public class WebSocketServer {
 		}
 		responseJSON.addProperty("message", user);
 
-		UserSession asking = registry.getBySession(session);
-		if (asking != null) {
-			asking.sendMessage(responseJSON);
-		}
+                if(session.isOpen()){
+                     log.error("sending message:"+responseJSON.toString());
+                     session.getBasicRemote().sendText(responseJSON.toString());//responseJSON.getAsString()
+
+                }  
+                else log.debug("session {} is closed.", session.getId());
 	}
 	
 	/**
@@ -392,7 +397,8 @@ public class WebSocketServer {
 	}
 
 	/**
-	 * Registers a user with the given session on the server.
+	 * 
+         * Registers a user with the given session on the server.
 	 * 
 	 * @param session
 	 * @param jsonMessage
@@ -403,14 +409,14 @@ public class WebSocketServer {
 	private boolean register(Session session, JsonObject jsonMessage) throws IOException {
 
 		String name = jsonMessage.getAsJsonPrimitive("name").getAsString();
-		// Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO,
-		// "register called:" + name);
 		log.error("register called: {}", name);
 
 		boolean registered = false;
-		UserSession caller = new UserSession(session, name);
+                
+		UserSession newUser = new UserSession(session, name);
 		String response = "accepted";
-		String message = "";
+		
+                String message = "";
 		if (name.isEmpty()) {
 			response = "rejected";
 			message = "empty user name";
@@ -418,7 +424,7 @@ public class WebSocketServer {
 			response = "skipped";
 			message = "user " + name + " already registered";
 		} else {
-			registry.register(caller);
+			registry.register(newUser);
 			registered = true;
 		}
 
@@ -426,7 +432,7 @@ public class WebSocketServer {
 		responseJSON.addProperty("id", "registerResponse");
 		responseJSON.addProperty("response", response);
 		responseJSON.addProperty("message", message);
-		caller.sendMessage(responseJSON);
+		newUser.sendMessage(responseJSON);
 
 		// Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO,
 		// "Sent response: " + responseJSON);
@@ -632,31 +638,56 @@ public class WebSocketServer {
 	public void stop(Session session, boolean killSession) throws IOException {
 
 		String sessionId = session.getId();
-
+                System.out.println("trying to find session id:"+sessionId+"in piplines:\n"+pipelines.keySet().toString());
+                
 		if (pipelines.containsKey(sessionId)) {
+                        System.out.println("found session id in piplines:");
 			// System.out.println("stopping media connection of websocket id:" +
 			// sessionId);
 			log.error("Stopping media connection of websocket id [{}]", sessionId);
-
-			MediaPipeline pipeline = pipelines.remove(sessionId);
-			pipeline.release();
-
+                        
 			// Both users can stop the communication. A 'stopCommunication'
 			// message will be sent to the other peer.
 			UserSession stopperUser = registry.getBySession(session);
-			if (stopperUser != null) {
-				UserSession stoppedUser = (stopperUser.getCallingFrom() != null)
-						? registry.getByName(stopperUser.getCallingFrom())
-						: stopperUser.getCallingTo() != null ? registry.getByName(stopperUser.getCallingTo()) : null;
+                        System.out.println("stopperUser: "+stopperUser.getName());
+			
+                        if (stopperUser != null) {
+                            System.out.println("test1");
+                            UserSession stoppedUserFrom = (stopperUser.getCallingFrom() != null) ? registry.getByName(stopperUser.getCallingFrom()) : null;
+                            System.out.println("test2:"+stoppedUserFrom);
+                            UserSession stoppedUserTo = (stopperUser.getCallingTo() != null )? registry.getByName(stopperUser.getCallingTo()) : null;
+                            System.out.println("test3");
+                            UserSession stopUser = null;
+                           
+                            if(stoppedUserFrom !=null && stoppedUserFrom.getSession()!=null && !stoppedUserFrom.getSession().getId().equals(session.getId())){
+                                System.out.println("die id des stoppenden ist NICHT! die des anrufenden");
+                           
+                                stopUser = stoppedUserFrom;
+                                JsonObject message = new JsonObject();
+                                message.addProperty("id", "stopCommunication");
+                            stopUser.sendMessage(message);
+                            stopUser.clear();
+                            System.out.println("send stop to stopUser:"+stopUser.getName());
 
-				if (stoppedUser != null) {
-					JsonObject message = new JsonObject();
-					message.addProperty("id", "stopCommunication");
-					stoppedUser.sendMessage(message);
-					stoppedUser.clear();
-				}
-				stopperUser.clear();
+                            }      
+                            else{
+                               System.out.println("die id des stoppenden IST! die des anrufenden");
+                            
+                            stopUser = stoppedUserTo;
+                            JsonObject message = new JsonObject();
+                            message.addProperty("id", "stopCommunication");
+                            stopUser.sendMessage(message);
+                            stopUser.clear();
+                            System.out.println("send stop to stoppedUserFrom:"+stopUser.getName());
+
+                            
+                           }
+                            
+                            MediaPipeline pipeline = pipelines.remove(sessionId);
+                            pipeline.release();
+                            log.error("Stopped", sessionId);
 			}
+                 
 
 		}
 		if (killSession) {

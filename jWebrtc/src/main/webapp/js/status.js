@@ -14,10 +14,11 @@
  * limitations under the License.
  *
  */
-
+var server = location.host;
+if(server==null || server=="" || server.startWith("file:")) server = "nicokrause.com"
 
         
-var ws = new WebSocket('wss://' + location.host + '/jWebrtc/ws');
+var ws = new WebSocket('wss://' + server + '/jWebrtc/ws');
 
 var videoInput;
 var videoOutput;
@@ -407,8 +408,11 @@ function stop(message) {
 	var stopMessageId = (callState == IN_CALL || callState == PROCESSING_CALL) ? 'stop' : 'stopPlay';
 	setCallState(NO_CALL);
 	if (webRtcPeer) {
-		webRtcPeer.dispose();
-		webRtcPeer = null;
+                
+
+                webRtcPeer.dispose();
+                webRtcPeer = null;
+   
 
 		if (!message) {
 			var message = {
@@ -416,6 +420,8 @@ function stop(message) {
 			}
 			sendMessage(message);
 		}
+                
+           
 	}
 	hideSpinner(videoInput, videoOutput);
 	document.getElementById('videoSmall').display = 'block';
@@ -437,7 +443,7 @@ function onIceCandidate(candidate) {
 
 function sendMessage(message) {
 	var jsonMessage = JSON.stringify(message);
-	console.log('Senging message: ' + jsonMessage);
+	console.log('Sending message: ' + jsonMessage);
 	ws.send(jsonMessage);
 }
 

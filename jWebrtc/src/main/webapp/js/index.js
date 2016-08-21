@@ -129,7 +129,7 @@ ws.onmessage = function(message) {
 		});
 		break;
         case 'responseOnlineStatus':
-		//setOnlineStatus(parsedMessage);
+		setOnlineStatus(parsedMessage);
                 break;
 	case 'playResponse':
 		playResponse(parsedMessage);
@@ -165,7 +165,7 @@ function registerResponse(message) {
 
 function updateRegisteredUsers(userList) {
 	console.log("User list: " + userList);
-	var peers = $("#peer");
+	var peers = $("#peer").find('option').remove().end();
 	var name;
 	for (var i = 0; i < userList.length; i++) {
 		//options += '<option value="' + result[i].ImageFolderID + '">' + result[i].Name + '</option>';
@@ -234,8 +234,10 @@ function incomingCall(message) {
 
 		console.log("accepting call");
 		showSpinner(videoInput, videoOutput);
-                var iceServers = {"iceServers":[{"urls":"turn:5.9.154.226:3478?transport=tcp","username":"akashionata","credential":"silkroad2015"}]};
-		from = message.from;
+               // var iceServers = {"iceServers":[{"urls":"turn:webrtc.a-fk.de:3478?transport=tcp","username":"webrtc","credential":"fondkonzept"}]};
+		var iceServers = {"iceServers":[{"urls":"turn:5.9.154.226:3478?transport=tcp","username":"akashionata","credential":"silkroad2015"}]};
+		
+                from = message.from;
 		var options = {
 			localVideo : videoInput,
 			remoteVideo : videoOutput,
@@ -376,13 +378,17 @@ function playEnd() {
 }
 
 function stop(message) {
-	console.log("Stopping");
+	console.log("Stopping that stuff...");
 	var stopMessageId = (callState == IN_CALL || callState == PROCESSING_CALL) ? 'stop' : 'stopPlay';
 	setCallState(NO_CALL);
 	if (webRtcPeer) {
-		webRtcPeer.dispose();
-		webRtcPeer = null;
-
+            
+                console.log('message is:'+message);
+                hideSpinner(videoInput, videoOutput);
+                document.getElementById('videoSmall').display = 'block';
+                webRtcPeer.dispose();
+                webRtcPeer = null;
+                
 		if (!message) {
 			var message = {
 				id : stopMessageId
@@ -390,8 +396,7 @@ function stop(message) {
 			sendMessage(message);
 		}
 	}
-	hideSpinner(videoInput, videoOutput);
-	document.getElementById('videoSmall').display = 'block';
+
 }
 
 function onError() {
@@ -410,7 +415,7 @@ function onIceCandidate(candidate) {
 
 function sendMessage(message) {
 	var jsonMessage = JSON.stringify(message);
-	console.log('Senging message: ' + jsonMessage);
+	console.log('Sending message: ' + jsonMessage);
 	ws.send(jsonMessage);
 }
 

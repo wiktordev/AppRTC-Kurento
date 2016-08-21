@@ -77,11 +77,11 @@ public class UserSession {
   }
 
   public void sendMessage(JsonObject message) throws IOException {
-    log.debug("Sending message from user '{}': {}", name, message);
+    log.error("Sending message from user '{}': {}", name, message);
     if(session.isOpen())
         session.getBasicRemote().sendText(message.toString());
     else 
-        log.debug("sessio of user '{}' is closed.", name);
+        log.debug("session of user '{}' is closed.", name);
   }
 
   public String getSessionId() {
