@@ -25,9 +25,12 @@ var from;
 
 var registerName = null;
 var registerState = null;
-const NOT_REGISTERED = 0;
-const REGISTERING = 1;
-const REGISTERED = 2;
+const
+NOT_REGISTERED = 0;
+const
+REGISTERING = 1;
+const
+REGISTERED = 2;
 
 function setRegisterState(nextState) {
 	switch (nextState) {
@@ -49,10 +52,14 @@ function setRegisterState(nextState) {
 }
 
 var callState = null;
-const NO_CALL = 0;					// client is idle
-const PROCESSING_CALL = 1;	// client is about to call someone (ringing the phone)
-const IN_CALL = 2;					// client is talking with someone
-const IN_PLAY = 4;					// client is replaying a record
+const
+NO_CALL = 0; // client is idle
+const
+PROCESSING_CALL = 1; // client is about to call someone (ringing the phone)
+const
+IN_CALL = 2; // client is talking with someone
+const
+IN_PLAY = 4; // client is replaying a record
 
 function setCallState(nextState) {
 	switch (nextState) {
@@ -86,8 +93,8 @@ window.onload = function() {
 	console = new Console();
 	setRegisterState(NOT_REGISTERED);
 	var drag = new Draggabilly(document.getElementById('videoSmall'));
-	videoInput = document.getElementById('videoInput');		// <video>-element
-	videoOutput = document.getElementById('videoOutput');	// <video>-element
+	videoInput = document.getElementById('videoInput'); // <video>-element
+	videoOutput = document.getElementById('videoOutput'); // <video>-element
 	document.getElementById('name').focus();
 }
 
@@ -284,11 +291,58 @@ function call() {
 	setCallState(PROCESSING_CALL);
 	showSpinner(videoInput, videoOutput);
 
+	/*var width, height;
+	//var resolution = document.getElementById('resolution').value;
+	var resolution = 'HD';
+	switch(resolution)
+	{
+		case 'VGA':
+			width = 640;
+			height = 480;
+			break;
+		case 'HD':
+			width = 1280;
+			height = 720;
+			break;
+		case 'Full HD':
+			width = 1920;
+			height = 1080;
+			break;
+
+		default:
+			return console.error('Unknown resolution',resolution);
+	}
+
+	var selectSource = 'Screen';
+	var isWebcam = selectSource.value == 'Webcam';
+
+	var constraints = {
+		audio: isWebcam,
+		video: {
+			width: 640,
+			framerate: 15,
+			mandatory: {
+				maxWidth: width,
+				maxHeight: height,
+				maxFrameRate : 15,
+				minFrameRate: 15
+			}
+		}
+	};
+
+	if(!isWebcam)
+	{
+		constraints.video.mediaSource = 'screen';
+		constraints.video.chromeMediaSource = 'screen';
+	}*/
+
 	var options = {
 		localVideo : videoInput,
 		remoteVideo : videoOutput,
 		onicecandidate : onIceCandidate,
-		onerror : onError
+		onerror : onError,
+		//mediaConstraints: constraints,
+		sendSource : 'screen'
 	}
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 			function(error) {
@@ -312,17 +366,16 @@ function play() {
 	showSpinner(videoOutput);
 
 	var options = {
-		remoteVideo: videoOutput,
-		onicecandidate: onIceCandidate
+		remoteVideo : videoOutput,
+		onicecandidate : onIceCandidate
 	}
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options,
-		function(error) {
-			if (error) {
-				return console.error(error);
-			}
-			this.generateOffer(onOfferPlay);
-		}
-	)
+			function(error) {
+				if (error) {
+					return console.error(error);
+				}
+				this.generateOffer(onOfferPlay);
+			})
 }
 
 function onOfferCall(error, offerSdp) {
@@ -361,7 +414,8 @@ function playEnd() {
 
 function stop(message) {
 	console.log("Stopping");
-	var stopMessageId = (callState == IN_CALL || callState == PROCESSING_CALL) ? 'stop' : 'stopPlay';
+	var stopMessageId = (callState == IN_CALL || callState == PROCESSING_CALL) ? 'stop'
+			: 'stopPlay';
 	setCallState(NO_CALL);
 	if (webRtcPeer) {
 		webRtcPeer.dispose();
@@ -394,7 +448,7 @@ function onIceCandidate(candidate) {
 
 function sendMessage(message) {
 	var jsonMessage = JSON.stringify(message);
-	console.log('Senging message: ' + jsonMessage);
+	console.log('Sending message: ' + jsonMessage);
 	ws.send(jsonMessage);
 }
 
@@ -430,3 +484,25 @@ $(document).delegate('*[data-toggle="lightbox"]', 'click', function(event) {
 	event.preventDefault();
 	$(this).ekkoLightbox();
 });
+
+function getScreenConstraints(error, sourceId) {
+	var screen_constraints = {
+		audio : false,
+		video : {
+			mandatory : {
+				chromeMediaSource : error ? 'screen' : 'desktop',
+				maxWidth : window.screen.width > 1920 ? window.screen.width
+						: 1920,
+				maxHeight : window.screen.height > 1080 ? window.screen.height
+						: 1080
+			},
+			optional : []
+		}
+	};
+
+	if (sourceId) {
+		screen_constraints.video.mandatory.chromeMediaSourceId = sourceId;
+	}
+
+	return screen_constraints;
+}
