@@ -22,8 +22,12 @@ public class Utils {
     public static KurentoClient kurentoClient() {
         
       String kmsURL =  System.getProperty("DEFAULT_KMS_WS_URI");
-      if(kmsURL==null || kmsURL.equals(""))
-          kmsURL = Config.DEFAULT_KMS_WS_URI;
+      
+      if(kmsURL==null || kmsURL.equals("")){
+           kmsURL = Config.DEFAULT_KMS_WS_URI;
+      }
+      System.out.println("using kms.url:"+kmsURL); 
+      
       return KurentoClient.create(System.getProperty("kms.url", kmsURL));
     }
     

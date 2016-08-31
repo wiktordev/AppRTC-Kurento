@@ -12,27 +12,52 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 - Kurento Java Tutorial http://doc-kurento.readthedocs.io/en/stable/tutorials/java/tutorial-one2one-adv.html
 
 ###Todo:
-- (browser) update options.iceServers after appConfig response 
 - fix logging slf4j for maven
+	- if kurento connection cannot be established create better error message
+
 - widget for browser 
 		http://shootitlive.com/2012/07/developing-an-embeddable-javascript-widget/ 
 - screensharing  
+		https://groups.google.com/forum/#!topic/kurento/jpis7IbU2Zo
+		https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture
+		https://groups.google.com/forum/#!topic/kurento/s1FrlX_9n4I
+		http://stackoverflow.com/questions/36485558/getting-screencaptureerror-in-chrome-using-kurento-media-server
 		http://doc-kurento.readthedocs.io/en/stable/mastering/kurento_utils_js.html
+		https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/
+		https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
+		http://doc-kurento.readthedocs.io/en/stable/mastering/kurento_utils_js.html
+		https://bloggeek.me/implement-screen-sharing-webrtc/
+
 - Merge recorded videos of call participants into a split screen view
   - ffmpeg -i input1.mp4 -i input2.mp4 -filter_complex '[0:v]pad=iw*2:ih[int];[int][1:v]overlay=W/2:0[vid]' -map [vid] -c:v libx264 -crf 23 -preset veryfast output.mp4 (http://superuser.com/a/537482)
   - Build new Docker image based upon fiware/stream-oriented-kurento including ffmpeg
   - Share folder of recorded videos with host (necessary in production?)
 
+
+
 ##Bugs
+- Tomcat does not create nice session IDs for the websockts - use HTTP-SessionId?
 
 ##Probleme
-- es scheint auch so, dass auf dem produktiv server die websocket sessions auch nicht im browser gelöscht werden wenn man einen browser schließt. 
-- es scheint so, als wenn sich die sessions und pipelines nach einem call nicht mehr schließen und deswegen ein neuer call nicht mehr möglich ist.
 - ich habe mich (Mac) beim telefonat mit einem Linux-Rechner selbst gehört. War sehr unangenehm.
-- 
+- Proleme mit Windows Chrome (kein Bild) und Mac (Chrome)
+- Probleme mit Windows Mozilla und (Mac Chrome) Probleme mit Qualität (Skype besser) (verzerrt) (Mac zu Mac mit Eggenfelden war okey)
+- Probleme mit Anruf zu iOS keine Videoverbindung kommt zustande (Android funktioniert)
 
 
 ###Done
+- 2016-08-29 - (administration/turnServer)
+	http://stackoverflow.com/questions/28772212/stun-turn-server-connectivity-test
+	https://tools.ietf.org/html/rfc7376
+	http://rtcquickstart.org/guide/multi/firewall-nat-considerations.html
+	https://www.nomachine.com/AR07N00894
+
+
+- 2016-08-29 - kurento behind NAT
+		http://builds.kurento.org/release/5.0.3/mastering/advanced_installation_guide.html?highlight=plumberendpoint
+		https://groups.google.com/forum/#!topic/kurento/QkO_ct0QEGE
+- 2016-08-21 - (browser) update options.iceServers after appConfig response 
+- 2016-08-21 - fixed problems with stopping a call. (finish session on both sides)
 - 2016-08-19 - wenn closing socket registered user should be deregistered too!
 - 2016-08-19 - turnConfig in WebSocketServer.java too much - needs clean up! check ios / android / web client 
 - 2016-08-17 - change turn server config in server - because it produces wrong format

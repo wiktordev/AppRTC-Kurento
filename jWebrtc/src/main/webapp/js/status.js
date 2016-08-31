@@ -15,7 +15,9 @@
  *
  */
 var server = location.host;
-if(server==null || server=="" || server.startWith("file:")) server = "nicokrause.com"
+server = server = "webrtc.a-fk.de";
+if(server==null || server=="" || server.lastIndexOf ("file:")>-1) server = "webrtc.a-fk.de";
+console.log('server: '+server);
 
         
 var ws = new WebSocket('wss://' + server + '/jWebrtc/ws');
@@ -102,8 +104,8 @@ window.onload = function() {
 
 	ws.onopen = function() {
 		console.log("ws connection now open");
-
-		registerUser($('#webrtc-online-status').attr('data-me'));
+                requestAppConfig();
+		//registerUser($('#webrtc-online-status').attr('data-me'));
 		if (REGISTERED) {
 			myConsultant.name = $('#webrtc-online-status').attr('data-peer');
 			checkOnlineStatus(myConsultant);
@@ -156,8 +158,16 @@ ws.onmessage = function(message) {
 		playEnd();
 		break;
 	default:
-		console.error('Unrecognized message', parsedMessage);
+		//console.error('Unrecognized message', parsedMessage);
 	}
+}
+function requestAppConfig(){
+        console.log('requesting app config');
+	var message = {
+		id : 'appConfig',
+                type: 'browser'
+	};
+	sendMessage(message);
 }
 
 function setOnlineStatus(message) {

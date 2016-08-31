@@ -41,7 +41,7 @@ public class CallMediaPipeline {
 	private static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-S");
 
 	// TODO define as environment variables
-	public static final String RECORDING_DIR = "file:///kurento/record/";
+	public static final String RECORDING_DIR = "file:///var/kurento/";
 	
 //	public static final String RECORDING_PATH = RECORDING_DIR + df.format(new Date()) + "-";
 	public static final String RECORDING_EXT = ".webm";

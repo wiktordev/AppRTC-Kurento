@@ -23,7 +23,9 @@ var response;
 var callerMessage;
 var from;
 var myConsultant = {name: '', status: ''};
-
+var iceServers = {"iceServers":[{"urls":"stun:webrtc.a-fk.de:3478"},{"urls":"turn:webrtc.a-fk.de:3478","username":"webrtc","credential":"fondkonzept"}]};
+//var iceServers = {"iceServers":[{"urls":"turn:5.9.154.226:3478","username":"akashionata","credential":"silkroad2015"}]};
+		
 var registerName = null;
 var registerState = null;
 const NOT_REGISTERED = 0;
@@ -91,6 +93,11 @@ window.onload = function() {
 	videoOutput = document.getElementById('videoOutput');	// <video>-element
 	document.getElementById('name').focus();
         
+        ws.onopen = function() {
+                   console.log("ws connection now open");
+                   requestAppConfig();
+        }
+
 }
 
 window.onbeforeunload = function() {
@@ -98,56 +105,79 @@ window.onbeforeunload = function() {
 }
 
 ws.onmessage = function(message) {
-	var parsedMessage = JSON.parse(message.data);
+	//var appConfigParams = message.params;
+       // console.log(JSON.stringify(appConfigParams));
+                
+        var parsedMessage = JSON.parse(message.data);
 	console.info('Received message: ' + message.data);
-
-	switch (parsedMessage.id) {
-	case 'registerResponse':
-		registerResponse(parsedMessage);
-		break;
-	case 'registeredUsers':
-		// server sends a list of all registered users including the user on this client
-		updateRegisteredUsers(JSON.parse(parsedMessage.response));
-		break;
-	case 'callResponse':
-		callResponse(parsedMessage);
-		break;
-	case 'incomingCall':
-		incomingCall(parsedMessage);
-		break;
-	case 'startCommunication':
-		startCommunication(parsedMessage);
-		break;
-	case 'stopCommunication':
-		console.info('Communication ended by remote peer');
-		stop(true);
-		break;
-	case 'iceCandidate':
-		webRtcPeer.addIceCandidate(parsedMessage.candidate, function(error) {
-			if (error)
-				return console.error('Error adding candidate: ' + error);
-		});
-		break;
-        case 'responseOnlineStatus':
-		setOnlineStatus(parsedMessage);
-                break;
-	case 'playResponse':
-		playResponse(parsedMessage);
-		break;
-	case 'playEnd':
-		playEnd();
-		break;
-	default:
-		console.error('Unrecognized message', parsedMessage);
-	}
+        
+        if(parsedMessage.params){
+           		readAppConfig(parsedMessage);
+        }
+        else{
+            switch (parsedMessage.id) {
+                case 'registerResponse':
+                        registerResponse(parsedMessage);
+                        break;
+                case 'registeredUsers':
+                        updateRegisteredUsers(JSON.parse(parsedMessage.response));
+                        break;
+                case 'callResponse':
+                        callResponse(parsedMessage);
+                        break;
+                case 'incomingCall':
+                        incomingCall(parsedMessage);
+                        break;
+                case 'startCommunication':
+                        startCommunication(parsedMessage);
+                        break;
+                case 'stopCommunication':
+                        console.info('Communication ended by remote peer');
+                        stop(true);
+                        break;
+                case 'iceCandidate':
+                        webRtcPeer.addIceCandidate(parsedMessage.candidate, function(error) {
+                                if (error)
+                                        return console.error('Error adding candidate: ' + error);
+                        });
+                        break;
+                case 'responseOnlineStatus':
+                        setOnlineStatus(parsedMessage);
+                        break;
+                case 'playResponse':
+                        playResponse(parsedMessage);
+                        break;
+                case 'playEnd':
+                        playEnd();
+                        break;
+                default:
+                        console.error('Unrecognized message', parsedMessage);
+                }
+    }
 }
-
+function requestAppConfig(){
+        console.log('requesting app config');
+	var message = {
+		id : 'appConfig',
+                type: 'browser'
+	};
+	sendMessage(message);
+}
 function setOnlineStatus(message) {
 	var statusTextElement = $("#webrtc-online-status");
 	if (message.message == myConsultant.name) {
 		myConsultant.status = message.response;
 	}
 	statusTextElement.text(myConsultant.name + ' is ' + myConsultant.status);
+}
+
+function readAppConfig(message) {
+	if (message.params ) {
+            //console.log('iceServersPreConfigured:'+JSON.stringify(iceServers));
+                    iceServers = message.params.pc_config;
+            //console.log('iceServersFromServer   :'+JSON.stringify(message.params.pc_config));
+	}
+	if(message.result=="SUCCESS") return true;
 }
 
 function registerResponse(message) {
@@ -234,18 +264,22 @@ function incomingCall(message) {
 
 		console.log("accepting call");
 		showSpinner(videoInput, videoOutput);
-               // var iceServers = {"iceServers":[{"urls":"turn:webrtc.a-fk.de:3478?transport=tcp","username":"webrtc","credential":"fondkonzept"}]};
-		var iceServers = {"iceServers":[{"urls":"turn:5.9.154.226:3478?transport=tcp","username":"akashionata","credential":"silkroad2015"}]};
-		
+
+                
                 from = message.from;
 		var options = {
 			localVideo : videoInput,
 			remoteVideo : videoOutput,
 			onicecandidate : onIceCandidate,
-			onerror : onError
+			onerror : onError,    
 		}
+                
                 options.configuration  = iceServers;
-                console.log(options.iceServers);
+               // options.mediaConstraints.DtlsSrtpKeyAgreemen = true;
+               // options.mediaConstraints.video.mandatory.chromeMediaSource = 'screen';
+               // options.mediaConstraints.video.mandatory.mediaSource = 'screen' || 'window';
+                
+
 		webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 				function(error) {
 					if (error) {
@@ -308,6 +342,8 @@ function call() {
 		onicecandidate : onIceCandidate,
 		onerror : onError
 	}
+        
+       // DtlsSrtpKeyAgreement:true
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 			function(error) {
 				if (error) {

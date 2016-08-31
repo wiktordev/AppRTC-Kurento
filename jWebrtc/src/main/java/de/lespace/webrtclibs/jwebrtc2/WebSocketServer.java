@@ -79,7 +79,9 @@ public class WebSocketServer {
 		}
                 
 		try {
-			stop(session, true);
+			stop(session);
+                        String sessionId = session.getId();
+                        killUserSession(session);
 			//registry.removeBySession(session);
 		} catch (IOException ex) {
 			// Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE,
@@ -118,6 +120,7 @@ public class WebSocketServer {
 		case "appConfig":
 			try {
 				appConfig(session, jsonMessage);
+                                log.debug("appConfig requested...");
 			} catch (IOException e) {
 				handleErrorResponse(e, session, "appConfigResponse");
 			}
@@ -178,7 +181,7 @@ public class WebSocketServer {
 		case "stop":
 			try {
                             System.out.println("received stop...");
-				stop(session, false);
+				stop(session);
 				//releasePipeline(user);
                             } catch (IOException ex) {
 				log.error(ex.getLocalizedMessage(), ex);
@@ -332,7 +335,7 @@ public class WebSocketServer {
 
 	private void handleErrorResponse(Exception throwable, Session session, String responseId) {
 		try {
-			stop(session, false);
+			stop(session);
 		} catch (IOException ex) {
 			// Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE,
 			// null, ex);
@@ -361,35 +364,66 @@ public class WebSocketServer {
 	 */
 	private void appConfig(Session session, JsonObject jsonMessage) throws IOException {
 
-              /*  String serverURL =  System.getProperty("DEFAULT_SERVER_URL");
-                if(serverURL==null || serverURL.equals(""))
-                    serverURL = Config.DEFAULT_SERVER_URL;
-                */
                 
                 String turnUsername = System.getProperty("TURN_USERNAME");
                 if(turnUsername==null || turnUsername.equals("")) turnUsername = "akashionata";
                 
                 String turnPassword = System.getProperty("TURN_PASSWORD");
-                if(turnPassword==null || turnPassword.equals("")) turnUsername = "silkroad2015";
+                if(turnPassword==null || turnPassword.equals("")) turnPassword = "silkroad2015";
                 
                 String turnUrl = System.getProperty("TURN_URL");
-                if(turnUrl==null || turnUrl.equals("")) turnUrl = "turn:5.9.154.226:3478?transport=tcp";
+                if(turnUrl==null || turnUrl.equals("")) turnUrl = "turn:5.9.154.226:3478";
                 
                 
+                String stunUrl = System.getProperty("STUN_URL");
+                if(stunUrl==null || stunUrl.equals("")) stunUrl = "stun:5.9.154.226:3478";
+               
+                     
+                String type = "";
+                try{
+                    if(jsonMessage.get("type")!=null) type = jsonMessage.get("type").getAsString(); 
+                }catch(Exception ex){System.err.println("type cannot be read from json...");}
                 
-                String turnConfig = "{\n" +
-                "	\"username\": \""+turnUsername+"\",\n" +
-                "	\"password\": \""+turnPassword+"\",\n" +
-                "	\"uris\": [\n" +
-                "		\""+turnUrl+"\"\n" +
-//                   "		\"turn:5.9.154.226:3478?transport=udp\",\n" +
-//                   "		\"turn:5.9.154.226:3478?transport=tcp\"\n" +
-                "	]\n" +
-                "}";
+                       
+              
+              /*  String turnConfig = "[{"+
+                            "\"username\":\"\"," +
+                            "\"password\":\"\"," +
+                            "\"urls\":[" +"\""+stunUrl+"\"" +"]},"+
+                        "{" +
+                            "\"username\":\""+turnUsername+"\"," +
+                            "\"password\":\""+turnPassword+"\"," +
+                            "\"urls\":[" +
+                                            "\""+turnUrl+"\"" +
+                                        "]" +
+                    "}]";
+                */
+                
+                       String turnConfig = "[{"+
+                            "\"username\":\"\"," +
+                            "\"password\":\"\"," +
+                            "\"urls\":[" +"\"stun:5.9.154.226:3478\"" +"]},"+
+                        "{" +
+                            "\"username\":\"akashionata\"," +
+                            "\"password\":\"silkroad2015\"," +
+                            "\"urls\":[" +
+                                            "\"turn:5.9.154.226:3478\"" +
+                                        "]" +
+                    "}]";
+                
+                String turnUrls =    "{\"urls\":\""+turnUrl+"\",\"username\":\""+turnUsername+"\",\"credential\":\""+turnPassword+"\"}";
+            
+                //String turnConfigBrowser = "["+stunUrl+"]";
+
+                if(type!=null && type.equals("browser")){
+                    stunUrl =    "{\"urls\":\""+stunUrl+"\"}";
+                    turnConfig = "["+stunUrl+","+turnUrls+"]";
+                }
                 
 		String responseJSON = "{" + "\"params\" : {" 
 				+ "\"pc_config\": {\"iceServers\": "+ turnConfig + "}" +
 				"}," + "\"result\": \"SUCCESS\"" + "}";
+                
                 log.error(responseJSON);
 		session.getBasicRemote().sendText(responseJSON);
 
@@ -634,16 +668,27 @@ public class WebSocketServer {
 			caller.sendMessage(response);
 		}
 	}
+        public void killUserSession(Session session) throws IOException{ 
+            	
+            String sessionId = session.getId();
+			// System.out.println("killing usersession from of websocket id:" +
+			// sessionId);
+			log.error("Killing usersession from of websocket id [{}]", sessionId);
 
-	public void stop(Session session, boolean killSession) throws IOException {
+			registry.removeBySession(session);
+			sendRegisteredUsers(); // update userlist on all clients when
+									// somebody disconnects
+		//} // remove usre from session must register again at the moment right or
+			// not?
+        }
+	public void stop(Session session) throws IOException {
 
 		String sessionId = session.getId();
                 System.out.println("trying to find session id:"+sessionId+"in piplines:\n"+pipelines.keySet().toString());
                 
 		if (pipelines.containsKey(sessionId)) {
                         System.out.println("found session id in piplines:");
-			// System.out.println("stopping media connection of websocket id:" +
-			// sessionId);
+			
 			log.error("Stopping media connection of websocket id [{}]", sessionId);
                         
 			// Both users can stop the communication. A 'stopCommunication'
@@ -652,11 +697,10 @@ public class WebSocketServer {
                         System.out.println("stopperUser: "+stopperUser.getName());
 			
                         if (stopperUser != null) {
-                            System.out.println("test1");
+                            
                             UserSession stoppedUserFrom = (stopperUser.getCallingFrom() != null) ? registry.getByName(stopperUser.getCallingFrom()) : null;
-                            System.out.println("test2:"+stoppedUserFrom);
+                            
                             UserSession stoppedUserTo = (stopperUser.getCallingTo() != null )? registry.getByName(stopperUser.getCallingTo()) : null;
-                            System.out.println("test3");
                             UserSession stopUser = null;
                            
                             if(stoppedUserFrom !=null && stoppedUserFrom.getSession()!=null && !stoppedUserFrom.getSession().getId().equals(session.getId())){
@@ -665,41 +709,40 @@ public class WebSocketServer {
                                 stopUser = stoppedUserFrom;
                                 JsonObject message = new JsonObject();
                                 message.addProperty("id", "stopCommunication");
-                            stopUser.sendMessage(message);
-                            stopUser.clear();
-                            System.out.println("send stop to stopUser:"+stopUser.getName());
-
+                                stopUser.sendMessage(message);
+                                stopUser.clear();
+                            
+                                System.out.println("send stop to stopUser:"+stopUser.getName());
+                                MediaPipeline pipeline1 = pipelines.remove(sessionId);
+                                pipeline1.release();
+                               
+                                MediaPipeline pipeline2 = pipelines.remove(stopUser.getSession().getId());
+                                pipeline2.release();
                             }      
                             else{
                                System.out.println("die id des stoppenden IST! die des anrufenden");
                             
-                            stopUser = stoppedUserTo;
-                            JsonObject message = new JsonObject();
-                            message.addProperty("id", "stopCommunication");
-                            stopUser.sendMessage(message);
-                            stopUser.clear();
-                            System.out.println("send stop to stoppedUserFrom:"+stopUser.getName());
-
+                               stopUser = stoppedUserTo;
+                               JsonObject message = new JsonObject();
+                               message.addProperty("id", "stopCommunication");
+                               stopUser.sendMessage(message);
+                               stopUser.clear();
+                               System.out.println("send stop to stoppedUserFrom:"+stopUser.getName());
+                               
+                               MediaPipeline pipeline1 = pipelines.remove(sessionId);
+                               pipeline1.release();
+                               
+                               MediaPipeline pipeline2 = pipelines.remove(stopUser.getSession().getId());
+                               pipeline2.release();
                             
                            }
-                            
-                            MediaPipeline pipeline = pipelines.remove(sessionId);
-                            pipeline.release();
+                                                     
                             log.error("Stopped", sessionId);
 			}
                  
 
 		}
-		if (killSession) {
-			// System.out.println("killing usersession from of websocket id:" +
-			// sessionId);
-			log.error("Killing usersession from of websocket id [{}]", sessionId);
 
-			registry.removeBySession(session);
-			sendRegisteredUsers(); // update userlist on all clients when
-									// somebody disconnects
-		} // remove usre from session must register again at the moment right or
-			// not?
 
 	}
 
