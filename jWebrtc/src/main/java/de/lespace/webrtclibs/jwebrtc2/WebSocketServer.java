@@ -46,15 +46,14 @@ public class WebSocketServer {
 
 	@OnOpen
 	public void onOpen(Session session) {
-		log.error("apprtcWs opened with sessionId {}", session.getId());
+		log.debug("apprtcWs opened with sessionId {}", session.getId());
                 UserSession newUser = new UserSession(session, "webuser@"+session.getId());
 		registry.register(newUser);
-		System.out.println("registered Users:"+registry.getRegisteredUsers());
+		log.debug("registered Users: {} ",registry.getRegisteredUsers());
 	}
 
 	@OnError
 	public void onError(Session session, Throwable error) {
-		// System.out.println("apprtcWs Error " + session.getId() );
 		log.error("apprtcWs Error [{}]", session.getId());
 		error.getStackTrace();
 		if (error != null) {
@@ -69,7 +68,7 @@ public class WebSocketServer {
 	 */
 	@OnClose
 	public void onClose(Session session) {
-		log.error("apprtcWs closed connection [{}]", session.getId());
+		log.debug("apprtcWs closed connection [{}]", session.getId());
                 
                 UserSession user = registry.getBySession(session);
 		try {
@@ -82,10 +81,7 @@ public class WebSocketServer {
 			stop(session);
                         String sessionId = session.getId();
                         killUserSession(session);
-			//registry.removeBySession(session);
 		} catch (IOException ex) {
-			// Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE,
-			// null, ex);
 			log.error(ex.getLocalizedMessage(), ex);
 		}
 	}
@@ -103,11 +99,8 @@ public class WebSocketServer {
 	@OnMessage
 	public void onMessage(String _message, Session session) {
 
-		// System.out.println("apprtcWs " + session.getId() + " received message
-		// " + _message);
 		log.error("apprtcWs [{}] received message: {}", session.getId(), _message);
 		JsonObject jsonMessage = gson.fromJson(_message, JsonObject.class);
-
 		UserSession user = registry.getBySession(session);
 
 		if (user != null) {
@@ -163,12 +156,12 @@ public class WebSocketServer {
 
 				if (jsonMessage.has("sdpMLineIndex") && jsonMessage.has("sdpMLineIndex")) {
 					// this is how it works when it comes from a android
-					log.error("apprtcWs candidate is coming from android or ios");
+					log.debug("apprtcWs candidate is coming from android or ios");
 					candidateJson = jsonMessage;
 
 				} else {
 					// this is how it works when it comes from a browser
-					log.error("apprtcWs candidate is coming from web");
+					log.debug("apprtcWs candidate is coming from web");
 					candidateJson = jsonMessage.get("candidate").getAsJsonObject();
 				}
 
@@ -180,9 +173,8 @@ public class WebSocketServer {
 			break;
 		case "stop":
 			try {
-                            System.out.println("received stop...");
+                                log.debug("received stop closing media piplines");
 				stop(session);
-				//releasePipeline(user);
                             } catch (IOException ex) {
 				log.error(ex.getLocalizedMessage(), ex);
 			}
@@ -193,7 +185,6 @@ public class WebSocketServer {
 			} catch (IOException e) {
                             log.error(e.getLocalizedMessage(), e);
                             e.printStackTrace();
-				//Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, e);
 			}
 			break;
 		case "play":
@@ -230,7 +221,7 @@ public class WebSocketServer {
 		responseJSON.addProperty("message", user);
 
                 if(session.isOpen()){
-                     log.error("sending message:"+responseJSON.toString());
+                     log.debug("sending message:"+responseJSON.toString());
                      session.getBasicRemote().sendText(responseJSON.toString());//responseJSON.getAsString()
 
                 }  
@@ -254,7 +245,7 @@ public class WebSocketServer {
 		responseJSON.addProperty("message", user);
 
                 
-                log.error("ublishing online status to clients:"+responseJSON);
+                log.debug("publishing online status to clients: {}",responseJSON);
 
 
 		for (UserSession userSession : registry.getUserSessions()) {
@@ -271,7 +262,7 @@ public class WebSocketServer {
 
 	private void play(final UserSession userSession, JsonObject jsonMessage) {
 		String user = jsonMessage.get("user").getAsString();
-		log.error("Playing recorded call of user [{}]", user);
+		log.debug("Playing recorded call of user [{}]", user);
 
 		JsonObject response = new JsonObject();
 		response.addProperty("id", "playResponse");
@@ -337,11 +328,9 @@ public class WebSocketServer {
 		try {
 			stop(session);
 		} catch (IOException ex) {
-			// Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE,
-			// null, ex);
 			log.error(ex.getLocalizedMessage(), ex);
 		}
-		log.error(throwable.getMessage(), throwable);
+		log.debug(throwable.getMessage(), throwable);
 		JsonObject response = new JsonObject();
 		response.addProperty("id", responseId);
 		response.addProperty("response", "rejected");
@@ -349,8 +338,6 @@ public class WebSocketServer {
 		try {
 			session.getBasicRemote().sendText(response.toString());
 		} catch (IOException ex) {
-			// Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE,
-			// null, ex);
 			log.error(ex.getLocalizedMessage(), ex);
 		}
 	}
@@ -386,7 +373,7 @@ public class WebSocketServer {
                 
                        
               
-              /*  String turnConfig = "[{"+
+               String turnConfig = "[{"+
                             "\"username\":\"\"," +
                             "\"password\":\"\"," +
                             "\"urls\":[" +"\""+stunUrl+"\"" +"]},"+
@@ -397,23 +384,8 @@ public class WebSocketServer {
                                             "\""+turnUrl+"\"" +
                                         "]" +
                     "}]";
-                */
-                
-                       String turnConfig = "[{"+
-                            "\"username\":\"\"," +
-                            "\"password\":\"\"," +
-                            "\"urls\":[" +"\"stun:5.9.154.226:3478\"" +"]},"+
-                        "{" +
-                            "\"username\":\"akashionata\"," +
-                            "\"password\":\"silkroad2015\"," +
-                            "\"urls\":[" +
-                                            "\"turn:5.9.154.226:3478\"" +
-                                        "]" +
-                    "}]";
                 
                 String turnUrls =    "{\"urls\":\""+turnUrl+"\",\"username\":\""+turnUsername+"\",\"credential\":\""+turnPassword+"\"}";
-            
-                //String turnConfigBrowser = "["+stunUrl+"]";
 
                 if(type!=null && type.equals("browser")){
                     stunUrl =    "{\"urls\":\""+stunUrl+"\"}";
@@ -424,10 +396,10 @@ public class WebSocketServer {
 				+ "\"pc_config\": {\"iceServers\": "+ turnConfig + "}" +
 				"}," + "\"result\": \"SUCCESS\"" + "}";
                 
-                log.error(responseJSON);
+                log.debug(responseJSON);
 		session.getBasicRemote().sendText(responseJSON);
 
-		log.error("send app config to: {}", session.getId());
+		log.debug("send app config to: {}", session.getId());
 	}
 
 	/**
@@ -443,7 +415,7 @@ public class WebSocketServer {
 	private boolean register(Session session, JsonObject jsonMessage) throws IOException {
 
 		String name = jsonMessage.getAsJsonPrimitive("name").getAsString();
-		log.error("register called: {}", name);
+		log.debug("register called: {}", name);
 
 		boolean registered = false;
                 
@@ -468,9 +440,7 @@ public class WebSocketServer {
 		responseJSON.addProperty("message", message);
 		newUser.sendMessage(responseJSON);
 
-		// Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO,
-		// "Sent response: " + responseJSON);
-		log.error("Sent response: {}", responseJSON);
+		log.debug("Sent response: {}", responseJSON);
 		return registered;
 	}
 
@@ -488,9 +458,7 @@ public class WebSocketServer {
 		responseJSON.addProperty("response", userListJson);
 		responseJSON.addProperty("message", "");
 
-		// Logger.getLogger(WebSocketServer.class.getName()).log(Level.INFO,
-		// "Updating user list on clients: " + responseJSON);
-		log.error("Updating user list on clients: {}", responseJSON);
+		log.debug("Updating user list on clients: {}", responseJSON);
 
 		for (UserSession userSession : registry.getUserSessions()) {
                        if(userSession.getSession().isOpen()){
@@ -506,7 +474,7 @@ public class WebSocketServer {
 		String from = jsonMessage.get("from").getAsString();
 
 		// System.out.println("call from :" + from + " to:" + to);
-		log.error("call from [{}] to [{}]", from, to);
+		log.info("call from [{}] to [{}]", from, to);
 
 		JsonObject response = new JsonObject();
 
@@ -519,15 +487,12 @@ public class WebSocketServer {
 			response.addProperty("id", "incomingCall");
 			response.addProperty("from", from);
 
-			// System.out.println("callee:" + callee.getName() + " sending
-			// response:" + response.toString());
-			log.error("Sending response [{}] to callee [{}]", response.toString(), callee.getName());
+			log.debug("Sending response [{}] to callee [{}]", response.toString(), callee.getName());
 
 			callee.sendMessage(response);
 			callee.setCallingFrom(from);
 		} else {
-			// System.out.println("to does not exist!");
-			log.error("Callee [{}] does not exist! Rejecting call.", to);
+			log.debug("Callee [{}] does not exist! Rejecting call.", to);
 
 			response.addProperty("id", "callResponse");
 			response.addProperty("response", "rejected: user '" + to + "' is not registered");
@@ -543,19 +508,14 @@ public class WebSocketServer {
 		String to = caller.getCallingTo();
 
 		if ("accept".equals(callResponse)) {
-
-			// System.out.println("Accepted call from '" + from + "' to " + to +
-			// "");
-			log.error("Accepted call from [{}] to [{}]", from, to);
+			log.info("Accepted call from [{}] to [{}]", from, to);
 
 			CallMediaPipeline pipeline = null;
 			try {
 				pipeline = new CallMediaPipeline(Utils.kurentoClient(), from, to);
 				pipelines.put(caller.getSessionId(), pipeline.getPipeline());
 				pipelines.put(callee.getSessionId(), pipeline.getPipeline());
-
-				// System.out.println("created both pipelines...");
-				log.error("created both pipelines...");
+				log.debug("created both pipelines...");
 
 				// give the callee his webRtcEp from the pipeline
 				callee.setWebRtcEndpoint(pipeline.getCalleeWebRtcEp());
@@ -594,26 +554,21 @@ public class WebSocketServer {
 						}
 					}
 				});
-				log.error("created both webrtcendpoints...");
+				log.debug("created both webrtcendpoints...");
 
-				// System.out.println("preparing sending startCommunication to
-				// called person...");
-				log.error("preparing sending startCommunication to called person...");
+				log.debug("preparing sending startCommunication to called person...");
 
 				String calleeSdpOffer = jsonMessage.get("sdpOffer").getAsString();
 				String calleeSdpAnswer = pipeline.generateSdpAnswerForCallee(calleeSdpOffer);
-				// System.out.println("i have callee offer and answer as it
-				// seems");
-				log.error("i have callee offer and answer as it seems");
+
+				log.debug("we have callee offer and answer as it seems");
 
 				JsonObject startCommunication = new JsonObject();
 				startCommunication.addProperty("id", "startCommunication");
 				startCommunication.addProperty("sdpAnswer", calleeSdpAnswer);
 
 				synchronized (callee) {
-                                        //System.out.println("sending startCommunication message to
-					// callee");
-					log.error("sending startCommunication message to callee");
+					log.debug("sending startCommunication message to callee");
 					callee.sendMessage(startCommunication);
 				}
 
@@ -627,9 +582,7 @@ public class WebSocketServer {
 				response.addProperty("sdpAnswer", callerSdpAnswer);
 
 				synchronized (caller) {
-					// System.out.println("sending callResponse message to
-					// caller");
-					log.error("sending callResponse message to caller");
+					log.debug("sending callResponse message to caller");
 					caller.sendMessage(response);
 				}
 
@@ -668,33 +621,27 @@ public class WebSocketServer {
 			caller.sendMessage(response);
 		}
 	}
-        public void killUserSession(Session session) throws IOException{ 
-            	
+        
+        public void killUserSession(Session session) throws IOException{
             String sessionId = session.getId();
-			// System.out.println("killing usersession from of websocket id:" +
-			// sessionId);
-			log.error("Killing usersession from of websocket id [{}]", sessionId);
-
-			registry.removeBySession(session);
-			sendRegisteredUsers(); // update userlist on all clients when
-									// somebody disconnects
-		//} // remove usre from session must register again at the moment right or
-			// not?
+            log.debug("Killing usersession from of websocket id [{}]", sessionId);
+            registry.removeBySession(session);
+            sendRegisteredUsers(); 
         }
+        
 	public void stop(Session session) throws IOException {
 
 		String sessionId = session.getId();
-                System.out.println("trying to find session id:"+sessionId+"in piplines:\n"+pipelines.keySet().toString());
+                log.debug("trying to find session id: {} in piplines:\n{}",sessionId,pipelines.keySet().toString());
                 
 		if (pipelines.containsKey(sessionId)) {
-                        System.out.println("found session id in piplines:");
-			
-			log.error("Stopping media connection of websocket id [{}]", sessionId);
+                        log.debug("found session id in piplines:");
+			log.debug("Stopping media connection of websocket id [{}]", sessionId);
                         
 			// Both users can stop the communication. A 'stopCommunication'
 			// message will be sent to the other peer.
 			UserSession stopperUser = registry.getBySession(session);
-                        System.out.println("stopperUser: "+stopperUser.getName());
+                        log.debug("stopperUser: "+stopperUser.getName());
 			
                         if (stopperUser != null) {
                             
@@ -704,7 +651,7 @@ public class WebSocketServer {
                             UserSession stopUser = null;
                            
                             if(stoppedUserFrom !=null && stoppedUserFrom.getSession()!=null && !stoppedUserFrom.getSession().getId().equals(session.getId())){
-                                System.out.println("die id des stoppenden ist NICHT! die des anrufenden");
+                                log.debug("die id des stoppenden ist NICHT! die des anrufenden");
                            
                                 stopUser = stoppedUserFrom;
                                 JsonObject message = new JsonObject();
@@ -712,7 +659,7 @@ public class WebSocketServer {
                                 stopUser.sendMessage(message);
                                 stopUser.clear();
                             
-                                System.out.println("send stop to stopUser:"+stopUser.getName());
+                                log.debug("send stop to stopUser:",stopUser.getName());
                                 MediaPipeline pipeline1 = pipelines.remove(sessionId);
                                 pipeline1.release();
                                
@@ -720,14 +667,14 @@ public class WebSocketServer {
                                 pipeline2.release();
                             }      
                             else{
-                               System.out.println("die id des stoppenden IST! die des anrufenden");
+                               log.debug("die id des stoppenden IST! die des anrufenden");
                             
                                stopUser = stoppedUserTo;
                                JsonObject message = new JsonObject();
                                message.addProperty("id", "stopCommunication");
                                stopUser.sendMessage(message);
                                stopUser.clear();
-                               System.out.println("send stop to stoppedUserFrom:"+stopUser.getName());
+                               log.debug("send stop to stoppedUserFrom:",stopUser.getName());
                                
                                MediaPipeline pipeline1 = pipelines.remove(sessionId);
                                pipeline1.release();
@@ -737,13 +684,9 @@ public class WebSocketServer {
                             
                            }
                                                      
-                            log.error("Stopped", sessionId);
+                            log.debug("Stopped", sessionId);
 			}
-                 
-
 		}
-
-
 	}
 
 }

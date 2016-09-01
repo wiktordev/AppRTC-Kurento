@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import javax.servlet.http.HttpServletRequest;
 import org.kurento.client.KurentoClient;
 import org.kurento.client.MediaPipeline;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -19,6 +21,7 @@ import org.kurento.client.MediaPipeline;
  */
 public class Utils {
     
+     private static final Logger log = LoggerFactory.getLogger(Utils.class);
     public static KurentoClient kurentoClient() {
         
       String kmsURL =  System.getProperty("DEFAULT_KMS_WS_URI");
@@ -26,7 +29,7 @@ public class Utils {
       if(kmsURL==null || kmsURL.equals("")){
            kmsURL = Config.DEFAULT_KMS_WS_URI;
       }
-      System.out.println("using kms.url:"+kmsURL); 
+      log.debug("using kms.url:",kmsURL); 
       
       return KurentoClient.create(System.getProperty("kms.url", kmsURL));
     }
@@ -35,11 +38,11 @@ public class Utils {
         if(room == null || room.equals("")) throw new IllegalArgumentException("room is null");
         
         if(room.getPipeline() != null){
-            System.out.println("returning saved pipeline");
+            log.debug("returning saved pipeline");
             return room.getPipeline();
         }
         
-        System.out.println("creating new pipeline to kurento server: ");
+        log.debug("creating new pipeline to kurento server: ");
         room.pipeline = kurentoClient().createMediaPipeline();
         return room.pipeline; 
     }

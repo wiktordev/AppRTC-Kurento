@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Map of users registered in the system. This class has a concurrent hash map
@@ -23,15 +25,16 @@ public class UserRegistry {
 
 	private ConcurrentHashMap<String, UserSession> usersByName = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, UserSession> usersBySessionId = new ConcurrentHashMap<>();
-
-	public void register(UserSession user) {
-                System.out.println("registering user:"+user.getName());
+        private static final Logger log = LoggerFactory.getLogger(UserRegistry.class);
+	
+        public void register(UserSession user) {
+                log.debug("registering user:",user.getName());
                 UserSession unRegisteredUserSession = usersBySessionId.get(user.getSession().getId());
             
                 //delete old sessions without name and replace with the same session but with name
                 //it is necessary for the status which can be queried also in unregistered state
                 if(unRegisteredUserSession!=null){
-                    System.out.println("removing unregisteredUserSession with name:"+unRegisteredUserSession.getName());
+                    log.debug("removing unregisteredUserSession with name:"+unRegisteredUserSession.getName());
                     usersByName.remove(unRegisteredUserSession.getName());
                     usersBySessionId.remove(unRegisteredUserSession.getSession().getId());
                 }
