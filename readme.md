@@ -43,13 +43,14 @@ There are:
 ```
 		<html>
 			<head><title>Example Support Widget</title>
-			<script src="https://<<your-webrtc-server>>/jWebrtc/js/webrtcStatusWidget.js"></script>
+				<script src="https://<<your-webrtc-server>>/jWebrtc/js/webrtcStatusWidget.js"></script>
 			</head>
 			<body>
-					<h1>Example WebRTC Support Widget</h1>
-				  <div id="webrtc-online-status" data-peer='CustomerSupportUser'  data-me='webuser'>
-				  </div>
-			</body></html>
+				 <h1>Example WebRTC Support Widget</h1>
+				 	<div id="webrtc-online-status" data-peer='CustomerSupportUser'  data-me='webuser'>
+				    </div>
+			</body>
+		</html>
 ```
 
 
