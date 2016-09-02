@@ -13,6 +13,20 @@ There are:
 -----------------
 - Kurento Java Tutorial http://doc-kurento.readthedocs.io/en/stable/tutorials/java/tutorial-one2one-adv.html
 
+###Installation:
+1. Clone this repository to your workstation
+```git clone https://github.com/Le-Space/msc-webrtc.git```
+2. Change into th 'jWebrtc' directory  
+```cd msc-webrtc/jWebrtc```
+3. Create war file 
+```mvn package```
+4. Deploy war file into your servlet container (e.g. JBoss, Tomcat, Glassfish)
+5. Configure environment variables of your servlet container. E.g. modify .profile in the home directory of the user who runs the servlet container. We configure the URL of the Kurento-Server (here on localhost), STUN-,TURN-Urls and TURN username and password. Use public IP since its used by the clients not by the server.
+```export JAVA_OPTS="$JAVA_OPTS -Dkms.url=ws://localhost:8888/kurento -DSTUN_URL=stun:213.30.210.247:3478 -DTURN_USERNAME=webrtc -DTURN_PASSWORD=fondkonzept -DTURN_URL=turn:213.30.210.247:3478"```  
+
+
+
+
 ###Todo:
 - duplicate repository to le-space 
 		- https://help.github.com/articles/duplicating-a-repository/
