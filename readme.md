@@ -39,7 +39,7 @@ There are:
 - Support-Widget 
 	- connect and login with to webrtc with browser, android or ios e.g. with user 'CustomerSupportUser'
 	- install a support-widget.html on your favourite webserver e.g. 
-
+	- or test here: https://jsfiddle.net/inspiraluna/vhj00zqa/
 ```
 		<html>
 			<head><title>Example Support Widget</title>
@@ -55,12 +55,14 @@ There are:
 			</body>
 		</html>
 ```
+	
 
 
 ###Todo:
 - duplicate repository to le-space 
 		- https://help.github.com/articles/duplicating-a-repository/
 - widget for browser 
+		- replace server url with variable from server
 		- http://shootitlive.com/2012/07/developing-an-embeddable-javascript-widget/ 
 		- enable videocall in widget
 - screensharing  
