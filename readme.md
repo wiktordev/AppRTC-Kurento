@@ -1,22 +1,24 @@
-## AppRTC - Kurento Example
+# AppRTC - Kurento 
 
-This is a simple example project in nodejs and j2ee to demonstrate the compatibility of the [AppRTCDemo](https://github.com/njovy/AppRTCDemo) Android App with the [Kurento Media Server](http://www.kurento.org/).
+This project is a webrtc signaling server written in Java.
+It has a sample HTML-client which displays the capabilities after deployment.
+All calls are beeing recorded by Kurento Media Server to the configured directory. 
 
-See for implementations in the named platform folder.
-This version doesn't have a servlet for the Android version and works together with a modified, pure websocket version of AppRTC for Android see: 
+There are:
+- a pure websocket AppRTC for iOS: https://github.com/inspiraluna/apprtc-ios and
+- a pure websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo 
 
-pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo 
 
-###Documentation:
+##Documentation:
 -----------------
 - Kurento Java Tutorial http://doc-kurento.readthedocs.io/en/stable/tutorials/java/tutorial-one2one-adv.html
 
 ###Todo:
-- fix logging slf4j for maven
-	- if kurento connection cannot be established create better error message
-
+- duplicate repository to le-space 
+		- https://help.github.com/articles/duplicating-a-repository/
 - widget for browser 
-		http://shootitlive.com/2012/07/developing-an-embeddable-javascript-widget/ 
+		- http://shootitlive.com/2012/07/developing-an-embeddable-javascript-widget/ 
+		- enable videocall in widget
 - screensharing  
 		https://groups.google.com/forum/#!topic/kurento/jpis7IbU2Zo
 		https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture
@@ -27,25 +29,25 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 		https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
 		http://doc-kurento.readthedocs.io/en/stable/mastering/kurento_utils_js.html
 		https://bloggeek.me/implement-screen-sharing-webrtc/
+- error-message-improvents
+	- if kurento connection cannot be established create better error message
 
+###Nice2Haves
 - Merge recorded videos of call participants into a split screen view
   - ffmpeg -i input1.mp4 -i input2.mp4 -filter_complex '[0:v]pad=iw*2:ih[int];[int][1:v]overlay=W/2:0[vid]' -map [vid] -c:v libx264 -crf 23 -preset veryfast output.mp4 (http://superuser.com/a/537482)
-  - Build new Docker image based upon fiware/stream-oriented-kurento including ffmpeg
-  - Share folder of recorded videos with host (necessary in production?)
-
-
-
-##Bugs
+  
+###Bugs
 - Tomcat does not create nice session IDs for the websockts - use HTTP-SessionId?
 
-##Probleme
+###Verinbdungsprobleme
+- iOS kann nicht in bestimmten Netzen keine PeerConnection aufbauen. Turn/Stun Problme
 - ich habe mich (Mac) beim telefonat mit einem Linux-Rechner selbst gehört. War sehr unangenehm.
 - Proleme mit Windows Chrome (kein Bild) und Mac (Chrome)
 - Probleme mit Windows Mozilla und (Mac Chrome) Probleme mit Qualität (Skype besser) (verzerrt) (Mac zu Mac mit Eggenfelden war okey)
 - Probleme mit Anruf zu iOS keine Videoverbindung kommt zustande (Android funktioniert)
 
-
 ###Done
+- 2016-09-01 - fixed logging slf4j for maven
 - 2016-08-29 - (administration/turnServer)
 	http://stackoverflow.com/questions/28772212/stun-turn-server-connectivity-test
 	https://tools.ietf.org/html/rfc7376
