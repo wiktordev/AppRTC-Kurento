@@ -37,19 +37,20 @@ There are:
 - iOS2iOSApp in local-LAN and to remote LANs
 - iOS2AndroidApp in local-LAN and to remote LANs
 - Support-Widget 
-	-- connect and login with to webrtc with browser, android or ios e.g. with user 'CustomerSupportUser'
-	-- install a support-widget.html on your favourite webserver e.g. 
-		```
+	- connect and login with to webrtc with browser, android or ios e.g. with user 'CustomerSupportUser'
+	- install a support-widget.html on your favourite webserver e.g. 
+
+```
 		<html>
 			<head><title>Example Support Widget</title>
 			<script src="https://<<your-webrtc-server>>/jWebrtc/js/webrtcStatusWidget.js"></script>
 			</head>
 			<body>
-					<h1>Example WebRTC Support Widget</h 
-				  <div id="webrtc-online-status" data-peer='CustomerSupportUser'  data-me='webuser'></div>
-
+					<h1>Example WebRTC Support Widget</h1>
+				  <div id="webrtc-online-status" data-peer='CustomerSupportUser'  data-me='webuser'>
+				  </div>
 			</body></html>
-		```
+```
 
 
 ###Todo:
