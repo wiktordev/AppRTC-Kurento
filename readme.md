@@ -47,7 +47,10 @@ There are:
 			</head>
 			<body>
 				 <h1>Example WebRTC Support Widget</h1>
-				 	<div id="webrtc-online-status" data-peer='CustomerSupportUser'  data-me='webuser'>
+				 	<div 
+				 		id="webrtc-online-status" 
+				 		data-peer='CustomerSupportUser' 
+				 		data-me='webuser'>
 				    </div>
 			</body>
 		</html>

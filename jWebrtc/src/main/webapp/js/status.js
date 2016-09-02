@@ -15,9 +15,9 @@
  *
  */
 var server = location.host;
-server = server = "webrtc.a-fk.de";
-if(server==null || server=="" || server.lastIndexOf ("file:")>-1) server = "webrtc.a-fk.de";
-console.log('server: '+server);
+server  = "webrtc.a-fk.de";
+//if(server==null || server=="" || server.lastIndexOf ("file:")>-1) server = "webrtc.a-fk.de";
+//console.log('server: '+server);
 
         
 var ws = new WebSocket('wss://' + server + '/jWebrtc/ws');
