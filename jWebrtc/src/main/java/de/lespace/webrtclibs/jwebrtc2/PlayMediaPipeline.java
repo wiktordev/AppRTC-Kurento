@@ -6,7 +6,6 @@ import java.util.Date;
 
 import javax.websocket.Session;
 
-import org.eclipse.jetty.websocket.common.WebSocketSession;
 import org.kurento.client.ErrorEvent;
 import org.kurento.client.EventListener;
 import org.kurento.client.KurentoClient;

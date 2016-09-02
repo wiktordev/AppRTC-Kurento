@@ -24,8 +24,7 @@ var callerMessage;
 var from;
 var myConsultant = {name: '', status: ''};
 var iceServers = {"iceServers":[{"urls":"stun:webrtc.a-fk.de:3478"},{"urls":"turn:webrtc.a-fk.de:3478","username":"webrtc","credential":"fondkonzept"}]};
-//var iceServers = {"iceServers":[{"urls":"turn:5.9.154.226:3478","username":"akashionata","credential":"silkroad2015"}]};
-		
+
 var registerName = null;
 var registerState = null;
 const NOT_REGISTERED = 0;

@@ -15,16 +15,41 @@ There are:
 
 ###Installation:
 1. Clone this repository to your workstation
-```git clone https://github.com/Le-Space/msc-webrtc.git```
-2. Change into th 'jWebrtc' directory  
-```cd msc-webrtc/jWebrtc```
+```git clone https://github.com/<<repository-url>>.git```
+2. Change into the 'jWebrtc' directory  
+```cd <<repository-dir>>/jWebrtc```
 3. Create war file 
 ```mvn package```
 4. Deploy war file into your servlet container (e.g. JBoss, Tomcat, Glassfish)
 5. Configure environment variables of your servlet container. E.g. modify .profile in the home directory of the user who runs the servlet container. We configure the URL of the Kurento-Server (here on localhost), STUN-,TURN-Urls and TURN username and password. Use public IP since its used by the clients not by the server.
-```export JAVA_OPTS="$JAVA_OPTS -Dkms.url=ws://localhost:8888/kurento -DSTUN_URL=stun:213.30.210.247:3478 -DTURN_USERNAME=webrtc -DTURN_PASSWORD=fondkonzept -DTURN_URL=turn:213.30.210.247:3478"```  
+```export JAVA_OPTS="$JAVA_OPTS -Dkms.url=ws://localhost:8888/kurento -DSTUN_URL=stun:<<stun-ip>>:3478 -DTURN_USERNAME=webrtc -DTURN_PASSWORD=fondkonzept -DTURN_URL=turn:<<turn-ip>>:3478"``` 
+6. configure your servlet container to use SSL if you wanto to use WebRTC outside of localhost (WebRTC only works with HTTPS!)
+7. Start Servlet Container and Test WebRTC in (e.g. go to: ```http://localhost/jWebrtc```) 
+8. Install and configure your Android-WebRTC App
+9. Install and configure your iOS-WebRTC App
 
 
+##Tests
+- Browser2Browser in local-LAN and to remote LANs
+- Browser2AndroidApp in local-LAN and to remote LANs
+- Browser2iOSApp in local-LAN and to remote LANs
+- Android2AndroidApp in local-LAN and to remote LANs
+- iOS2iOSApp in local-LAN and to remote LANs
+- iOS2AndroidApp in local-LAN and to remote LANs
+- Support-Widget 
+	-- connect and login with to webrtc with browser, android or ios e.g. with user 'CustomerSupportUser'
+	-- install a support-widget.html on your favourite webserver e.g. 
+		```
+		<html>
+			<head><title>Example Support Widget</title>
+			<script src="https://<<your-webrtc-server>>/jWebrtc/js/webrtcStatusWidget.js"></script>
+			</head>
+			<body>
+					<h1>Example WebRTC Support Widget</h 
+				  <div id="webrtc-online-status" data-peer='CustomerSupportUser'  data-me='webuser'></div>
+
+			</body></html>
+		```
 
 
 ###Todo:
