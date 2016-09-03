@@ -373,15 +373,16 @@ public class WebSocketServer {
                 
                        
               
-               String turnConfig = "[{"+
+               String iceConfig = "[{"+
                             "\"username\":\"\"," +
                             "\"password\":\"\"," +
-                            "\"urls\":[" +"\""+stunUrl+"\"" +"]},"+
+                            "\"urls\":[" +"\""+stunUrl+"?transport=udp\",\""+stunUrl+"?transport=tcp\""+"]},"+
                         "{" +
                             "\"username\":\""+turnUsername+"\"," +
                             "\"password\":\""+turnPassword+"\"," +
-                            "\"urls\":[" +
-                                            "\""+turnUrl+"\"" +
+                            "\"urls\":[" 
+                                                +"\""+turnUrl+"?transport=udp\"," 
+                                                +"\""+turnUrl+"?transport=tcp\"" +
                                         "]" +
                     "}]";
                 
@@ -389,11 +390,11 @@ public class WebSocketServer {
 
                 if(type!=null && type.equals("browser")){
                     stunUrl =    "{\"urls\":\""+stunUrl+"\"}";
-                    turnConfig = "["+stunUrl+","+turnUrls+"]";
+                    iceConfig = "["+stunUrl+","+turnUrls+"]";
                 }
                 
 		String responseJSON = "{" + "\"params\" : {" 
-				+ "\"pc_config\": {\"iceServers\": "+ turnConfig + "}" +
+				+ "\"pc_config\": {\"iceServers\": "+ iceConfig + "}" +
 				"}," + "\"result\": \"SUCCESS\"" + "}";
                 
                 log.debug(responseJSON);

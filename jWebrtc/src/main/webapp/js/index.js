@@ -24,7 +24,12 @@ var callerMessage;
 var from;
 var myConsultant = {name: '', status: ''};
 var iceServers = {"iceServers":[{"urls":"stun:webrtc.a-fk.de:3478"},{"urls":"turn:webrtc.a-fk.de:3478","username":"webrtc","credential":"fondkonzept"}]};
-
+var options = {
+			localVideo : videoInput,
+			remoteVideo : videoOutput,
+			onicecandidate : onIceCandidate,
+			onerror : onError,    
+};
 var registerName = null;
 var registerState = null;
 const NOT_REGISTERED = 0;
@@ -266,12 +271,7 @@ function incomingCall(message) {
 
                 
                 from = message.from;
-		var options = {
-			localVideo : videoInput,
-			remoteVideo : videoOutput,
-			onicecandidate : onIceCandidate,
-			onerror : onError,    
-		}
+
                 
                 options.configuration  = iceServers;
                // options.mediaConstraints.DtlsSrtpKeyAgreemen = true;
@@ -335,12 +335,14 @@ function call() {
 	setCallState(PROCESSING_CALL);
 	showSpinner(videoInput, videoOutput);
 
-	var options = {
+/*	var options = {
 		localVideo : videoInput,
 		remoteVideo : videoOutput,
 		onicecandidate : onIceCandidate,
 		onerror : onError
-	}
+	}*/
+    
+        options.configuration  = iceServers;
         
        // DtlsSrtpKeyAgreement:true
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,

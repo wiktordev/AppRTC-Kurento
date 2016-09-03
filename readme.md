@@ -39,7 +39,7 @@ There are:
 - Support-Widget 
 	- connect and login with to webrtc with browser, android or ios e.g. with user 'CustomerSupportUser'
 	- install a support-widget.html on your favourite webserver e.g. 
-	- or test here: https://jsfiddle.net/inspiraluna/vhj00zqa/
+	- or test jsfiddle here: https://jsfiddle.net/inspiraluna/vhj00zqa/
 ```
 		<html>
 			<head><title>Example Support Widget</title>
@@ -55,7 +55,7 @@ There are:
 			</body>
 		</html>
 ```
-	
+
 
 
 ###Todo:
@@ -93,6 +93,7 @@ There are:
 - Probleme mit Anruf zu iOS keine Videoverbindung kommt zustande (Android funktioniert)
 
 ###Done
+- 2016-09-03 - fixed missing ice configuration in browser when calling a party 
 - 2016-09-01 - fixed logging slf4j for maven
 - 2016-08-29 - (administration/turnServer)
 	http://stackoverflow.com/questions/28772212/stun-turn-server-connectivity-test
