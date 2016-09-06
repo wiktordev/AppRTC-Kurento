@@ -23,13 +23,8 @@ var response;
 var callerMessage;
 var from;
 var myConsultant = {name: '', status: ''};
-var iceServers = {"iceServers":[{"urls":"stun:webrtc.a-fk.de:3478"},{"urls":"turn:webrtc.a-fk.de:3478","username":"webrtc","credential":"fondkonzept"}]};
-var options = {
-			localVideo : videoInput,
-			remoteVideo : videoOutput,
-			onicecandidate : onIceCandidate,
-			onerror : onError,    
-};
+var configuration = {"iceServers":[{"urls":"stun:webrtc.a-fk.de:3478"},{"urls":"turn:webrtc.a-fk.de:3478","username":"webrtc","credential":"fondkonzept"}]};
+
 var registerName = null;
 var registerState = null;
 const NOT_REGISTERED = 0;
@@ -141,7 +136,7 @@ ws.onmessage = function(message) {
                         break;
                 case 'iceCandidate':
                         webRtcPeer.addIceCandidate(parsedMessage.candidate, function(error) {
-                                if (error)
+                               if (error)
                                         return console.error('Error adding candidate: ' + error);
                         });
                         break;
@@ -177,9 +172,7 @@ function setOnlineStatus(message) {
 
 function readAppConfig(message) {
 	if (message.params ) {
-            //console.log('iceServersPreConfigured:'+JSON.stringify(iceServers));
-                    iceServers = message.params.pc_config;
-            //console.log('iceServersFromServer   :'+JSON.stringify(message.params.pc_config));
+                    configuration = message.params.pc_config;
 	}
 	if(message.result=="SUCCESS") return true;
 }
@@ -271,12 +264,16 @@ function incomingCall(message) {
 
                 
                 from = message.from;
+                var options = {
+			localVideo : videoInput,
+			remoteVideo : videoOutput,
+			onicecandidate : onIceCandidate,
+			onerror : onError,    
+                };
 
                 
-                options.configuration  = iceServers;
-               // options.mediaConstraints.DtlsSrtpKeyAgreemen = true;
-               // options.mediaConstraints.video.mandatory.chromeMediaSource = 'screen';
-               // options.mediaConstraints.video.mandatory.mediaSource = 'screen' || 'window';
+                options.configuration  = configuration;
+                
                 
 
 		webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
@@ -335,14 +332,15 @@ function call() {
 	setCallState(PROCESSING_CALL);
 	showSpinner(videoInput, videoOutput);
 
-/*	var options = {
+	var options = {
 		localVideo : videoInput,
 		remoteVideo : videoOutput,
 		onicecandidate : onIceCandidate,
 		onerror : onError
-	}*/
+	}
     
-        options.configuration  = iceServers;
+        options.configuration  = configuration;
+
         
        // DtlsSrtpKeyAgreement:true
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
@@ -441,8 +439,7 @@ function onError() {
 }
 
 function onIceCandidate(candidate) {
-	console.log("Local candidate " + JSON.stringify(candidate));
-
+	
 	var message = {
 		id : 'onIceCandidate',
 		candidate : candidate

@@ -99,14 +99,14 @@ public class WebSocketServer {
 	@OnMessage
 	public void onMessage(String _message, Session session) {
 
-		log.error("apprtcWs [{}] received message: {}", session.getId(), _message);
+		log.debug("apprtcWs [{}] received message: {}", session.getId(), _message);
 		JsonObject jsonMessage = gson.fromJson(_message, JsonObject.class);
 		UserSession user = registry.getBySession(session);
 
 		if (user != null) {
-			log.error("Incoming message from user '{}': {}", user.getName(), jsonMessage);
+			log.debug("Incoming message from user '{}': {}", user.getName(), jsonMessage);
 		} else {
-			log.error("Incoming message from new user: {}", jsonMessage);
+			log.debug("Incoming message from new user: {}", jsonMessage);
 		}
 
 		switch (jsonMessage.get("id").getAsString()) {
@@ -208,6 +208,8 @@ public class WebSocketServer {
 		String user = jsonMessage.get("user").getAsString();
 		JsonObject responseJSON = new JsonObject();
 		responseJSON.addProperty("id", "responseOnlineStatus");
+                UserSession myUserSession = registry.getBySession(session);
+                responseJSON.addProperty("myUsername",myUserSession.getName());
 		UserSession userSession = registry.getByName(user);
 		if (userSession == null) {
 			responseJSON.addProperty("response", USER_STATUS_OFFLINE);
@@ -243,12 +245,12 @@ public class WebSocketServer {
 		responseJSON.addProperty("id", "responseOnlineStatus");
 		responseJSON.addProperty("response", status);
 		responseJSON.addProperty("message", user);
-
-                
+               
                 log.debug("publishing online status to clients: {}",responseJSON);
 
 
 		for (UserSession userSession : registry.getUserSessions()) {
+                        responseJSON.addProperty("myUsername",userSession.getName()); //include my online sessinID
 			userSession.sendMessage(responseJSON);
 		}
 	}
@@ -365,36 +367,44 @@ public class WebSocketServer {
                 String stunUrl = System.getProperty("STUN_URL");
                 if(stunUrl==null || stunUrl.equals("")) stunUrl = "stun:5.9.154.226:3478";
                
-                     
+                boolean turnEnabled = true;
+                boolean stunEnabled = true;
                 String type = "";
+                
                 try{
                     if(jsonMessage.get("type")!=null) type = jsonMessage.get("type").getAsString(); 
                 }catch(Exception ex){System.err.println("type cannot be read from json...");}
                 
-                       
-              
-               String iceConfig = "[{"+
+               String stun = "{"+
                             "\"username\":\"\"," +
                             "\"password\":\"\"," +
-                            "\"urls\":[" +"\""+stunUrl+"?transport=udp\",\""+stunUrl+"?transport=tcp\""+"]},"+
-                        "{" +
-                            "\"username\":\""+turnUsername+"\"," +
-                            "\"password\":\""+turnPassword+"\"," +
-                            "\"urls\":[" 
-                                                +"\""+turnUrl+"?transport=udp\"," 
-                                                +"\""+turnUrl+"?transport=tcp\"" +
-                                        "]" +
-                    "}]";
-                
-                String turnUrls =    "{\"urls\":\""+turnUrl+"\",\"username\":\""+turnUsername+"\",\"credential\":\""+turnPassword+"\"}";
-
+                            "\"urls\":[" +"\""+stunUrl+"?transport=udp\",\""+stunUrl+"?transport=tcp\""+"]}";  
+               
+               String turn = "{" +
+                             "\"username\":\""+turnUsername+"\"," +
+                             "\"password\":\""+turnPassword+"\"," +
+                             "\"urls\":[" 
+                                            +"\""+turnUrl+"?transport=udp\"," 
+                                            +"\""+turnUrl+"?transport=tcp\"" +
+                                       "]}";
+               
+                          
                 if(type!=null && type.equals("browser")){
-                    stunUrl =    "{\"urls\":\""+stunUrl+"\"}";
-                    iceConfig = "["+stunUrl+","+turnUrls+"]";
+                    turn =    "{\"urls\":[" 
+                                            +"\""+turnUrl+"?transport=udp\"," 
+                                            +"\""+turnUrl+"?transport=tcp\"" +
+                                       "],\"username\":\""+turnUsername+"\",\"credential\":\""+turnPassword+"\"}";
+                    stun =    "{\"urls\":[" +"\""+stunUrl+"?transport=udp\",\""+stunUrl+"?transport=tcp\""+"]}";
                 }
                 
+                 String iceConfig = "[";
+                      if(stunEnabled) iceConfig+=stun;
+                      if(stunEnabled && turnEnabled) iceConfig+=",";
+                      if(turnEnabled) iceConfig+=turn;
+                      iceConfig+= "]";
+                
 		String responseJSON = "{" + "\"params\" : {" 
-				+ "\"pc_config\": {\"iceServers\": "+ iceConfig + "}" +
+				+ "\"pc_config\": {\"iceServers\": "+ iceConfig + "}" + //, \"iceTransportPolicy\": \"relay\"
 				"}," + "\"result\": \"SUCCESS\"" + "}";
                 
                 log.debug(responseJSON);
@@ -439,6 +449,7 @@ public class WebSocketServer {
 		responseJSON.addProperty("id", "registerResponse");
 		responseJSON.addProperty("response", response);
 		responseJSON.addProperty("message", message);
+                responseJSON.addProperty("myUsername",name);
 		newUser.sendMessage(responseJSON);
 
 		log.debug("Sent response: {}", responseJSON);
@@ -471,6 +482,7 @@ public class WebSocketServer {
 	}
 
 	private void call(UserSession caller, JsonObject jsonMessage) throws IOException {
+                
 		String to = jsonMessage.get("to").getAsString();
 		String from = jsonMessage.get("from").getAsString();
 
@@ -593,9 +605,6 @@ public class WebSocketServer {
 
 			} catch (Throwable t) {
 
-				log.error(t.getMessage(), t);
-				// System.err.println("rejecting call reason:" +
-				// t.getMessage());
 				log.error("Rejecting call! Reason: {}", t.getMessage());
 
 				if (pipeline != null) {

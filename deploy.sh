@@ -1,7 +1,6 @@
 
 
 echo "connecting to production..."
-##ssh krausni@192.168.43.6 "sudo su"
 echo "stopping production tomcat..."
 ssh -t krausni@192.168.43.6 "sudo service tomcat8 stop"
 echo "copying ./jWebrtc/target/*.war  to production"
