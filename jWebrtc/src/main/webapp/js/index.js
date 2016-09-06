@@ -15,7 +15,7 @@
  *
  */
 
-var ws = new WebSocket('ws://' + location.host + '/jWebrtc/ws');
+var ws = new WebSocket('wss://' + location.host + '/jWebrtc/ws');
 var videoInput;
 var videoOutput;
 var webRtcPeer;
@@ -317,7 +317,7 @@ function call() {
 	var isWebcam = selectSource.value == 'Webcam';
 
 	var constraints = {
-		audio: isWebcam,
+		audio: true,
 		video: {
 			width: 640,
 			framerate: 15,
@@ -336,21 +336,59 @@ function call() {
 		constraints.video.chromeMediaSource = 'screen';
 	}*/
 
-	var options = {
+	var videoStream;
+
+	getScreenId(function (error, sourceId, screen_constraints) {
+			// error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
+			// sourceId == null || 'string' || 'firefox'
+
+			navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+			navigator.getUserMedia(screen_constraints, function (stream) {
+					//document.querySelector('video').src = URL.createObjectURL(stream);
+					videoStream = stream;
+					
+					var options = {
+						localVideo : videoInput,
+						remoteVideo : videoOutput,
+						videoStream : stream,
+						onicecandidate : onIceCandidate,
+						//onerror : onError,
+						//mediaConstraints: constraints,
+						//sendSource : 'window'
+					}
+
+					webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
+							function(error) {
+								if (error) {
+									return console.error(error);
+								}
+								webRtcPeer.generateOffer(onOfferCall);
+							});
+
+					//document.getElementById('capture-screen').disabled = false;
+			}, function (error) {
+					console.error(error);
+			});
+	});
+
+
+	/*var options = {
 		localVideo : videoInput,
 		remoteVideo : videoOutput,
+		videoStream : videoStream,
 		onicecandidate : onIceCandidate,
-		onerror : onError,
+		//onerror : onError,
 		//mediaConstraints: constraints,
-		sendSource : 'screen'
+		sendSource : 'window'
 	}
+
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 			function(error) {
 				if (error) {
 					return console.error(error);
 				}
 				webRtcPeer.generateOffer(onOfferCall);
-			});
+			});*/
 }
 
 function play() {
@@ -485,7 +523,7 @@ $(document).delegate('*[data-toggle="lightbox"]', 'click', function(event) {
 	$(this).ekkoLightbox();
 });
 
-function getScreenConstraints(error, sourceId) {
+/*function getScreenConstraints(error, sourceId) {
 	var screen_constraints = {
 		audio : false,
 		video : {
@@ -505,4 +543,4 @@ function getScreenConstraints(error, sourceId) {
 	}
 
 	return screen_constraints;
-}
+}*/

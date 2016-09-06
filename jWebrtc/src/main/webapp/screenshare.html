@@ -14,7 +14,7 @@
       document.getElementById('capture-screen').onclick = function() {
           this.disabled = true;
 
-          getScreenId(function(error, sourceId, screen_constraints) {
+          /*getScreenId(function(error, sourceId, screen_constraints) {
               // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
               // sourceId == null || 'string' || 'firefox'
               // getUserMedia(screen_constraints, onSuccess, onFailure);
@@ -31,9 +31,9 @@
                 console.error(error);
                   alert(JSON.stringify(error, null, '\t'));
               });
-          });
+          });*/
 
-          /*getScreenId(function (error, sourceId, screen_constraints) {
+          getScreenId(function (error, sourceId, screen_constraints) {
               // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
               // sourceId == null || 'string' || 'firefox'
 
@@ -44,7 +44,7 @@
               }, function (error) {
                   console.error(error);
               });
-          });*/
+          });
       };
     </script>
 
