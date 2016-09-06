@@ -336,25 +336,20 @@ function call() {
 		constraints.video.chromeMediaSource = 'screen';
 	}*/
 
-	var videoStream;
-
 	getScreenId(function (error, sourceId, screen_constraints) {
 			// error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
 			// sourceId == null || 'string' || 'firefox'
 
 			navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
 			navigator.getUserMedia(screen_constraints, function (stream) {
-					//document.querySelector('video').src = URL.createObjectURL(stream);
-					videoStream = stream;
 					
 					var options = {
 						localVideo : videoInput,
 						remoteVideo : videoOutput,
 						videoStream : stream,
 						onicecandidate : onIceCandidate,
-						//onerror : onError,
 						//mediaConstraints: constraints,
-						//sendSource : 'window'
+						sendSource : 'window'
 					}
 
 					webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
@@ -365,7 +360,6 @@ function call() {
 								webRtcPeer.generateOffer(onOfferCall);
 							});
 
-					//document.getElementById('capture-screen').disabled = false;
 			}, function (error) {
 					console.error(error);
 			});
