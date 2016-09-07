@@ -13,7 +13,10 @@ var getCurrentServer = function(scriptPath){
       l.href = scriptPath;
       return l.hostname;
 }
-var server = getCurrentServer();
+var server = getCurrentServer(getCurrentScript());
+if(server!='localhost' && server!='nicokrause.com') //development/integration/production server!
+        server = "webrtc.a-fk.de"; // getCurrentServer(); //change it in status.js / index.js too
+
 console.log('server: '+getCurrentServer());
 document.write("<script type='text/javascript' src='https://" + server + "/jWebrtc/bower_components/jquery/dist/jquery.min.js'></script>"); 
 document.write("<script type='text/javascript' src='https://" + server + "/jWebrtc/bower_components/adapter.js/adapter.js'></script>"); 

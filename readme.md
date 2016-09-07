@@ -1,8 +1,7 @@
 # AppRTC - Kurento 
 
 This project is a webrtc signaling server written in Java.
-It has a sample HTML-client which displays the capabilities after deployment.
-All calls are beeing recorded by Kurento Media Server to the configured directory. 
+All calls are beeing pipelined and recorded by Kurento Media Server to the configured directory. 
 
 There are:
 - a pure websocket AppRTC for iOS: https://github.com/inspiraluna/apprtc-ios and
@@ -25,9 +24,22 @@ There are:
 ```export JAVA_OPTS="$JAVA_OPTS -Dkms.url=ws://localhost:8888/kurento -DSTUN_URL=stun:<<stun-ip>>:3478 -DTURN_USERNAME=webrtc -DTURN_PASSWORD=fondkonzept -DTURN_URL=turn:<<turn-ip>>:3478"``` 
 6. configure your servlet container to use SSL if you wanto to use WebRTC outside of localhost (WebRTC only works with HTTPS!)
 7. Start Servlet Container and Test WebRTC in (e.g. go to: ```http://localhost/jWebrtc```) 
-8. Install and configure your Android-WebRTC App
-9. Install and configure your iOS-WebRTC App
+8. Download, install and configure your Android-WebRTC App
+9. Download, install and configure your iOS-WebRTC App
 
+##Configuration:
+1. Turn-Server:
+- config under: /etc/   !!!MISSING!!!PLEASE ADD!!!
+- username/password for client auth !!!MISSING!!!PLEASE ADD!!!
+- logs under /var/log
+2. Kurento-Server
+- config under /etc/kurento/
+	- configure modules/kurento/WebRtcEndpoint.conf.ini (stun and turn server)
+	- configure modules/kurento/UriEndpoint.conf.ini defaultPath = file:///var/kurento/
+- logs under /var/log/kurento/
+- recorded webrtc video/audio under /var/kurento
+3. Tomcat 
+- configure environment variables e.g. in .profile (stun/turn server for clients)
 
 ##Tests
 - Browser2Browser in local-LAN and to remote LANs
@@ -41,19 +53,18 @@ There are:
 	- install a support-widget.html on your favourite webserver e.g. 
 	- or test jsfiddle here: https://jsfiddle.net/inspiraluna/vhj00zqa/
 ```
-		<html>
-			<head><title>Example Support Widget</title>
-				<script src="https://<<your-webrtc-server>>/jWebrtc/js/webrtcStatusWidget.js"></script>
-			</head>
-			<body>
-				 <h1>Example WebRTC Support Widget</h1>
-				 	<div 
-				 		id="webrtc-online-status" 
-				 		data-peer='CustomerSupportUser' 
-				 		data-me='webuser'>
-				    </div>
-			</body>
-		</html>
+	<html>
+		<head><title>Example Simple Support Widget v0.1</title>
+			<script src="https://<<your-webrtc-server>>/jWebrtc/js/webrtcStatusWidget_simple_0.1.js"></script>
+		</head>
+		<body>
+			 <h1>Example Simple WebRTC Support Widget</h1>
+			 	<div 
+			 		id="webrtc-online-status" 
+			 		data-peer="CustomerSupportUser">
+			    </div>
+		</body>
+	</html>
 ```
 
 
@@ -61,10 +72,7 @@ There are:
 ###Todo:
 - duplicate repository to le-space 
 		- https://help.github.com/articles/duplicating-a-repository/
-- widget for browser 
-		- replace server url with variable from server
-		- http://shootitlive.com/2012/07/developing-an-embeddable-javascript-widget/ 
-		- enable videocall in widget
+
 - screensharing  
 		https://groups.google.com/forum/#!topic/kurento/jpis7IbU2Zo
 		https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture
@@ -75,15 +83,25 @@ There are:
 		https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
 		http://doc-kurento.readthedocs.io/en/stable/mastering/kurento_utils_js.html
 		https://bloggeek.me/implement-screen-sharing-webrtc/
+- widget 
+	- enable fullscreen button
+	- enable audio-mute
+	- enable video-mute
+	- switch kamera button
+	- hangup button in widget
+	- test on integration / production
+
 - error-message-improvents
 	- if kurento connection cannot be established create better error message
 
 ###Nice2Haves
+- merge recorded videos with composite hub http://doc-kurento.readthedocs.io/en/stable/mastering/kurento_API.html
 - Merge recorded videos of call participants into a split screen view
   - ffmpeg -i input1.mp4 -i input2.mp4 -filter_complex '[0:v]pad=iw*2:ih[int];[int][1:v]overlay=W/2:0[vid]' -map [vid] -c:v libx264 -crf 23 -preset veryfast output.mp4 (http://superuser.com/a/537482)
+- change Turn-Authentication with every appConfig call
   
 ###Bugs
-- Tomcat does not create nice session IDs for the websockts - use HTTP-SessionId?
+- Tomcat does not create nice session IDs for the websockts - use HTTP-SessionId? SecurityProblem? 
 
 ###Verinbdungsprobleme
 - iOS kann nicht in bestimmten Netzen keine PeerConnection aufbauen. Turn/Stun Problme
@@ -93,6 +111,11 @@ There are:
 - Probleme mit Anruf zu iOS keine Videoverbindung kommt zustande (Android funktioniert)
 
 ###Done
+- 2016-09-06  support widget generate video divs from javascript to prevent CORS problem (not tested) 
+- 2016-09-06  widget for browser 
+		- replace server url with variable from server
+		- http://shootitlive.com/2012/07/developing-an-embeddable-javascript-widget/ 
+		- enable videocall in widget
 - 2016-09-03 - fixed missing ice configuration in browser when calling a party 
 - 2016-09-01 - fixed logging slf4j for maven
 - 2016-08-29 - (administration/turnServer)
