@@ -203,6 +203,17 @@ function updateRegisteredUsers(userList) {
 	}
 }
 
+var audioEnabled = true;
+function toggleAudio(){
+	
+	if(audioEnabled) audioEnabled = false;
+	else audioEnabled = true;
+
+	var localStream = webRtcPeer.getLocalStream();
+	localStream.muted = audioEnabled;
+	//return audioEnabled;
+}
+
 function playResponse(message) {
 	if (message.response != 'accepted') {
 		hideSpinner(videoOutput);

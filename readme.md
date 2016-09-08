@@ -1,5 +1,6 @@
 # AppRTC - Kurento 
 
+##About
 This project is a webrtc signaling server written in Java.
 All calls are beeing pipelined and recorded by Kurento Media Server to the configured directory. 
 
@@ -21,7 +22,7 @@ There are:
 ```mvn package```
 4. Deploy war file into your servlet container (e.g. JBoss, Tomcat, Glassfish)
 5. Configure environment variables of your servlet container. E.g. modify .profile in the home directory of the user who runs the servlet container. We configure the URL of the Kurento-Server (here on localhost), STUN-,TURN-Urls and TURN username and password. Use public IP since its used by the clients not by the server.
-```export JAVA_OPTS="$JAVA_OPTS -Dkms.url=ws://localhost:8888/kurento -DSTUN_URL=stun:<<stun-ip>>:3478 -DTURN_USERNAME=webrtc -DTURN_PASSWORD=fondkonzept -DTURN_URL=turn:<<turn-ip>>:3478"``` 
+```export JAVA_OPTS="$JAVA_OPTS -Dkms.url=ws://localhost:8888/kurento -DSTUN_URL=stun:<<stun-ip>>:3478 -DTURN_USERNAME=<<turn-username>> -DTURN_PASSWORD=<<turn-password>> -DTURN_URL=turn:<<turn-ip>>:3478"``` 
 6. configure your servlet container to use SSL if you wanto to use WebRTC outside of localhost (WebRTC only works with HTTPS!)
 7. Start Servlet Container and Test WebRTC in (e.g. go to: ```http://localhost/jWebrtc```) 
 8. Download, install and configure your Android-WebRTC App
@@ -29,17 +30,18 @@ There are:
 
 ##Configuration:
 1. Turn-Server:
-- config under: /etc/   !!!MISSING!!!PLEASE ADD!!!
+- config under: /etc/turnserver.conf   !!!MISSING!!!PLEASE ADD!!!
 - username/password for client auth !!!MISSING!!!PLEASE ADD!!!
 - logs under /var/log
 2. Kurento-Server
-- config under /etc/kurento/
+- config under /etc/kurento/kurento.conf.json
 	- configure modules/kurento/WebRtcEndpoint.conf.ini (stun and turn server)
 	- configure modules/kurento/UriEndpoint.conf.ini defaultPath = file:///var/kurento/
 - logs under /var/log/kurento/
 - recorded webrtc video/audio under /var/kurento
 3. Tomcat 
 - configure environment variables e.g. in .profile (stun/turn server for clients)
+``export JAVA_OPTS="$JAVA_OPTS -Dkms.url=ws://localhost:8888/kurento -DSTUN_URL=stun:<<stun-public-ip>>:3478 -DTURN_USERNAME=<<turn-user>> -DTURN_PASSWORD=<<turn-password>> -DTURN_URL=turn:<<stun-public-ip>>:3478"``
 
 ##Tests
 - Browser2Browser in local-LAN and to remote LANs
@@ -72,6 +74,7 @@ There are:
 ###Todo:
 - duplicate repository to le-space 
 		- https://help.github.com/articles/duplicating-a-repository/
+		- http://blog.plataformatec.com.br/2013/05/how-to-properly-mirror-a-git-repository/
 
 - screensharing  
 		https://groups.google.com/forum/#!topic/kurento/jpis7IbU2Zo
@@ -85,7 +88,8 @@ There are:
 		https://bloggeek.me/implement-screen-sharing-webrtc/
 - widget 
 	- enable fullscreen button
-	- enable audio-mute
+	- enable audio-mute 
+		https://groups.google.com/forum/#!topic/kurento/Jp_yduJmsAY
 	- enable video-mute
 	- switch kamera button
 	- hangup button in widget
