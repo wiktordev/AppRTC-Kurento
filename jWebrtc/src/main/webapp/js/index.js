@@ -293,7 +293,7 @@ function call() {
 
 	var selectSource = document.getElementById('selectSource');
 	var isWebcam = selectSource.value == 'webcam';
-	
+
 	/*var width, height;
 	//var resolution = document.getElementById('resolution').value;
 	var resolution = 'HD';
@@ -316,8 +316,6 @@ function call() {
 			return console.error('Unknown resolution',resolution);
 	}
 
-	
-
 	var constraints = {
 		audio: true,
 		video: {
@@ -337,24 +335,28 @@ function call() {
 		constraints.video.mediaSource = 'screen';
 		constraints.video.chromeMediaSource = 'screen';
 	}*/
-	
+
 	if (!isWebcam) {
+		// Der Weg über die mediaSource funktioniert aus unbekannten Gründen nicht,
+		// daher ermittle ich den Videostream und übergebe ihn direkt an den WebRtcPeer
+		// options.videoStream
 		getScreenId(function (error, sourceId, screen_constraints) {
 				// error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
 				// sourceId == null || 'string' || 'firefox'
-	
+
 				navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
 				navigator.getUserMedia(screen_constraints, function (stream) {
-						
+
 						var options = {
 							localVideo : videoInput,
 							remoteVideo : videoOutput,
 							videoStream : stream,
 							onicecandidate : onIceCandidate,
+							onError : onError,
 							//mediaConstraints: constraints,
 							sendSource : 'window'
 						}
-	
+
 						webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 								function(error) {
 									if (error) {
@@ -362,7 +364,7 @@ function call() {
 									}
 									webRtcPeer.generateOffer(onOfferCall);
 								});
-	
+
 				}, function (error) {
 						console.error(error);
 				});
@@ -372,7 +374,7 @@ function call() {
 				localVideo : videoInput,
 				remoteVideo : videoOutput,
 				onicecandidate : onIceCandidate,
-				//onerror : onError,
+				onerror : onError,
 //				mediaConstraints: constraints
 			}
 
