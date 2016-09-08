@@ -33,7 +33,7 @@ There are:
 	- config under: /etc/turnserver.conf   !!!MISSING!!!PLEASE ADD!!!
 	- username/password for client auth !!!MISSING!!!PLEASE ADD!!!
 	- logs under /var/log
-2. Kurento-Server
+2. Kurento-Server:
 	- config under /etc/kurento/kurento.conf.json
 	- configure modules/kurento/WebRtcEndpoint.conf.ini (stun and turn server)
 	- configure modules/kurento/UriEndpoint.conf.ini defaultPath = file:///var/kurento/
