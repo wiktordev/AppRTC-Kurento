@@ -291,6 +291,9 @@ function call() {
 	setCallState(PROCESSING_CALL);
 	showSpinner(videoInput, videoOutput);
 
+	var selectSource = document.getElementById('selectSource');
+	var isWebcam = selectSource.value == 'webcam';
+	
 	/*var width, height;
 	//var resolution = document.getElementById('resolution').value;
 	var resolution = 'HD';
@@ -313,8 +316,7 @@ function call() {
 			return console.error('Unknown resolution',resolution);
 	}
 
-	var selectSource = 'Screen';
-	var isWebcam = selectSource.value == 'Webcam';
+	
 
 	var constraints = {
 		audio: true,
@@ -335,54 +337,53 @@ function call() {
 		constraints.video.mediaSource = 'screen';
 		constraints.video.chromeMediaSource = 'screen';
 	}*/
+	
+	if (!isWebcam) {
+		getScreenId(function (error, sourceId, screen_constraints) {
+				// error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
+				// sourceId == null || 'string' || 'firefox'
+	
+				navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+				navigator.getUserMedia(screen_constraints, function (stream) {
+						
+						var options = {
+							localVideo : videoInput,
+							remoteVideo : videoOutput,
+							videoStream : stream,
+							onicecandidate : onIceCandidate,
+							//mediaConstraints: constraints,
+							sendSource : 'window'
+						}
+	
+						webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
+								function(error) {
+									if (error) {
+										return console.error(error);
+									}
+									webRtcPeer.generateOffer(onOfferCall);
+								});
+	
+				}, function (error) {
+						console.error(error);
+				});
+		});
+	} else {
+		var options = {
+				localVideo : videoInput,
+				remoteVideo : videoOutput,
+				onicecandidate : onIceCandidate,
+				//onerror : onError,
+//				mediaConstraints: constraints
+			}
 
-	getScreenId(function (error, sourceId, screen_constraints) {
-			// error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
-			// sourceId == null || 'string' || 'firefox'
-
-			navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-			navigator.getUserMedia(screen_constraints, function (stream) {
-					
-					var options = {
-						localVideo : videoInput,
-						remoteVideo : videoOutput,
-						videoStream : stream,
-						onicecandidate : onIceCandidate,
-						//mediaConstraints: constraints,
-						sendSource : 'window'
-					}
-
-					webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
-							function(error) {
-								if (error) {
-									return console.error(error);
-								}
-								webRtcPeer.generateOffer(onOfferCall);
-							});
-
-			}, function (error) {
-					console.error(error);
-			});
-	});
-
-
-	/*var options = {
-		localVideo : videoInput,
-		remoteVideo : videoOutput,
-		videoStream : videoStream,
-		onicecandidate : onIceCandidate,
-		//onerror : onError,
-		//mediaConstraints: constraints,
-		sendSource : 'window'
+			webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
+					function(error) {
+						if (error) {
+							return console.error(error);
+						}
+						webRtcPeer.generateOffer(onOfferCall);
+					});
 	}
-
-	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
-			function(error) {
-				if (error) {
-					return console.error(error);
-				}
-				webRtcPeer.generateOffer(onOfferCall);
-			});*/
 }
 
 function play() {
