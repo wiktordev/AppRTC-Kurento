@@ -30,8 +30,8 @@ There are:
 
 ##Configuration:
 1. Turn-Server:
-	- config under: /etc/turnserver.conf   !!!MISSING!!!PLEASE ADD!!!
-	- username/password for client auth !!!MISSING!!!PLEASE ADD!!!
+	- config under: /etc/turnserver.conf   
+	- username/password for client auth 
 	- logs under /var/log
 2. Kurento-Server:
 	- config under /etc/kurento/kurento.conf.json
@@ -75,7 +75,7 @@ There are:
 - duplicate repository to le-space 
 		- https://help.github.com/articles/duplicating-a-repository/
 		- http://blog.plataformatec.com.br/2013/05/how-to-properly-mirror-a-git-repository/
-
+		- update remote with: ```git remote update```
 - screensharing  
 		https://groups.google.com/forum/#!topic/kurento/jpis7IbU2Zo
 		https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture
