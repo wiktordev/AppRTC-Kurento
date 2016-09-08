@@ -30,18 +30,18 @@ There are:
 
 ##Configuration:
 1. Turn-Server:
-- config under: /etc/turnserver.conf   !!!MISSING!!!PLEASE ADD!!!
-- username/password for client auth !!!MISSING!!!PLEASE ADD!!!
-- logs under /var/log
+	- config under: /etc/turnserver.conf   !!!MISSING!!!PLEASE ADD!!!
+	- username/password for client auth !!!MISSING!!!PLEASE ADD!!!
+	- logs under /var/log
 2. Kurento-Server
-- config under /etc/kurento/kurento.conf.json
+	- config under /etc/kurento/kurento.conf.json
 	- configure modules/kurento/WebRtcEndpoint.conf.ini (stun and turn server)
 	- configure modules/kurento/UriEndpoint.conf.ini defaultPath = file:///var/kurento/
-- logs under /var/log/kurento/
-- recorded webrtc video/audio under /var/kurento
+	- logs under /var/log/kurento/
+	- recorded webrtc video/audio under /var/kurento
 3. Tomcat 
-- configure environment variables e.g. in .profile (stun/turn server for clients)
-``export JAVA_OPTS="$JAVA_OPTS -Dkms.url=ws://localhost:8888/kurento -DSTUN_URL=stun:<<stun-public-ip>>:3478 -DTURN_USERNAME=<<turn-user>> -DTURN_PASSWORD=<<turn-password>> -DTURN_URL=turn:<<stun-public-ip>>:3478"``
+	- configure environment variables e.g. in .profile (stun/turn server for clients)
+		``export JAVA_OPTS="$JAVA_OPTS -Dkms.url=ws://localhost:8888/kurento -DSTUN_URL=stun:<<stun-public-ip>>:3478 -DTURN_USERNAME=<<turn-user>> -DTURN_PASSWORD=<<turn-password>> -DTURN_URL=turn:<<stun-public-ip>>:3478"``
 
 ##Tests
 - Browser2Browser in local-LAN and to remote LANs
