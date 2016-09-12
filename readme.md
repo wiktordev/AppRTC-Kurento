@@ -4,10 +4,9 @@
 This project is a webrtc signaling server written in Java.
 All calls are beeing pipelined and recorded by Kurento Media Server to the configured directory. 
 
-There are:
-- a pure websocket AppRTC for iOS: https://github.com/inspiraluna/apprtc-ios and
-- a pure websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo 
-
+There are also:
+- a pure websocket AppRTC for iOS: AppRTC-iOS and
+- a pure websocket AppRTC for Android: AppRTC-Android 
 
 ##Documentation:
 -----------------
@@ -25,8 +24,8 @@ There are:
 ```export JAVA_OPTS="$JAVA_OPTS -Dkms.url=ws://localhost:8888/kurento -DSTUN_URL=stun:<<stun-ip>>:3478 -DTURN_USERNAME=<<turn-username>> -DTURN_PASSWORD=<<turn-password>> -DTURN_URL=turn:<<turn-ip>>:3478"``` 
 6. configure your servlet container to use SSL if you wanto to use WebRTC outside of localhost (WebRTC only works with HTTPS!)
 7. Start Servlet Container and Test WebRTC in (e.g. go to: ```http://localhost/jWebrtc```) 
-8. Download, install and configure your Android-WebRTC App
-9. Download, install and configure your iOS-WebRTC App
+8. Download, install and configure your Android-WebRTC App( (AppRTC-Android))
+9. Download, install and configure your iOS-WebRTC App (AppRTC-iOS)
 
 ##Configuration:
 1. Turn-Server:
@@ -69,13 +68,7 @@ There are:
 	</html>
 ```
 
-
-
 ###Todo:
-- duplicate repository to le-space 
-		- https://help.github.com/articles/duplicating-a-repository/
-		- http://blog.plataformatec.com.br/2013/05/how-to-properly-mirror-a-git-repository/
-		- update remote with: ```git remote update```
 - screensharing  
 		https://groups.google.com/forum/#!topic/kurento/jpis7IbU2Zo
 		https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture
@@ -99,22 +92,44 @@ There are:
 	- if kurento connection cannot be established create better error message
 
 ###Nice2Haves
-- merge recorded videos with composite hub http://doc-kurento.readthedocs.io/en/stable/mastering/kurento_API.html
-- Merge recorded videos of call participants into a split screen view
-  - ffmpeg -i input1.mp4 -i input2.mp4 -filter_complex '[0:v]pad=iw*2:ih[int];[int][1:v]overlay=W/2:0[vid]' -map [vid] -c:v libx264 -crf 23 -preset veryfast output.mp4 (http://superuser.com/a/537482)
-- change Turn-Authentication with every appConfig call
+- Recording 
+	- merge recorded videos with composite hub http://doc-kurento.readthedocs.io/en/stable/	mastering/kurento_API.html
+	- Merge recorded videos of call participants into a split screen view
+  	- ffmpeg -i input1.mp4 -i input2.mp4 -filter_complex '[0:v]pad=iw*2:ih[int];[int][1:v]overlay=W/2:0[vid]' -map [vid] -c:v libx264 -crf 23 -preset veryfast output.mp4 (http://superuser.com/a/537482)
+
+- Turn-Config 
+	- change Turn-Authentication with every appConfig call
   
 ###Bugs
 - Tomcat does not create nice session IDs for the websockts - use HTTP-SessionId? SecurityProblem? 
 
-###Verinbdungsprobleme
-- iOS kann nicht in bestimmten Netzen keine PeerConnection aufbauen. Turn/Stun Problme
-- ich habe mich (Mac) beim telefonat mit einem Linux-Rechner selbst gehört. War sehr unangenehm.
-- Proleme mit Windows Chrome (kein Bild) und Mac (Chrome)
-- Probleme mit Windows Mozilla und (Mac Chrome) Probleme mit Qualität (Skype besser) (verzerrt) (Mac zu Mac mit Eggenfelden war okey)
+###Connection Problems
+- iOS kann nicht in bestimmten Netzen keine PeerConnection aufbauen. 
+	- Turn/Stun relaying Probleme 
+	- ipv6 Bug?!
 - Probleme mit Anruf zu iOS keine Videoverbindung kommt zustande (Android funktioniert)
 
+- ich habe mich (Mac) beim telefonat mit einem Linux-Rechner selbst gehört. War sehr unangenehm.
+- calls from Ural and Moscow: 
+	- to Leipzig Probleme mit Windows Chrome (kein Bild) und Mac (Chrome)
+	- to Leipzig Probleme mit Windows Mozilla und (Mac Chrome) 
+		Probleme mit Qualität (Skype besser!) (verzerrt) 
+	- to Eggenfelden : Mac zu Mac mit Eggenfelden war okey
+
 ###Done
+- 2016-09-09 - duplicate repository to le-space 
+			 - https://help.github.com/articles/duplicating-a-repository/
+		- http://blog.plataformatec.com.br/2013/05/how-to-properly-mirror-a-git-repository/
+		- first time: 
+		```	 
+			 git clone --mirror git@example.com/upstream-repository.git
+			 cd upstream-repository
+			 git push --mirror git@example.com/mirror-location.git
+		- update remote with: 
+		```
+			git remote update
+			git push --mirror git@example.com/mirror-location.git
+		```
 - 2016-09-06  support widget generate video divs from javascript to prevent CORS problem (not tested) 
 - 2016-09-06  widget for browser 
 		- replace server url with variable from server

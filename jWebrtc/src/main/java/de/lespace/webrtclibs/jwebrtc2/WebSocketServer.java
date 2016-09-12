@@ -378,9 +378,26 @@ public class WebSocketServer {
                String stun = "{"+
                             "\"username\":\"\"," +
                             "\"password\":\"\"," +
-                            "\"urls\":[" +"\""+stunUrl+"?transport=udp\",\""+stunUrl+"?transport=tcp\""+"]}";  
+                            "\"urls\":[" +"\""+stunUrl+"?transport=udp\",\""+stunUrl+"?transport=tcp\"";
                
-               String turn = "{" +
+               String stun2 = ",\"stun:stun.l.google.com:19302\",";
+                            stun2 += "\"stun:stun1.l.google.com:19302\",";
+                            stun2 += "\"stun:stun2.l.google.com:19302\",";
+                            stun2 += "\"stun:stun3.l.google.com:19302\",";
+                            stun2 += "\"stun:stun4.l.google.com:19302\",";
+                            stun2 += "\"stun:stun.ekiga.net\",";
+                            stun2 += "\"stun:stun.ideasip.com\",";
+                            stun2 += "\"stun:stun.schlund.de\",";
+                            stun2 += "\"stun:stun.stunprotocol.org:3478\",";
+                            stun2 += "\"stun:stun.voiparound.com\",";
+                            stun2 += "\"stun:stun.voipbuster.com\",";
+                            stun2 += "\"stun:stun.voipstunt.com\",";
+                            stun2 += "\"stun:stun.voxgratia.org\",";
+                            stun2 += "\"stun:stun.services.mozilla.com\"";
+                           
+                            stun += stun2+"]}"; 
+               
+                String turn = "{" +
                              "\"username\":\""+turnUsername+"\"," +
                              "\"password\":\""+turnPassword+"\"," +
                              "\"urls\":[" 
@@ -394,7 +411,7 @@ public class WebSocketServer {
                                             +"\""+turnUrl+"?transport=udp\"," 
                                             +"\""+turnUrl+"?transport=tcp\"" +
                                        "],\"username\":\""+turnUsername+"\",\"credential\":\""+turnPassword+"\"}";
-                    stun =    "{\"urls\":[" +"\""+stunUrl+"?transport=udp\",\""+stunUrl+"?transport=tcp\""+"]}";
+                    stun =    "{\"urls\":[" +"\""+stunUrl+"?transport=udp\",\""+stunUrl+"?transport=tcp\""+stun2+"]}";
                 }
                 
                  String iceConfig = "[";
@@ -407,10 +424,10 @@ public class WebSocketServer {
 				+ "\"pc_config\": {\"iceServers\": "+ iceConfig + "}" + //, \"iceTransportPolicy\": \"relay\"
 				"}," + "\"result\": \"SUCCESS\"" + "}";
                 
-                log.debug(responseJSON);
+                log.error(responseJSON);
 		session.getBasicRemote().sendText(responseJSON);
 
-		log.debug("send app config to: {}", session.getId());
+		log.info("send app config to: {}", session.getId());
 	}
 
 	/**
