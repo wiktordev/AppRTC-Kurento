@@ -103,13 +103,8 @@ There are also:
 ###Bugs
 - Tomcat does not create nice session IDs for the websockts - use HTTP-SessionId? SecurityProblem? 
 
-###Connection Problems
-- iOS kann nicht in bestimmten Netzen keine PeerConnection aufbauen. 
-	- Turn/Stun relaying Probleme 
-	- ipv6 Bug?!
-- Probleme mit Anruf zu iOS keine Videoverbindung kommt zustande (Android funktioniert)
-
-- ich habe mich (Mac) beim telefonat mit einem Linux-Rechner selbst gehört. War sehr unangenehm.
+###Connection Observations
+- ich habe mich (Mac) beim Telefonat mit einem Linux-Rechner selbst gehört. War sehr unangenehm.
 - calls from Ural and Moscow: 
 	- to Leipzig Probleme mit Windows Chrome (kein Bild) und Mac (Chrome)
 	- to Leipzig Probleme mit Windows Mozilla und (Mac Chrome) 
@@ -117,6 +112,10 @@ There are also:
 	- to Eggenfelden : Mac zu Mac mit Eggenfelden war okey
 
 ###Done
+- 2016-09-12 - iOS kann nicht in bestimmten Netzen keine PeerConnection aufbauen. 
+			 - Turn/Stun relaying Probleme 
+			 - ipv6 Bug?!
+- Probleme mit Anruf zu iOS keine Videoverbindung kommt zustande (Android funktioniert)
 - 2016-09-09 - duplicate repository to le-space 
 			 - https://help.github.com/articles/duplicating-a-repository/
 		- http://blog.plataformatec.com.br/2013/05/how-to-properly-mirror-a-git-repository/
