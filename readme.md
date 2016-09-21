@@ -59,7 +59,7 @@ There are also:
 		</body>
 	</html>
 ```
-- or connect to working example at: https://<your-apprtc-kurento-server>/jWebrtc/status.html  
+- or connect to working example at: https://your.apprtc-kurento-server.com/jWebrtc/status.html  
 
 
 ##Tests
