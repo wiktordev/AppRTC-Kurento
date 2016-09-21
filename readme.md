@@ -42,17 +42,9 @@ There are also:
 	- configure environment variables e.g. in .profile (stun/turn server for clients)
 		``export JAVA_OPTS="$JAVA_OPTS -Dkms.url=ws://localhost:8888/kurento -DSTUN_URL=stun:<<stun-public-ip>>:3478 -DTURN_USERNAME=<<turn-user>> -DTURN_PASSWORD=<<turn-password>> -DTURN_URL=turn:<<stun-public-ip>>:3478"``
 
-##Tests
-- Browser2Browser in local-LAN and to remote LANs
-- Browser2AndroidApp in local-LAN and to remote LANs
-- Browser2iOSApp in local-LAN and to remote LANs
-- Android2AndroidApp in local-LAN and to remote LANs
-- iOS2iOSApp in local-LAN and to remote LANs
-- iOS2AndroidApp in local-LAN and to remote LANs
-- Support-Widget 
-	- connect and login with to webrtc with browser, android or ios e.g. with user 'CustomerSupportUser'
+##Support-Widget for websites
+	- connect and login with to webrtc with browser, android or ios e.g. with your user '<CustomerSupportUser>'
 	- install a support-widget.html on your favourite webserver e.g. 
-	- or test jsfiddle here: https://jsfiddle.net/inspiraluna/vhj00zqa/
 ```
 	<html>
 		<head><title>Example Simple Support Widget v0.1</title>
@@ -62,23 +54,26 @@ There are also:
 			 <h1>Example Simple WebRTC Support Widget</h1>
 			 	<div 
 			 		id="webrtc-online-status" 
-			 		data-peer="CustomerSupportUser">
+			 		data-peer="<CustomerSupportUser>">
 			    </div>
 		</body>
 	</html>
 ```
+	- or connect to working example at: https://<your-apprtc-kurento-server>/jWebrtc/status.html  
+
+
+##Tests
+- Browser2Browser in local-LAN and to remote LANs
+- Browser2AndroidApp in local-LAN and to remote LANs
+- Browser2iOSApp in local-LAN and to remote LANs
+- Android2AndroidApp in local-LAN and to remote LANs
+- iOS2iOSApp in local-LAN and to remote LANs
+- iOS2AndroidApp in local-LAN and to remote LANs
+- STUN-Server Test (if clients are behind a firewall or in different networks)
+- TURN-Server Reloay Test ???
+
 
 ###Todo:
-- screensharing  
-		https://groups.google.com/forum/#!topic/kurento/jpis7IbU2Zo
-		https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture
-		https://groups.google.com/forum/#!topic/kurento/s1FrlX_9n4I
-		http://stackoverflow.com/questions/36485558/getting-screencaptureerror-in-chrome-using-kurento-media-server
-		http://doc-kurento.readthedocs.io/en/stable/mastering/kurento_utils_js.html
-		https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/
-		https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
-		http://doc-kurento.readthedocs.io/en/stable/mastering/kurento_utils_js.html
-		https://bloggeek.me/implement-screen-sharing-webrtc/
 - widget 
 	- enable fullscreen button
 	- enable audio-mute 
@@ -112,6 +107,16 @@ There are also:
 	- to Eggenfelden : Mac zu Mac mit Eggenfelden war okey
 
 ###Done
+- 2016-09-21 - screensharing information
+	https://groups.google.com/forum/#!topic/kurento/jpis7IbU2Zo
+	https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture
+	https://groups.google.com/forum/#!topic/kurento/s1FrlX_9n4I
+	http://stackoverflow.com/questions/36485558/getting-screencaptureerror-in-chrome-using-kurento-media-server
+	http://doc-kurento.readthedocs.io/en/stable/mastering/kurento_utils_js.html
+	https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/
+	https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
+	http://doc-kurento.readthedocs.io/en/stable/mastering/kurento_utils_js.html
+	https://bloggeek.me/implement-screen-sharing-webrtc/
 - 2016-09-12 - iOS kann nicht in bestimmten Netzen keine PeerConnection aufbauen. 
 			 - Turn/Stun relaying Probleme 
 			 - ipv6 Bug?!
