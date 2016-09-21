@@ -43,8 +43,8 @@ There are also:
 		``export JAVA_OPTS="$JAVA_OPTS -Dkms.url=ws://localhost:8888/kurento -DSTUN_URL=stun:<<stun-public-ip>>:3478 -DTURN_USERNAME=<<turn-user>> -DTURN_PASSWORD=<<turn-password>> -DTURN_URL=turn:<<stun-public-ip>>:3478"``
 
 ##Support-Widget for websites
-	- connect and login with to webrtc with browser, android or ios e.g. with your user '<CustomerSupportUser>'
-	- install a support-widget.html on your favourite webserver e.g. 
+- connect and login with to webrtc with browser, android or ios e.g. with your user '<CustomerSupportUser>'
+- install a support-widget.html on your favourite webserver e.g. 
 ```
 	<html>
 		<head><title>Example Simple Support Widget v0.1</title>
@@ -59,7 +59,7 @@ There are also:
 		</body>
 	</html>
 ```
-	- or connect to working example at: https://<your-apprtc-kurento-server>/jWebrtc/status.html  
+- or connect to working example at: https://<your-apprtc-kurento-server>/jWebrtc/status.html  
 
 
 ##Tests
