@@ -99,7 +99,7 @@ There are also:
 - Tomcat does not create nice session IDs for the websockts - use HTTP-SessionId? SecurityProblem? 
 
 ###Connection Observations
-- ich habe mich (Mac) beim Telefonat mit einem Linux-Rechner selbst gehört. War sehr unangenehm.
+- calls from Barcelona to Barcelona over Hetzner Server in Germany okey.
 - calls from Ural and Moscow: 
 	- to Leipzig Probleme mit Windows Chrome (kein Bild) und Mac (Chrome)
 	- to Leipzig Probleme mit Windows Mozilla und (Mac Chrome) 
@@ -107,6 +107,12 @@ There are also:
 	- to Eggenfelden : Mac zu Mac mit Eggenfelden war okey
 
 ###Done
+- 2016-09-28 - create JAVA Keystore (.jks) from letsencrypt certificates for glassfish4 
+	- https://maximilian-boehm.com/hp2121/Create-a-Java-Keystore-JKS-from-Let-s-Encrypt-Certificates.htm
+	- https://docs.oracle.com/cd/E19798-01/821-1751/gepzd/index.html
+	- http://javarevisited.blogspot.com.es/2012/09/difference-between-truststore-vs-keyStore-Java-SSL.html
+	- https://borwell.com/2015/01/22/securing-glassfish-4-0-web-applications/
+
 - 2016-09-21 - screensharing information
 	https://groups.google.com/forum/#!topic/kurento/jpis7IbU2Zo
 	https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture

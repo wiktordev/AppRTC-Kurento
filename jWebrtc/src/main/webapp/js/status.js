@@ -531,7 +531,7 @@ function writeHTML(){
     document.write("</div>");
 
     document.write("<div id='confirm-join-div'>");
-    document.write("    <div>Ready to call support<span id='confirm-join-room-span'></span>?</div>");
+    document.write("    <div><span id='confirm-join-room-span'></span></div>");
     document.write("    <button id='call'>Call Now!</button>");
     document.write("</div>");
 

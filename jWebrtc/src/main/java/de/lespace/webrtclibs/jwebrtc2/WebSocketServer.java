@@ -156,18 +156,21 @@ public class WebSocketServer {
 
 				if (jsonMessage.has("sdpMLineIndex") && jsonMessage.has("sdpMLineIndex")) {
 					// this is how it works when it comes from a android
-					log.debug("apprtcWs candidate is coming from android or ios");
+					log.info("apprtcWs candidate is coming from android or ios");
 					candidateJson = jsonMessage;
 
 				} else {
 					// this is how it works when it comes from a browser
-					log.debug("apprtcWs candidate is coming from web");
+					log.info("apprtcWs candidate is coming from web");
 					candidateJson = jsonMessage.get("candidate").getAsJsonObject();
 				}
+                              //  log.info(jsonMessage.toString());
 
 				candidate = new IceCandidate(candidateJson.get("candidate").getAsString(),
 						candidateJson.get("sdpMid").getAsString(), candidateJson.get("sdpMLineIndex").getAsInt());
-				user.addCandidate(candidate);
+				
+                                log.info(candidate.getCandidate());
+                                user.addCandidate(candidate);
 
 			}
 			break;
@@ -558,6 +561,7 @@ public class WebSocketServer {
 						response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
 						try {
 							synchronized (callee.getSession()) {
+                                                              log.info(response.toString());
 								callee.getSession().getBasicRemote().sendText(response.toString());
 							}
 						} catch (IOException e) {
@@ -577,7 +581,8 @@ public class WebSocketServer {
 						response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
 						try {
 							synchronized (caller.getSession()) {
-								caller.getSession().getBasicRemote().sendText(response.toString());
+                                                            log.info(response.toString());
+                                                            caller.getSession().getBasicRemote().sendText(response.toString());
 							}
 						} catch (IOException e) {
 							log.error(e.getMessage(), e);
