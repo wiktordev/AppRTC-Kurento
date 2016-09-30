@@ -106,7 +106,6 @@ window.onload = function() {
 		console.log("ws connection now open");
                 requestAppConfig();
                 myConsultant.name = $('#webrtc-online-status').attr('data-peer');
-		checkOnlineStatus(myConsultant);
 	}
 }
 
@@ -120,6 +119,7 @@ ws.onmessage = function(message) {
         
         if(parsedMessage.params){
             readAppConfig(parsedMessage);
+            checkOnlineStatus(myConsultant);
         }
         else{
             switch (parsedMessage.id) {

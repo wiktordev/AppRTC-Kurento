@@ -354,7 +354,7 @@ public class WebSocketServer {
 	 * @param jsonMessage
 	 * @throws IOException
 	 */
-	private void appConfig(Session session, JsonObject jsonMessage) throws IOException {
+            private void appConfig(Session session, JsonObject jsonMessage) throws IOException {
 
                 
                 String turnUsername = System.getProperty("TURN_USERNAME");
