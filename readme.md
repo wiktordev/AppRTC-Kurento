@@ -13,13 +13,13 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 
 
 ###Todo:
-- when websocket closes user is not deleted from registry
-- fix logging slf4j for maven
-- login user (websocket session id + username) and 
 
 - screensharing
+	- Chrome Extension Screensharing ready: http://stackoverflow.com/questions/25763088/google-canary-on-macbook-air-osx-10-9-4-is-giving-error/25765927#25765927
+	
 - widget for browser http://shootitlive.com/2012/07/developing-an-embeddable-javascript-widget/
- 
+
+##Nice2Haves
 - Merge recorded videos of call participants into a split screen view
   - ffmpeg -i input1.mp4 -i input2.mp4 -filter_complex '[0:v]pad=iw*2:ih[int];[int][1:v]overlay=W/2:0[vid]' -map [vid] -c:v libx264 -crf 23 -preset veryfast output.mp4 (http://superuser.com/a/537482)
   - Build new Docker image based upon fiware/stream-oriented-kurento including ffmpeg
@@ -27,6 +27,7 @@ pure Websocket AppRTC for Android: https://github.com/inspiraluna/AppRTCDemo
 
 
 ###Done
+http://stackoverflow.com/questions/25763088/google-canary-on-macbook-air-osx-10-9-4-is-giving-error/25765927#25765927
 - 2016-08-02 - recording
 - 2016-07-09 - get list of logged in users for android, ios and browser
 - 2016-06-28 - implement simple call response within browser use kurento one2one-call example
