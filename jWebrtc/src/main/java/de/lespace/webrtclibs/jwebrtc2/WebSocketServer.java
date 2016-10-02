@@ -370,7 +370,7 @@ public class WebSocketServer {
                 String stunUrl = System.getProperty("STUN_URL");
                 if(stunUrl==null || stunUrl.equals("")) stunUrl = "stun:5.9.154.226:3478";
                
-                boolean turnEnabled = true;
+                boolean turnEnabled = false;
                 boolean stunEnabled = true;
                 String type = "";
                 
@@ -391,7 +391,6 @@ public class WebSocketServer {
                             stun2 += "\"stun:stun.ekiga.net\",";
                             stun2 += "\"stun:stun.ideasip.com\",";
                             stun2 += "\"stun:stun.schlund.de\",";
-                            stun2 += "\"stun:stun.stunprotocol.org:3478\",";
                             stun2 += "\"stun:stun.voiparound.com\",";
                             stun2 += "\"stun:stun.voipbuster.com\",";
                             stun2 += "\"stun:stun.voipstunt.com\",";
@@ -404,17 +403,24 @@ public class WebSocketServer {
                              "\"username\":\""+turnUsername+"\"," +
                              "\"password\":\""+turnPassword+"\"," +
                              "\"urls\":[" 
-                                            +"\""+turnUrl+"?transport=udp\"," 
-                                            +"\""+turnUrl+"?transport=tcp\"" +
+                                          //  +"\""+turnUrl+"?transport=udp\"," 
+                                          //  +"\""+turnUrl+"?transport=tcp\"" +
+                                            +"\""+turnUrl+"\"" +
                                        "]}";
                
                           
                 if(type!=null && type.equals("browser")){
                     turn =    "{\"urls\":[" 
-                                            +"\""+turnUrl+"?transport=udp\"," 
-                                            +"\""+turnUrl+"?transport=tcp\"" +
+                                         +"\""+turnUrl+"\"" +
+                                           // +"\""+turnUrl+"?transport=udp\"," 
+                                           // +"\""+turnUrl+"?transport=tcp\"" +
                                        "],\"username\":\""+turnUsername+"\",\"credential\":\""+turnPassword+"\"}";
-                    stun =    "{\"urls\":[" +"\""+stunUrl+"?transport=udp\",\""+stunUrl+"?transport=tcp\""+stun2+"]}";
+                    stun =    "{\"urls\":[" 
+                            +"\""
+                            +stunUrl+"\""
+                            //+stunUrl+"?transport=udp\",\""
+                            //+stunUrl+"?transport=tcp\""
+                            +stun2+"]}";
                 }
                 
                  String iceConfig = "[";

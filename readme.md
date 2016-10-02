@@ -74,13 +74,17 @@ There are also:
 
 
 ###Todo:
+- screensharing: 
+	- https://developer.chrome.com/extensions/getstarted
+	- http://stackoverflow.com/questions/25763088/google-canary-on-macbook-air-osx-10-9-4-is-giving-error/25765927#25765927
 - widget 
+	- hangup button in widget
 	- enable fullscreen button
 	- enable audio-mute 
 		https://groups.google.com/forum/#!topic/kurento/Jp_yduJmsAY
 	- enable video-mute
 	- switch kamera button
-	- hangup button in widget
+
 	- test on integration / production
 
 - error-message-improvents
@@ -91,7 +95,6 @@ There are also:
 	- merge recorded videos with composite hub http://doc-kurento.readthedocs.io/en/stable/	mastering/kurento_API.html
 	- Merge recorded videos of call participants into a split screen view
   	- ffmpeg -i input1.mp4 -i input2.mp4 -filter_complex '[0:v]pad=iw*2:ih[int];[int][1:v]overlay=W/2:0[vid]' -map [vid] -c:v libx264 -crf 23 -preset veryfast output.mp4 (http://superuser.com/a/537482)
-
 - Turn-Config 
 	- change Turn-Authentication with every appConfig call
   

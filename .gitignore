@@ -4,7 +4,6 @@ npm-debug.log
 .settings/
 .jshintrc
 node_modules/
-bower_components/
 *~
 .DS_Store
 
