@@ -370,7 +370,7 @@ public class WebSocketServer {
                 String stunUrl = System.getProperty("STUN_URL");
                 if(stunUrl==null || stunUrl.equals("")) stunUrl = "stun:5.9.154.226:3478";
                
-                boolean turnEnabled = false;
+                boolean turnEnabled = true;
                 boolean stunEnabled = true;
                 String type = "";
                 
