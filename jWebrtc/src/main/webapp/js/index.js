@@ -285,8 +285,6 @@ function incomingCall(message) {
                 
                 options.configuration  = configuration;
                 
-                
-
 		webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 				function(error) {
 					if (error) {
@@ -397,7 +395,6 @@ function onOfferCall(error, offerSdp) {
 	var message = {
 		id : 'call',
 		from : document.getElementById('name').value,
-		//to : document.getElementById('peer').value,
 		to : $('#peer').val(),
 		sdpOffer : offerSdp
 	};
@@ -424,7 +421,6 @@ function playEnd() {
 }
 
 function stop(message) {
-	console.log("Stopping that stuff...");
 	var stopMessageId = (callState == IN_CALL || callState == PROCESSING_CALL) ? 'stop' : 'stopPlay';
 	setCallState(NO_CALL);
 	if (webRtcPeer) {

@@ -110,6 +110,9 @@ There are also:
 	- to Eggenfelden : Mac zu Mac mit Eggenfelden war okey
 
 ###Done
+- 2016-10-05 -  after stopping a call a user sometimes cannot be called again. Signalling is looking for sessions which do not exist anymore. It's not clear why. If the user who hangsup whants to call again he can't the session of the caller cannot be found anymore.
+			- call-test-sequence c) Chrome2iPhoneHangupChrome --> d) Chrome2iPhoneHangupiPhone did not work 
+
 - 2016-09-28 - create JAVA Keystore (.jks) from letsencrypt certificates for glassfish4 
 	- https://maximilian-boehm.com/hp2121/Create-a-Java-Keystore-JKS-from-Let-s-Encrypt-Certificates.htm
 	- https://docs.oracle.com/cd/E19798-01/821-1751/gepzd/index.html
