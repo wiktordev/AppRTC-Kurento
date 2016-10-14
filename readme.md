@@ -79,18 +79,21 @@ There are also:
 	- http://stackoverflow.com/questions/25763088/google-canary-on-macbook-air-osx-10-9-4-is-giving-error/25765927#25765927
 - widget 
 	- hangup button in widget
+	- enable screen sharing button
 	- enable fullscreen button
 	- enable audio-mute 
 		https://groups.google.com/forum/#!topic/kurento/Jp_yduJmsAY
 	- enable video-mute
 	- switch kamera button
-
 	- test on integration / production
 
 - error-message-improvents
 	- if kurento connection cannot be established create better error message
 
 ###Nice2Haves
+- TURN over Port 80/443 for very restrictive corporate firewalls ("everything closed")
+	- https://groups.google.com/forum/#!topic/discuss-webrtc/bq2tUi_guE4
+	- corporate
 - Recording 
 	- merge recorded videos with composite hub http://doc-kurento.readthedocs.io/en/stable/	mastering/kurento_API.html
 	- Merge recorded videos of call participants into a split screen view
@@ -110,6 +113,7 @@ There are also:
 	- to Eggenfelden : Mac zu Mac mit Eggenfelden war okey
 
 ###Done
+- 2016-10-14 - fixed stop message which was not send to peer when pipelines where not yet created. Discovered through "incoming call: decision: answer or hangup?" feature implementation on Android
 - 2016-10-05 -  after stopping a call a user sometimes cannot be called again. Signalling is looking for sessions which do not exist anymore. It's not clear why. If the user who hangsup whants to call again he can't the session of the caller cannot be found anymore.
 			- call-test-sequence c) Chrome2iPhoneHangupChrome --> d) Chrome2iPhoneHangupiPhone did not work 
 

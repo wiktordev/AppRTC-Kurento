@@ -47,18 +47,19 @@ public class WebSocketServer {
         private static final Logger log = LoggerFactory.getLogger(WebSocketServer.class);
         
         private void printCurrentUsage(){
-             Enumeration<MediaPipeline> e = pipelines.elements();
+                Enumeration<MediaPipeline> e = pipelines.elements();
+                
                 while(e.hasMoreElements()){
                     MediaPipeline mp = e.nextElement();
-                    log.error("current pipeline:"+mp.getName() + " : "+mp.getId());
+                    log.debug("current pipeline:"+mp.getName() + " : "+mp.getId());
                 }
                 
-                log.error("current sessions keys:"+registry.getRegisteredUsers());
+                log.debug("current sessions keys:"+registry.getRegisteredUsers());
                 
                 Iterator<UserSession> i  = registry.getUserSessions().iterator();
                 while(i.hasNext()){
                     UserSession us = i.next();
-                    log.error("current pipeline:"+us.getName()+" -  "+us.getSessionId());
+                    log.debug("current pipeline:"+us.getName()+" -  "+us.getSessionId());
                 }
         }
 	@OnOpen
@@ -199,7 +200,7 @@ public class WebSocketServer {
 			break;
 		case "stop":
 			try {
-                                log.debug("received stop closing media piplines");
+                                log.error("received stop closing media piplines");
 				stop(session);
                                 printCurrentUsage();
                             } catch (IOException ex) {
@@ -457,7 +458,7 @@ public class WebSocketServer {
 				+ "\"pc_config\": {\"iceServers\": "+ iceConfig + "}" + //, \"iceTransportPolicy\": \"relay\"
 				"}," + "\"result\": \"SUCCESS\"" + "}";
                 
-                log.error(responseJSON);
+                log.debug(responseJSON);
 		session.getBasicRemote().sendText(responseJSON);
 
 		log.info("send app config to: {}", session.getId());
@@ -697,14 +698,11 @@ public class WebSocketServer {
 		String sessionId = session.getId();
                 log.debug("trying to find session id: {} in piplines:\n{}",sessionId,pipelines.keySet().toString());
                 
-		if (pipelines.containsKey(sessionId)) {
-                        log.debug("found session id in piplines:");
-			log.debug("Stopping media connection of websocket id [{}]", sessionId);
-                        
+		
 			// Both users can stop the communication. A 'stopCommunication'
 			// message will be sent to the other peer.
 			UserSession stopperUser = registry.getBySession(session);
-                        log.debug("stopperUser: "+stopperUser.getName());
+                        log.error("stopperUser: "+stopperUser.getName());
 			
                         if (stopperUser != null) {
                             
@@ -723,12 +721,6 @@ public class WebSocketServer {
                                 stopUser.clear();
                                 stopperUser.clear();
                                 
-                                log.debug("send stop to stopUser:",stopUser.getName());
-                                MediaPipeline pipeline1 = pipelines.remove(sessionId);
-                                pipeline1.release();
-                               
-                                MediaPipeline pipeline2 = pipelines.remove(stopUser.getSession().getId());
-                                pipeline2.release();
                             }      
                             else{
                                log.debug("die id des stoppenden IST! die des anrufenden"); //wenn der anrufer auflegt. (wird anschließend, die pipeline des anrufenden gesucht und exisitert nicht mehr) 
@@ -739,20 +731,24 @@ public class WebSocketServer {
                                stopUser.sendMessage(message);
                                stopUser.clear();
                                stopperUser.clear();
-                               
-                               log.debug("send stop to stoppedUserFrom:",stopUser.getName());
-                               
-                               MediaPipeline pipeline1 = pipelines.remove(sessionId);
-                               pipeline1.release();
-                               
-                               MediaPipeline pipeline2 = pipelines.remove(stopUser.getSession().getId());
-                               pipeline2.release();
-                            
                            }
+                            
+                            if (pipelines.containsKey(sessionId)) {
+                                log.debug("Stopping media connection of websocket id [{}]", sessionId);
+                                log.debug("send stop to stoppedUserFrom:",stopUser.getName());
+                                MediaPipeline pipeline1 = pipelines.remove(sessionId);
+                                pipeline1.release();
+
+                                MediaPipeline pipeline2 = pipelines.remove(stopUser.getSession().getId());
+                                pipeline2.release();
+                            }
                                                      
                             log.debug("Stopped", sessionId);
 			}
-		}
+		//}
+                //else{ //piplines not yet have been created - but a user tried to call another and the other hangs up instead of answers the call
+            
+               // }
 	}
 
 }
