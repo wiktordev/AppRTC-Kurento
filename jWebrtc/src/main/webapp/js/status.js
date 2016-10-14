@@ -252,7 +252,11 @@ function incomingCall(message) {
 			+ ' is calling you. Do you accept the call?')) {
 
 		console.log("accepting call");
-		showSpinner(localVideo, remoteVideo);
+                localVideo = document.getElementById('local-video');		// <video>-element
+                remoteVideo = document.getElementById('remote-video');
+                miniVideo = document.getElementById('mini-video');
+                icons = document.getElementById('icons');
+                showSpinner(localVideo, remoteVideo);
                
                 from = message.from;
 		var options = {
@@ -325,6 +329,7 @@ function call() {
 		onicecandidate : onIceCandidate,
 		onerror : onError
 	}
+        options.configuration  = configuration;
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 			function(error) {
 				if (error) {

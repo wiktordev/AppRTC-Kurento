@@ -70,7 +70,7 @@ There are also:
 - iOS2iOSApp in local-LAN and to remote LANs
 - iOS2AndroidApp in local-LAN and to remote LANs
 - STUN-Server Test (if clients are behind a firewall or in different networks)
-- TURN-Server Reloay Test ???
+- TURN-Server Relay Test ??? 
 
 
 ###Todo:
@@ -113,6 +113,7 @@ There are also:
 	- to Eggenfelden : Mac zu Mac mit Eggenfelden war okey
 
 ###Done
+- 2016-10-14 - fixed bug: "Widget does not work from some networks into some networks (not yet clear where exactly)
 - 2016-10-14 - fixed stop message which was not send to peer when pipelines where not yet created. Discovered through "incoming call: decision: answer or hangup?" feature implementation on Android
 - 2016-10-05 -  after stopping a call a user sometimes cannot be called again. Signalling is looking for sessions which do not exist anymore. It's not clear why. If the user who hangsup whants to call again he can't the session of the caller cannot be found anymore.
 			- call-test-sequence c) Chrome2iPhoneHangupChrome --> d) Chrome2iPhoneHangupiPhone did not work 
