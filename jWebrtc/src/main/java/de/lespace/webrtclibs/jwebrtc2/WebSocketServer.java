@@ -699,52 +699,52 @@ public class WebSocketServer {
                 log.debug("trying to find session id: {} in piplines:\n{}",sessionId,pipelines.keySet().toString());
                 
 		
-			// Both users can stop the communication. A 'stopCommunication'
-			// message will be sent to the other peer.
-			UserSession stopperUser = registry.getBySession(session);
-                        log.error("stopperUser: "+stopperUser.getName());
-			
-                        if (stopperUser != null) {
-                            
-                            UserSession stoppedUserFrom = (stopperUser.getCallingFrom() != null) ? registry.getByName(stopperUser.getCallingFrom()) : null;
-                            
-                            UserSession stoppedUserTo = (stopperUser.getCallingTo() != null )? registry.getByName(stopperUser.getCallingTo()) : null;
-                            UserSession stopUser = null;
-                           
-                            if(stoppedUserFrom !=null && stoppedUserFrom.getSession()!=null && !stoppedUserFrom.getSession().getId().equals(session.getId())){
-                                log.debug("die id des stoppenden ist NICHT! die des anrufenden"); //wenn der angerufene auflegt
-                           
-                                stopUser = stoppedUserFrom;
-                                JsonObject message = new JsonObject();
-                                message.addProperty("id", "stopCommunication");
-                                stopUser.sendMessage(message);
-                                stopUser.clear();
-                                stopperUser.clear();
-                                
-                            }      
-                            else{
-                               log.debug("die id des stoppenden IST! die des anrufenden"); //wenn der anrufer auflegt. (wird anschließend, die pipeline des anrufenden gesucht und exisitert nicht mehr) 
-                            
-                               stopUser = stoppedUserTo;
-                               JsonObject message = new JsonObject();
-                               message.addProperty("id", "stopCommunication");
-                               stopUser.sendMessage(message);
-                               stopUser.clear();
-                               stopperUser.clear();
-                           }
-                            
-                            if (pipelines.containsKey(sessionId)) {
-                                log.debug("Stopping media connection of websocket id [{}]", sessionId);
-                                log.debug("send stop to stoppedUserFrom:",stopUser.getName());
-                                MediaPipeline pipeline1 = pipelines.remove(sessionId);
-                                pipeline1.release();
+                // Both users can stop the communication. A 'stopCommunication'
+                // message will be sent to the other peer.
+                UserSession stopperUser = registry.getBySession(session);
+                log.error("stopperUser: "+stopperUser.getName());
 
-                                MediaPipeline pipeline2 = pipelines.remove(stopUser.getSession().getId());
-                                pipeline2.release();
-                            }
-                                                     
-                            log.debug("Stopped", sessionId);
-			}
+                if (stopperUser != null) {
+
+                    UserSession stoppedUserFrom = (stopperUser.getCallingFrom() != null) ? registry.getByName(stopperUser.getCallingFrom()) : null;
+
+                    UserSession stoppedUserTo = (stopperUser.getCallingTo() != null )? registry.getByName(stopperUser.getCallingTo()) : null;
+                    UserSession stopUser = null;
+
+                    if(stoppedUserFrom !=null && stoppedUserFrom.getSession()!=null && !stoppedUserFrom.getSession().getId().equals(session.getId())){
+                        log.debug("die id des stoppenden ist NICHT! die des anrufenden"); //wenn der angerufene auflegt
+
+                        stopUser = stoppedUserFrom;
+                        JsonObject message = new JsonObject();
+                        message.addProperty("id", "stopCommunication");
+                        stopUser.sendMessage(message);
+                        stopUser.clear();                       
+                    }      
+                    else if(stoppedUserTo!=null && stoppedUserTo.getSession()!=null){
+                        log.debug("die id des stoppenden IST! die des anrufenden");
+                        //wenn der anrufer auflegt. (wird anschließend, die pipeline des anrufenden gesucht und exisitert nicht mehr) 
+                       stopUser = stoppedUserTo;
+                       JsonObject message = new JsonObject();
+                       message.addProperty("id", "stopCommunication");
+                       stopUser.sendMessage(message);
+                       stopUser.clear();                  
+                   }
+                   
+
+                    if (pipelines.containsKey(sessionId)) {
+                        log.debug("Stopping media connection of websocket id [{}]", sessionId);
+                        log.debug("send stop to stoppedUserFrom:",stopUser.getName());
+                        MediaPipeline pipeline1 = pipelines.remove(sessionId);
+                        pipeline1.release();
+
+                        MediaPipeline pipeline2 = pipelines.remove(stopUser.getSession().getId());
+                        pipeline2.release();
+                    }
+                     
+                    stopperUser.clear();
+                    log.debug("Stopped", sessionId);
+                  
+                }
 		//}
                 //else{ //piplines not yet have been created - but a user tried to call another and the other hangs up instead of answers the call
             

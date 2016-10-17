@@ -113,6 +113,7 @@ There are also:
 	- to Eggenfelden : Mac zu Mac mit Eggenfelden war okey
 
 ###Done
+- 2016-10-17 - fixed bug: "client sessions not removed when websocket disconnects"
 - 2016-10-14 - fixed bug: "Widget does not work from some networks into some networks (not yet clear where exactly)
 - 2016-10-14 - fixed stop message which was not send to peer when pipelines where not yet created. Discovered through "incoming call: decision: answer or hangup?" feature implementation on Android
 - 2016-10-05 -  after stopping a call a user sometimes cannot be called again. Signalling is looking for sessions which do not exist anymore. It's not clear why. If the user who hangsup whants to call again he can't the session of the caller cannot be found anymore.
