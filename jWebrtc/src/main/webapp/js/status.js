@@ -17,8 +17,6 @@ var getCurrentServer = function(scriptPath){
       return l.hostname;
 }
 
-
-
 var server = getCurrentServer(getCurrentScript()); //change it in webrtcStatusWidget* too!
 if(server!='localhost' && server!='nicokrause.com') //development/integration/production server!
         server = "webrtc.a-fk.de"; // getCurrentServer(); //change it in status.js / index.js too
@@ -71,27 +69,33 @@ function setCallState(nextState) {
 	case NO_CALL:
 		
 		disableButton('#terminate');
-                deactivate(this.remoteVideo);
-                deactivate(this.miniVideo);
-                deactivate(this.localVideo);
-                this.deactivate(icons);
-                this.activate('#confirm-join-div'); //this.rejoinDiv_
-                enableButton('#call', 'call()');
+        deactivate(this.remoteVideo);
+        deactivate(this.miniVideo);
+        deactivate(this.localVideo);
+        this.deactivate(icons);
+        this.activate('#confirm-join-div'); 
+        enableButton('#call', 'call()');
+
 		break;
+
 	case PROCESSING_CALL:
+
 		disableButton('#call');
 		disableButton('#terminate');
 		break;
+
 	case IN_CALL:
+
 		disableButton('#call');
-                miniVideo.src = localVideo.src;
-                activate(this.remoteVideo);
-                this.activate(icons); //this.rejoinDiv_
-                activate(this.miniVideo);
-                this.deactivate('#confirm-join-div'); //this.rejoinDiv_
-                activate(this.miniVideo);
+        miniVideo.src = localVideo.src;
+        activate(this.remoteVideo);
+        this.activate(icons); 
+        activate(this.miniVideo);
+        this.deactivate('#confirm-join-div'); 
+        activate(this.miniVideo);
 		enableButton('#terminate', 'stop()');
 		break;
+		å
 	default:
 		return;
 	}
@@ -99,13 +103,12 @@ function setCallState(nextState) {
 }
 
 window.onload = function() {
-       // $("#webrtc-call").load("call.html");
-        setRegisterState(NOT_REGISTERED);
+    setRegisterState(NOT_REGISTERED);
      	
 	ws.onopen = function() {
 		console.log("ws connection now open");
-                requestAppConfig();
-                myConsultant.name = $('#webrtc-online-status').attr('data-peer');
+        requestAppConfig();
+        myConsultant.name = $('#webrtc-online-status').attr('data-peer');
 	}
 }
 
@@ -186,14 +189,14 @@ function setOnlineStatus(message) {
 	if (message.message == myConsultant.name) {
 		myConsultant.status = message.response;
 	}
-        from = message.myUsername;
-        console.log('setting online status done: myUsername is:'+from);
+    from = message.myUsername;
+    console.log('setting online status done: myUsername is:'+from);
 	statusTextElement.text(myConsultant.name + ' is ' + myConsultant.status);
-        if(myConsultant.status=='online'){
-            enableButton('#call', 'call()');
-        }else{
-            disableButton('#call');
-        }
+    if(myConsultant.status=='online'){
+        enableButton('#call', 'call()');
+    }else{
+        disableButton('#call');
+    }
 }
 
 function registerResponse(message) {
@@ -252,13 +255,13 @@ function incomingCall(message) {
 			+ ' is calling you. Do you accept the call?')) {
 
 		console.log("accepting call");
-                localVideo = document.getElementById('local-video');		// <video>-element
-                remoteVideo = document.getElementById('remote-video');
-                miniVideo = document.getElementById('mini-video');
-                icons = document.getElementById('icons');
-                showSpinner(localVideo, remoteVideo);
-               
-                from = message.from;
+        localVideo = document.getElementById('local-video');		// <video>-element
+        remoteVideo = document.getElementById('remote-video');
+        miniVideo = document.getElementById('mini-video');
+        icons = document.getElementById('icons');
+        showSpinner(localVideo, remoteVideo);
+       
+        from = message.from;
 		var options = {
 			localVideo : localVideo,
 			remoteVideo : remoteVideo,
@@ -266,7 +269,7 @@ function incomingCall(message) {
 			onerror : onError
 		}
                 
-                options.configuration  = configuration;
+        options.configuration  = configuration;
 		webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 				function(error) {
 					if (error) {
@@ -558,15 +561,15 @@ function writeHTML(){
     document.write(" <path class='off' transform='scale(0.6), translate(17,16)' d='M40 8H8c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h32c2.21 0 4-1.79 4-4V12c0-2.21-1.79-4-4-4zm-4 24l-8-6.4V32H12V16h16v6.4l8-6.4v16z' fill='white'/>");
     document.write("    </svg>");
 
-    document.write("    <svg id='fullscreen' xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewbox='-10 -10 68 68'>");
-    document.write("      <circle cx='24' cy='24' r='34'>");
-    document.write("        <title>Enter fullscreen</title>");
-    document.write("     </circle>");
-    document.write("      <path class='on' transform='scale(0.8), translate(7,6)' d='M10 32h6v6h4V28H10v4zm6-16h-6v4h10V10h-4v6zm12 22h4v-6h6v-4H28v10zm4-22v-6h-4v10h10v-4h-6z' fill='white'/>");
-    document.write("      <path class='off' transform='scale(0.8), translate(7,6)'  d='M14 28h-4v10h10v-4h-6v-6zm-4-8h4v-6h6v-4H10v10zm24 14h-6v4h10V28h-4v6zm-6-24v4h6v6h4V10H28z' fill='white'/>");
-    document.write("    </svg>");
+   // document.write("    <svg id='fullscreen' class='hidden' xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewbox='-10 -10 68 68'>");
+   // document.write("      <circle cx='24' cy='24' r='34'>");
+   // document.write("        <title>Enter fullscreen</title>");
+  // document.write("     </circle>");
+  //  document.write("      <path class='on' transform='scale(0.8), translate(7,6)' d='M10 32h6v6h4V28H10v4zm6-16h-6v4h10V10h-4v6zm12 22h4v-6h6v-4H28v10zm4-22v-6h-4v10h10v-4h-6z' fill='white'/>");
+  //  document.write("      <path class='off' transform='scale(0.8), translate(7,6)'  d='M14 28h-4v10h10v-4h-6v-6zm-4-8h4v-6h6v-4H10v10zm24 14h-6v4h10V28h-4v6zm-6-24v4h6v6h4V10H28z' fill='white'/>");
+  //  document.write("    </svg>");
 
-    document.write("    <svg id='hangup' class='hidden' xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewbox='-10 -10 68 68'>");
+    document.write("    <svg id='terminate' xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewbox='-10 -10 68 68'>");
     document.write("      <circle cx='24' cy='24' r='34'>");
     document.write("        <title>Hangup</title>");
     document.write("      </circle>");

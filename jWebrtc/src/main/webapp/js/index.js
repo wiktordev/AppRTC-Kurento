@@ -65,6 +65,7 @@ function setCallState(nextState) {
 		break;
 	case PROCESSING_CALL:
 		disableButton('#call');
+
 		disableButton('#terminate');
 		disableButton('#play');
 		break;
