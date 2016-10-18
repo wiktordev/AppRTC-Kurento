@@ -79,9 +79,6 @@ There are also:
 	- http://stackoverflow.com/questions/25763088/google-canary-on-macbook-air-osx-10-9-4-is-giving-error/25765927#25765927
 - widget 
 	- enable screen sharing button
-	- enable fullscreen button
-	- enable audio-mute 
-		https://groups.google.com/forum/#!topic/kurento/Jp_yduJmsAY
 	- enable video-mute
 	- switch kamera button
 	- test on integration / production
@@ -112,6 +109,7 @@ There are also:
 	- to Eggenfelden : Mac zu Mac mit Eggenfelden war okey
 
 ###Done
+- 2016-10-18 - enable audio-mute https://groups.google.com/forum/#!topic/kurento/Jp_yduJmsAY
 - 2016-10-18 - enabled hangup button in support widget
 - 2016-10-17 - fixed bug: "client sessions not removed when websocket disconnects"
 - 2016-10-14 - fixed bug: "Widget does not work from some networks into some networks (not yet clear where exactly)
