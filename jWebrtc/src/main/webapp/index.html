@@ -23,7 +23,11 @@
 
 <script src="bower_components/kurento-utils/js/kurento-utils.js"></script>
 <script src="js/index.js"></script>
-<title>MSC-WebRTC Kurento one2one call to browser, Android and iOS</title>
+
+<title>WebRTC Kurento one2one call to browser, Android and iOS</title>
+<!-- Screen sharing -->
+<!--<script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>-->
+<script src="js/getScreenId.js"></script>
 </head>
 <body>
 	<header>
@@ -72,7 +76,13 @@
 					<div class="col-md-6">
 						<!--<input id="peer" name="peer" class="form-control" type="text"
 							onkeydown="if (event.keyCode == 13) call();">-->
-                                                 <select id="peer"></select> 
+                                                 <select id="peer"></select>
+					</div>
+					<div class="col-md-6">
+						<select id="selectSource">
+						  <option value="webcam" selected>Webcam</option>
+						  <option value="desktop">Desktop</option>
+						</select>
 					</div>
 					<div class="col-md-6 text-right">
 						<a id="call" href="#" class="btn btn-success"><span

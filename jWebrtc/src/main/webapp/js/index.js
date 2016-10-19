@@ -38,12 +38,10 @@ var configuration = {
 
 var registerName = null;
 var registerState = null;
-const
-    NOT_REGISTERED = 0;
-const
-    REGISTERING = 1;
-const
-    REGISTERED = 2;
+const NOT_REGISTERED = 0;
+const REGISTERING = 1;
+const REGISTERED = 2;
+
 
 function setRegisterState(nextState) {
     switch (nextState) {
@@ -111,7 +109,6 @@ window.onload = function() {
         console.log("ws connection now open");
         requestAppConfig();
     }
-
 }
 
 window.onbeforeunload = function() {
@@ -472,6 +469,7 @@ function play() {
             this.generateOffer(onOfferPlay);
         }
     )
+
 }
 
 function onOfferCall(error, offerSdp) {
@@ -525,7 +523,6 @@ function stop(message) {
             sendMessage(message);
         }
     }
-
 }
 
 function onError() {
@@ -579,3 +576,4 @@ $(document).delegate('*[data-toggle="lightbox"]', 'click', function(event) {
     event.preventDefault();
     $(this).ekkoLightbox();
 });
+

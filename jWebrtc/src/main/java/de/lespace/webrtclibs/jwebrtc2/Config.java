@@ -12,6 +12,7 @@ package de.lespace.webrtclibs.jwebrtc2;
 public class Config {
     
 
+
     //public static String default_KMS_WS_URI = "ws://192.168.0.17:8888/kurento";
     //public static String default_KMS_WS_URI = "ws://192.168.43.251:8888/kurento";
     //public static String serverUrl = "192.168.43.251:8080/jWebrtc"; //without protokoll
@@ -23,7 +24,6 @@ public class Config {
 //    public static String default_KMS_WS_URI = "ws://192.168.43.251:8888/kurento";
    // public static String serverUrl = "192.168.0.16:8080/jWebrtc"; //without protokoll
 
-    
    /* public static String TURN_CONFIG = "{\n" +
                     "	\"username\": \"akashionata\",\n" +
                     "	\"password\": \"silkroad2015\",\n" +

@@ -72,11 +72,11 @@ There are also:
 - STUN-Server Test (if clients are behind a firewall or in different networks)
 - TURN-Server Relay Test ??? 
 
-
 ###Todo:
 - screensharing: 
 	- https://developer.chrome.com/extensions/getstarted
 	- http://stackoverflow.com/questions/25763088/google-canary-on-macbook-air-osx-10-9-4-is-giving-error/25765927#25765927
+	- Chrome Extension Screensharing ready: http://stackoverflow.com/questions/25763088/google-canary-on-macbook-air-osx-10-9-4-is-giving-error/25765927#25765927
 
 - widget 
 	- enable screen sharing button
