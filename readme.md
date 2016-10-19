@@ -77,9 +77,9 @@ There are also:
 - screensharing: 
 	- https://developer.chrome.com/extensions/getstarted
 	- http://stackoverflow.com/questions/25763088/google-canary-on-macbook-air-osx-10-9-4-is-giving-error/25765927#25765927
+
 - widget 
 	- enable screen sharing button
-	- enable video-mute
 	- switch kamera button
 	- test on integration / production
 
@@ -100,15 +100,9 @@ There are also:
 ###Bugs
 - Tomcat does not create nice session IDs for the websockts - use HTTP-SessionId? SecurityProblem? 
 
-###Connection Observations
-- calls from Barcelona to Barcelona over Hetzner Server in Germany okey.
-- calls from Ural and Moscow: 
-	- to Leipzig Probleme mit Windows Chrome (kein Bild) und Mac (Chrome)
-	- to Leipzig Probleme mit Windows Mozilla und (Mac Chrome) 
-		Probleme mit Qualität (Skype besser!) (verzerrt) 
-	- to Eggenfelden : Mac zu Mac mit Eggenfelden war okey
 
 ###Done
+- 2016-10-19 - enable video-mute
 - 2016-10-18 - enable audio-mute https://groups.google.com/forum/#!topic/kurento/Jp_yduJmsAY
 - 2016-10-18 - enabled hangup button in support widget
 - 2016-10-17 - fixed bug: "client sessions not removed when websocket disconnects"

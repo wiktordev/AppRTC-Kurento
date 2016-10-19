@@ -34,7 +34,8 @@ var callerMessage;
 var from = "";
 var myConsultant = {name: '', status: ''};
 var configuration = {"iceServers":[{"urls":"stun:webrtc.a-fk.de:3478"},{"urls":"turn:webrtc.a-fk.de:3478","username":"webrtc","credential":"fondkonzept"}]};
-var isMuted = false;
+var isMicroMuted = false;
+var isVideoMuted = false;
 var registerName = null;
 var registerState = null;
 var callState = null;
@@ -68,8 +69,9 @@ function setCallState(nextState) {
 	switch (nextState) {
 	case NO_CALL:
 		
-		disableButton('#muteAudio');
-		disableButton('#terminate');
+	disableButton('#muteAudio');
+	disableButton('#muteVideo');
+	disableButton('#terminate');
         deactivate(this.remoteVideo);
         deactivate(this.miniVideo);
         deactivate(this.localVideo);
@@ -83,12 +85,13 @@ function setCallState(nextState) {
 
 		disableButton('#call');
 		disableButton('#muteAudio');
+                disableButton('#muteVideo');
 		disableButton('#terminate');
 		break;
 
 	case IN_CALL:
-
-		disableButton('#call');
+        
+        disableButton('#call');
         miniVideo.src = localVideo.src;
         activate(this.remoteVideo);
         this.activate(icons); 
@@ -96,6 +99,7 @@ function setCallState(nextState) {
         this.deactivate('#confirm-join-div'); 
         activate(this.miniVideo);
         
+        enableButton('#muteVideo', 'muteVideo()');
         enableButton('#muteAudio', 'muteMicrophone()');
 		enableButton('#terminate', 'stop()');
 		break;
@@ -258,8 +262,7 @@ function incomingCall(message) {
 	if (confirm('User ' + message.from
 			+ ' is calling you. Do you accept the call?')) {
 
-		console.log("accepting call");
-        localVideo = document.getElementById('local-video');		// <video>-element
+        localVideo = document.getElementById('local-video');
         remoteVideo = document.getElementById('remote-video');
         miniVideo = document.getElementById('mini-video');
         icons = document.getElementById('icons');
@@ -296,9 +299,15 @@ function incomingCall(message) {
 
 function muteMicrophone() {
 	
-	isMuted = !isMuted;
-	alert('mute is:'+isMuted);
-    webRtcPeer.peerConnection.getLocalStreams()[0].getAudioTracks()[0].enabled = isMuted;
+    isMicroMuted = !isMicroMuted;
+    webRtcPeer.peerConnection.getLocalStreams()[0].getAudioTracks()[0].enabled = isMicroMuted;
+    
+}
+
+function muteVideo() {
+    
+    isVideoMuted = !isVideoMuted;	
+    webRtcPeer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].enabled = isVideoMuted;
 
 }
 
