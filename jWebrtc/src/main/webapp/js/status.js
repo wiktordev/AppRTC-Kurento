@@ -299,16 +299,15 @@ function incomingCall(message) {
 
 function muteMicrophone() {
 	
-    isMicroMuted = !isMicroMuted;
     webRtcPeer.peerConnection.getLocalStreams()[0].getAudioTracks()[0].enabled = isMicroMuted;
-    
+ 	isMicroMuted = !isMicroMuted;
+
 }
 
 function muteVideo() {
-    
-    isVideoMuted = !isVideoMuted;	
+  
     webRtcPeer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].enabled = isVideoMuted;
-
+    isVideoMuted = !isVideoMuted;	
 }
 
 function onOfferIncomingCall(error, offerSdp) {
