@@ -73,6 +73,8 @@ There are also:
 - TURN-Server Relay Test ??? 
 
 ###Todo:
+- add 3 buttons (video, audio, screensharing to index.html  (user standard icons if possible bootstrap or other sources!)
+- add 3 buttons (video, audio, screensharing to status.html (support widget)
 - screensharing: 
 	- https://developer.chrome.com/extensions/getstarted
 	- http://stackoverflow.com/questions/25763088/google-canary-on-macbook-air-osx-10-9-4-is-giving-error/25765927#25765927
@@ -98,7 +100,22 @@ There are also:
 	- change Turn-Authentication with every appConfig call
   
 ###Bugs
-- Tomcat does not create nice session IDs for the websockts - use HTTP-SessionId? SecurityProblem? 
+- (P1) Strange Execption on production server, causes complete server crash?!
+		java.io.EOFException
+        at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1222)
+        at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.isReadyForRead(NioEndpoint.java:1128)
+        at org.apache.tomcat.websocket.server.WsFrameServer.onDataAvailable(WsFrameServer.java:58)
+        at org.apache.tomcat.websocket.server.WsHttpUpgradeHandler.upgradeDispatch(WsHttpUpgradeHandler.java:148)
+        at org.apache.coyote.http11.upgrade.UpgradeProcessorInternal.dispatch(UpgradeProcessorInternal.java:54)
+        at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:53)
+        at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:785)
+        at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1425)
+        at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+        at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+        at java.lang.Thread.run(Thread.java:745)
+- (P1) Tomcat does not create nice session IDs for the websockts - use HTTP-SessionId? SecurityProblem? 
 
 
 ###Done
