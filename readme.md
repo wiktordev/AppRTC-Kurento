@@ -59,7 +59,7 @@ There are also:
 		</body>
 	</html>
 ```
-- or connect to working example at: https://your.apprtc-kurento-server.com/jWebrtc/status.html  
+- or connect to working example at: https://<<your-webrtc-server>>/jWebrtc/status.html  
 
 
 ##Tests
@@ -84,6 +84,7 @@ There are also:
 
 
 ###Nice2Haves
+- improve busy messages if somebody starts a call (or wants to call somebody)
 - error-message-improvents
 	- if kurento connection cannot be established create better error message and send it to the client (which can see the detail)
 - widget 
