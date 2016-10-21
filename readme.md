@@ -74,39 +74,21 @@ There are also:
 
 ###Todo:
 - add 3 buttons (video, audio, screensharing to index.html  (user standard icons if possible bootstrap or other sources!)
-- add 3 buttons (video, audio, screensharing to status.html (support widget)
-- enable screensharing firefox
+- enable screensharing
+	- (done) publish own extension on chrome and mozilla store
 	- check if extension is installed - provide installation button for extension
-	- deploy own extension on server or firefox store
-	- 
-- screensharing: 
-	- chrome: 
-		- https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
-	- firefox: 
-		- our firefox plugin: 
-			plugin-download-url https://addons.mozilla.org/en-US/firefox/addon/support-screensharing/
-			mozilla.org - developer https://addons.mozilla.org/en-US/developers/
-		- Distribution, Signing  
-		  https://www.webrtc-experiment.com/screen-sharing/#7661404561735988
-		  jpm sign https://blog.mozilla.org/addons/2015/12/18/signing-firefox-add-ons-with-jpm-sign/
-		  https://github.com/opentok/screensharing-extensions/tree/master/firefox
-		  https://developer.mozilla.org/en-US/Add-ons/Distribution
-		  https://support.mozilla.org/en-US/kb/add-on-signing-in-firefox?as=u&utm_source=inproduct
-	- stuffs
-		- https://github.com/opentok/screensharing-extensions/blob/master/chrome/ScreenSharing/background-script.js
-		- https://developer.chrome.com/extensions/getstarted
-		- http://stackoverflow.com/questions/25763088/google-canary-on-macbook-air-osx-10-9-4-is-giving-error/25765927#25765927
-	- Chrome Extension Screensharing ready: http://stackoverflow.com/questions/25763088/google-canary-on-macbook-air-osx-10-9-4-is-giving-error/25765927#25765927
+	- firefox https://addons.mozilla.org/en-US/firefox/addon/support-screensharing/
+	- chrome https://chrome.google.com/webstore/detail/screen-capturing/cpnlknclehfhfldcbmcalmobceenfjfd
+- add 3 buttons (video, audio, screensharing to status.html (support widget)
+	- add screensharing during a running call 
 
-- widget 
-	- enable screen sharing button
-	- switch kamera button
-	- test on integration / production
-
-- error-message-improvents
-	- if kurento connection cannot be established create better error message
 
 ###Nice2Haves
+- error-message-improvents
+	- if kurento connection cannot be established create better error message and send it to the client (which can see the detail)
+- widget 
+	- enable screen sharing button
+	- switch kamera button (if more cameras are involved)
 - TURN over Port 80/443 for very restrictive corporate firewalls ("everything closed")
 	- https://groups.google.com/forum/#!topic/discuss-webrtc/bq2tUi_guE4
 	- corporate
@@ -135,8 +117,26 @@ There are also:
         at java.lang.Thread.run(Thread.java:745)
 - (P1) Tomcat does not create nice session IDs for the websockts - use HTTP-SessionId? SecurityProblem? 
 
-
 ###Done
+
+- 2016-10-21 - screensharing: 
+	- chrome: 
+		- https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
+	- firefox: 
+		- our firefox plugin: 
+			plugin-download-url https://addons.mozilla.org/en-US/firefox/addon/support-screensharing/
+			mozilla.org - developer https://addons.mozilla.org/en-US/developers/
+		- Distribution, Signing  
+		  https://www.webrtc-experiment.com/screen-sharing/#7661404561735988
+		  jpm sign https://blog.mozilla.org/addons/2015/12/18/signing-firefox-add-ons-with-jpm-sign/
+		  https://github.com/opentok/screensharing-extensions/tree/master/firefox
+		  https://developer.mozilla.org/en-US/Add-ons/Distribution
+		  https://support.mozilla.org/en-US/kb/add-on-signing-in-firefox?as=u&utm_source=inproduct
+	- stuffs
+		- https://github.com/opentok/screensharing-extensions/blob/master/chrome/ScreenSharing/background-script.js
+		- https://developer.chrome.com/extensions/getstarted
+		- http://stackoverflow.com/questions/25763088/google-canary-on-macbook-air-osx-10-9-4-is-giving-error/25765927#25765927
+	- Chrome Extension Screensharing ready: http://stackoverflow.com/questions/25763088/google-canary-on-macbook-air-osx-10-9-4-is-giving-error/25765927#25765927
 - 2016-10-19 - enable video-mute
 - 2016-10-18 - enable audio-mute https://groups.google.com/forum/#!topic/kurento/Jp_yduJmsAY
 - 2016-10-18 - enabled hangup button in support widget
