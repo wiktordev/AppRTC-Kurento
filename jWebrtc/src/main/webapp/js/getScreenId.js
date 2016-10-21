@@ -126,9 +126,9 @@ getScreenId(function (error, sourceId, screen_constraints) {
 })();
 
 (function() {
-    if(document.domain.indexOf('webrtc-experiment.com') === -1) {
-        return;
-    }
+    //if(document.domain.indexOf('') === -1) {
+     //   return;
+   // }
 
     window.getScreenId = function(callback) {
         // for Firefox:
@@ -214,7 +214,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
 
             loadCallback();
         };
-        alert('bla loading frame!');
+
         //iframe.src = 'https://www.webrtc-experiment.com/getSourceId/'; // https://wwww.yourdomain.com/getScreenId.html
         iframe.src = 'https://localhost/jWebrtc/getScreenId.html';
         iframe.style.display = 'none';

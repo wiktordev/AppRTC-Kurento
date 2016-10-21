@@ -43,15 +43,16 @@ DetectRTC.screen = {
         }
     },
     getChromeExtensionStatus: function (callback) {
-        // https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk
+        // https://chrome.google.com/webstore/detail/screen-capturing/cpnlknclehfhfldcbmcalmobceenfjfd
         //var extensionid = 'ajhifddimkapgcifgcodmmfdlknahffk';
-        var extensionid = 'hmchnlkakjhdpleacminhccbebggaepe';
+        var extensionid = 'cpnlknclehfhfldcbmcalmobceenfjfd';
         
         var image = document.createElement('img');
         image.src = 'chrome-extension://' + extensionid + '/icon.png';
         image.onload = function () {
             DetectRTC.screen.chromeMediaSource = 'screen';
             window.postMessage('are-you-there', '*');
+            alert('extension loaded.');
             setTimeout(function () {
                 if (DetectRTC.screen.chromeMediaSource == 'screen') {
                     callback('installed-disabled');
