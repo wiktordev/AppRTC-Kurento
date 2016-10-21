@@ -73,9 +73,12 @@ There are also:
 - TURN-Server Relay Test ??? 
 
 ###Todo:
+- add 3 buttons (video, audio, screensharing to index.html  (user standard icons if possible bootstrap or other sources!)
+- display message for non-webrtc-browser instead of displaying call buttons
+- if screensharing extension, depending on the browser, is not installed, change button screen-sharing, to button "install screensharing extension"
 - screen firefox screensharing without audio
 - screensharing chrome tries to load a localhost url into iframe - needs to be the current server if possible.
-- add 3 buttons (video, audio, screensharing to index.html  (user standard icons if possible bootstrap or other sources!)
+
 - enable screensharing
 	- (done) publish own extension on chrome and mozilla store
 	- check if extension is installed - provide installation button for extension
@@ -85,6 +88,7 @@ There are also:
 	- add screensharing during a running call 
 
 ###Nice2Haves
+- display download webrtc-plugin for non-webrtc browsers like safari and internet explorer. 
 - improve busy messages if somebody starts a call (or wants to call somebody)
 - error-message-improvents
 	- if kurento connection cannot be established create better error message and send it to the client (which can see the detail)
