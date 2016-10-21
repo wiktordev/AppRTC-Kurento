@@ -73,6 +73,8 @@ There are also:
 - TURN-Server Relay Test ??? 
 
 ###Todo:
+- screen firefox screensharing without audio
+- screensharing chrome tries to load a localhost url into iframe - needs to be the current server if possible.
 - add 3 buttons (video, audio, screensharing to index.html  (user standard icons if possible bootstrap or other sources!)
 - enable screensharing
 	- (done) publish own extension on chrome and mozilla store
@@ -81,7 +83,6 @@ There are also:
 	- chrome https://chrome.google.com/webstore/detail/screen-capturing/cpnlknclehfhfldcbmcalmobceenfjfd
 - add 3 buttons (video, audio, screensharing to status.html (support widget)
 	- add screensharing during a running call 
-
 
 ###Nice2Haves
 - improve busy messages if somebody starts a call (or wants to call somebody)
