@@ -225,7 +225,7 @@ function updateRegisteredUsers(userList) {
     }
 }
 
-
+// toggle audio stream
 function toggleAudio() {
 
     //if (isAudioEnabled) isAudioEnabled = false;
@@ -238,12 +238,15 @@ function toggleAudio() {
     //return audioEnabled;
 }
 
+// toggle video stream
 function toggleVideo() {
-    webRtcPeer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].enabled = isVideoEnabled;
-    isVideoEnabled = !isVideoEnabled;
+  isVideoEnabled = !isVideoEnabled;
+  webRtcPeer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].enabled = isVideoEnabled;
 }
 
-function setVideo(enabled) {
+// enable or disable the video stream
+function setVideoEnabled(enabled) {
+  isVideoEnabled = enabled;
   webRtcPeer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].enabled = enabled;
 }
 
@@ -279,7 +282,7 @@ function callResponse(message) {
                 return console.error(error);
         });
         console.log("answer processed");
-        setVideo(isVideoEnabled);
+        setVideoEnabled(isVideoEnabled);
     }
 }
 
