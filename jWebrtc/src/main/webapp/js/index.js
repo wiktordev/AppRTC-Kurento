@@ -21,6 +21,10 @@ var videoOutput;
 var webRtcPeer;
 var response;
 var callerMessage;
+
+var isAudioEnabled = true;
+var isVideoEnabled = true;
+
 var from;
 var myConsultant = {
     name: '',
@@ -71,7 +75,10 @@ const IN_PLAY = 4; // client is replaying a record
 function setCallState(nextState) {
     switch (nextState) {
         case NO_CALL:
-            enableButton('#call', 'call()');
+            //enableButton('#call', 'call()');
+            enableButton('#audio-call', 'call("audio")');
+            enableButton('#video-call', 'call("video")');
+            enableButton('#screen-call', 'call("screen")');
             disableButton('#terminate');
             disableButton('#play');
             break;
@@ -98,6 +105,11 @@ function setCallState(nextState) {
 }
 
 window.onload = function() {
+  if (!DetectRTC.isWebRTCSupported) {
+    console.log("WebRTC not supported");
+    showCompatibilityWarning("#rtc-area");
+  }
+
     console = new Console();
     setRegisterState(NOT_REGISTERED);
     var drag = new Draggabilly(document.getElementById('videoSmall'));
@@ -213,16 +225,26 @@ function updateRegisteredUsers(userList) {
     }
 }
 
-var audioEnabled = true;
 
 function toggleAudio() {
 
-    if (audioEnabled) audioEnabled = false;
-    else audioEnabled = true;
+    //if (isAudioEnabled) isAudioEnabled = false;
+    //else isAudioEnabled = true;
+
+    isAudioEnabled = !isAudioEnabled;
 
     var localStream = webRtcPeer.getLocalStream();
-    localStream.muted = audioEnabled;
+    localStream.muted = isAudioEnabled;
     //return audioEnabled;
+}
+
+function toggleVideo() {
+    webRtcPeer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].enabled = isVideoEnabled;
+    isVideoEnabled = !isVideoEnabled;
+}
+
+function setVideo(enabled) {
+  webRtcPeer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].enabled = enabled;
 }
 
 function playResponse(message) {
@@ -241,6 +263,7 @@ function playResponse(message) {
     }
 }
 
+// Start streaming on callers side, if accepted
 function callResponse(message) {
     if (message.response != 'accepted') {
         console.info('Call not accepted by peer. Closing call');
@@ -249,22 +272,31 @@ function callResponse(message) {
         console.log(errorMessage);
         stop();
     } else {
+      console.log("call accepted");
         setCallState(IN_CALL);
         webRtcPeer.processAnswer(message.sdpAnswer, function(error) {
             if (error)
                 return console.error(error);
         });
+        console.log("answer processed");
+        setVideo(isVideoEnabled);
     }
 }
 
+// Start streaming on callees side
 function startCommunication(message) {
+  console.log("startCommunication");
     setCallState(IN_CALL);
     webRtcPeer.processAnswer(message.sdpAnswer, function(error) {
         if (error)
             return console.error(error);
     });
+    console.log("answer processed");
 }
 
+/*
+Someone is calling
+*/
 function incomingCall(message) {
     // If busy just reject without disturbing user
     if (callState != NO_CALL) {
@@ -339,7 +371,9 @@ function register() {
     document.getElementById('peer').focus();
 }
 
-function call() {
+function call(type) {
+    console.log(type);
+
     if (document.getElementById('peer').value == '') {
         window.alert('You must specify the peer name');
         return;
@@ -347,8 +381,11 @@ function call() {
     setCallState(PROCESSING_CALL);
     showSpinner(videoInput, videoOutput);
 
-    var selectSource = document.getElementById('selectSource');
-    var isWebcam = selectSource.value == 'webcam';
+    var isWebcam = type == 'video';
+    var isAudio = type == 'audio';
+    var isScreen = type == 'screen';
+
+    isVideoEnabled = !isAudio;
 
     /*var width, height;
     //var resolution = document.getElementById('resolution').value;
@@ -392,7 +429,7 @@ function call() {
     	constraints.video.chromeMediaSource = 'screen';
     }*/
 
-    if (!isWebcam) {
+    if (isScreen) {
         // Der Weg über die mediaSource funktioniert aus unbekannten Gründen nicht,
         // daher ermittle ich den Videostream und übergebe ihn direkt an den WebRtcPeer
         // options.videoStream
@@ -569,6 +606,10 @@ function enableButton(id, functionName) {
     $(id).attr('onclick', functionName);
 }
 
+function showCompatibilityWarning(id) {
+  $(id).html("Please use a browser that supports WebRTC, like Firefox or Chrome");
+}
+
 /**
  * Lightbox utility (to display media pipeline image in a modal dialog)
  */
@@ -576,4 +617,3 @@ $(document).delegate('*[data-toggle="lightbox"]', 'click', function(event) {
     event.preventDefault();
     $(this).ekkoLightbox();
 });
-

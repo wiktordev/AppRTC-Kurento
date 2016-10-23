@@ -22,6 +22,8 @@
 <script src="bower_components/demo-console/index.js"></script>
 
 <script src="bower_components/kurento-utils/js/kurento-utils.js"></script>
+<script src="bower_components/detectrtc/DetectRTC.js"></script>
+
 <script src="js/index.js"></script>
 
 <title>WebRTC Kurento one2one call to browser, Android and iOS</title>
@@ -53,7 +55,7 @@
 		<div class="page-header">
 			<h1>MSC-WebRTC Kurento one2one call to browser, Android and iOS</h1>
 			<p>
-				
+
 			</p>
 		</div>
 		<div class="row">
@@ -70,24 +72,26 @@
 					</div>
 				</div>
 
-				<br /> <br /> <label class="control-label" for="peer">Peer</label>
-				<div class="row">
-					<div class="col-md-6">
-						<!--<input id="peer" name="peer" class="form-control" type="text"
-							onkeydown="if (event.keyCode == 13) call();">-->
-                                                 <select id="peer"></select>
+				<br /> <br />
+				<div id="rtc-area">
+					<div id="peers" class="row">
+						<div class="col-md-12">
+							<label class="control-label" for="peer">Peer</label>
+	            <select id="peer"></select>
+						</div>
 					</div>
-					<div class="col-md-6">
-						<select id="selectSource">
-						  <option value="webcam" selected>Webcam</option>
-						  <option value="desktop">Desktop</option>
-						</select>
-					</div>
-					<div class="col-md-6 text-right">
-						<a id="call" href="#" class="btn btn-success"><span
-							class="glyphicon glyphicon-play"></span> Call</a> <a id="terminate"
-							href="#" class="btn btn-danger"><span
-							class="glyphicon glyphicon-stop"></span> Stop</a>
+					<br />
+					<div id="call-buttons" class="row">
+						<div class="col-md-12 text-center">
+							<a id="audio-call" href="#" class="btn btn-success">
+								<span	class="glyphicon glyphicon-earphone"></span> Audio call</a>
+							<a id="video-call" href="#" class="btn btn-success">
+								<span	class="glyphicon glyphicon-facetime-video"></span> Video call</a>
+							<a id="screen-call" href="#" class="btn btn-success">
+								<span	class="glyphicon glyphicon-blackboard"></span> Share screen</a>
+							<a id="terminate"	href="#" class="btn btn-danger">
+								<span	class="glyphicon glyphicon-stop"></span> Stop</a>
+						</div>
 					</div>
 				</div>
 				<br /> <label class="control-label" for="console">Console</label><br>
@@ -114,7 +118,7 @@
 			<div class="container text-center">
 				<hr />
 				<div class="row">&copy; 2014-2015 Le Space</div>
-			
+
 			</div>
 		</div>
 	</footer>
