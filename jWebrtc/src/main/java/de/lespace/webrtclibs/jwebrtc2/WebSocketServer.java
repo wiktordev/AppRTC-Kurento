@@ -521,7 +521,7 @@ public class WebSocketServer {
 		responseJSON.addProperty("response", userListJson);
 		responseJSON.addProperty("message", "");
 
-		log.debug("Updating user list on clients: {}", responseJSON);
+		log.error("Updating user list on clients: {}", responseJSON);
 
 		for (UserSession userSession : registry.getUserSessions()) {
                        if(userSession.getSession().isOpen()){
@@ -742,8 +742,8 @@ public class WebSocketServer {
                     }
                      
                     stopperUser.clear();
-                    log.debug("Stopped", sessionId);
-                  
+                    log.error("Stopped", sessionId);
+                    sendRegisteredUsers(); 
                 }
 		//}
                 //else{ //piplines not yet have been created - but a user tried to call another and the other hangs up instead of answers the call
