@@ -110,6 +110,8 @@ window.onload = function() {
     showCompatibilityWarning("#rtc-area");
   }
 
+  isExtensionInstalled();
+
     console = new Console();
     setRegisterState(NOT_REGISTERED);
     var drag = new Draggabilly(document.getElementById('videoSmall'));
@@ -602,11 +604,13 @@ function hideSpinner() {
 function disableButton(id) {
     $(id).attr('disabled', true);
     $(id).removeAttr('onclick');
+    $(id).toggleClass("disabled", true);
 }
 
 function enableButton(id, functionName) {
     $(id).attr('disabled', false);
     $(id).attr('onclick', functionName);
+    $(id).toggleClass("disabled", false);
 }
 
 function showCompatibilityWarning(id) {
@@ -620,3 +624,93 @@ $(document).delegate('*[data-toggle="lightbox"]', 'click', function(event) {
     event.preventDefault();
     $(this).ekkoLightbox();
 });
+
+function isExtensionInstalled() {
+  if (DetectRTC.browser.isChrome) {
+    // Check for chrome extension
+    getChromeExtensionStatus(function(status) {
+      console.info("Chrome extension: " + status);
+      if(status == 'installed') {
+          // chrome extension is installed.
+          $("#screen-call").toggleClass("disabled", false);
+      }
+
+      if(status == 'installed-disabled') {
+          // chrome extension is installed but disabled.
+          $("#screen-call").toggleClass("disabled", true);
+      }
+
+      if(status == 'not-installed') {
+          // chrome extension is not installed
+          $("#screen-call").toggleClass("disabled", true);
+      }
+
+      if(status == 'not-chrome') {
+          // using non-chrome browser
+          $("#screen-call").toggleClass("disabled", true);
+      }
+    });
+  }
+
+  if (DetectRTC.browser.isFirefox) {
+    // Check for firefox add on
+    // request addon to enable screen capturing for your domains
+    window.postMessage({
+        enableScreenCapturing: true,
+        domains: ['localhost', '127.0.0.1']
+    }, "*");
+
+    // watch addon's response
+    // addon will return "enabledScreenCapturing=true" for success
+    // else "enabledScreenCapturing=false" for failure (i.e. user rejection)
+    window.addEventListener("message", function(event) {
+        var addonMessage = event.data;
+
+        if(!addonMessage || typeof addonMessage.enabledScreenCapturing === 'undefined') {
+          console.warn("Firefox AddOn not available");
+          $("#screen-call").toggleClass("disabled", true);
+          return;
+        }
+
+        if(addonMessage.enabledScreenCapturing === true) {
+            // addonMessage.domains === [array-of-your-domains]
+            console.info("Firefox AddOn available");
+            console.log(JSON.stringify(addonMessage.domains) + ' are enabled for screen capturing.');
+            $("#screen-call").toggleClass("disabled", false);
+        }
+        else {
+            // reason === 'user-rejected'
+            console.warn("Firefox AddOn: " + addonMessage.reason);
+            $("#screen-call").toggleClass("disabled", true);
+        }
+    }, false);
+  }
+
+  return false;
+}
+
+function handleMissingChromeExtension() {
+  $("#screen-call").toggleClass("disabled", true);
+}
+
+function handleMissingFirefoxAddon() {
+  $("#screen-call").toggleClass("disabled", true);
+}
+
+function getChromeExtensionStatus(callback) {
+    // https://chrome.google.com/webstore/detail/screen-capturing/cpnlknclehfhfldcbmcalmobceenfjfd
+    var extensionid = 'cpnlknclehfhfldcbmcalmobceenfjfd';
+
+    var image = document.createElement('img');
+    image.src = 'chrome-extension://' + extensionid + '/icon.png';
+    image.onload = function () {
+        //window.postMessage('are-you-there', '*');
+        console.log('extension loaded.');
+        setTimeout(function () {
+            callback('installed');
+        }, 2000);
+    };
+    image.onerror = function () {
+        callback('not-installed');
+    };
+}

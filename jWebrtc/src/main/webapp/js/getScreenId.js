@@ -21,6 +21,8 @@ getScreenId(function (error, sourceId, screen_constraints) {
 });
 */
 
+var srcGetScreenIdHtml = 'https://' + location.host + '/jWebrtc/getScreenId.html';
+
 (function() {
     window.getScreenId = function(callback) {
         // for Firefox:
@@ -92,6 +94,10 @@ getScreenId(function (error, sourceId, screen_constraints) {
         iframe.contentWindow.postMessage({
             captureSourceId: true
         }, '*');
+
+        //window.postMessage({
+        //    captureSourceId: true
+        //}, '*');
     }
 
     function loadIFrame(loadCallback) {
@@ -108,7 +114,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
             loadCallback();
         };
         //iframe.src = 'https://www.webrtc-experiment.com/getSourceId/'; // https://wwww.yourdomain.com/getScreenId.html
-        iframe.src = 'https://localhost/jWebrtc/getScreenId.html';
+        iframe.src = srcGetScreenIdHtml;
         iframe.style.display = 'none';
         (document.body || document.documentElement).appendChild(iframe);
     }
@@ -200,6 +206,10 @@ getScreenId(function (error, sourceId, screen_constraints) {
         iframe.contentWindow.postMessage({
             captureSourceId: true
         }, '*');
+
+        //window.postMessage({
+        //    captureSourceId: true
+        //}, '*');
     }
 
     function loadIFrame(loadCallback) {
@@ -216,7 +226,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
         };
 
         //iframe.src = 'https://www.webrtc-experiment.com/getSourceId/'; // https://wwww.yourdomain.com/getScreenId.html
-        iframe.src = 'https://localhost/jWebrtc/getScreenId.html';
+        iframe.src = srcGetScreenIdHtml;
         iframe.style.display = 'none';
         (document.body || document.documentElement).appendChild(iframe);
     }
@@ -232,3 +242,79 @@ getScreenId(function (error, sourceId, screen_constraints) {
         });
     };
 })();
+
+//var DetectRTC = {};
+
+/*var screenCallback;
+
+DetectRTC.screen = {
+    chromeMediaSource: 'screen',
+    getSourceId: function (callback) {
+        screenCallback = callback;
+        window.postMessage('get-sourceId', '*');
+    },
+    onMessageCallback: function (data) {
+        // "cancel" button is clicked
+        if (data == 'PermissionDeniedError') {
+            DetectRTC.screen.chromeMediaSource = 'PermissionDeniedError';
+            if (screenCallback) return screenCallback('PermissionDeniedError');
+            else throw new Error('PermissionDeniedError');
+        }
+
+        // extension notified his presence
+        if (data == 'rtcmulticonnection-extension-loaded') {
+            DetectRTC.screen.chromeMediaSource = 'desktop';
+        }
+
+        // extension shared temp sourceId
+        if (data.sourceId) {
+            DetectRTC.screen.sourceId = data.sourceId;
+            if (screenCallback) screenCallback(DetectRTC.screen.sourceId);
+        }
+    },
+    getChromeExtensionStatus: function (callback) {
+        // https://chrome.google.com/webstore/detail/screen-capturing/cpnlknclehfhfldcbmcalmobceenfjfd
+        var extensionid = 'cpnlknclehfhfldcbmcalmobceenfjfd';
+
+        var image = document.createElement('img');
+        image.src = 'chrome-extension://' + extensionid + '/icon.png';
+        image.onload = function () {
+            DetectRTC.screen.chromeMediaSource = 'screen';
+            window.postMessage('are-you-there', '*');
+            console.log('extension loaded.');
+            setTimeout(function () {
+                if (DetectRTC.screen.chromeMediaSource == 'screen') {
+                    callback('installed-disabled');
+                } else callback('installed-enabled');
+            }, 2000);
+        };
+        image.onerror = function () {
+            callback('not-installed');
+        };
+    }
+};
+
+window.addEventListener('message', function (event) {
+    if (!event.data || !(typeof event.data == 'string' || event.data.sourceId || event.data.captureSourceId)) return;
+    if (event.data.captureSourceId) captureSourceId();
+
+    DetectRTC.screen.onMessageCallback(event.data);
+});
+
+function captureSourceId() {
+    // check if desktop-capture extension installed.
+    DetectRTC.screen.getChromeExtensionStatus(function (status) {
+        if (status != 'installed-enabled') {
+            window.parent.postMessage({
+                chromeExtensionStatus: status
+            }, '*');
+            return;
+        }
+
+        DetectRTC.screen.getSourceId(function (sourceId) {
+            window.parent.postMessage({
+                chromeMediaSourceId: sourceId
+            }, '*');
+        });
+    });
+}*/
