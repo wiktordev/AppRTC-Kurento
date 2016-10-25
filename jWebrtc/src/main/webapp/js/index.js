@@ -287,6 +287,7 @@ function callResponse(message) {
 function startCommunication(message) {
   console.log("startCommunication");
     setCallState(IN_CALL);
+    
     webRtcPeer.processAnswer(message.sdpAnswer, function(error) {
         if (error)
             return console.error(error);
@@ -323,6 +324,7 @@ function incomingCall(message) {
             onicecandidate: onIceCandidate,
             onerror: onError
         }
+        options.configuration = configuration;
         webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
             function(error) {
                 if (error) {
@@ -449,8 +451,7 @@ function call(type) {
                     sendSource: 'window',
                      //				mediaConstraints: constraints
                 }
-                options.configuration = configuration;
-
+                 options.configuration = configuration;
                 webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
                     function(error) {
                         if (error) {
@@ -471,7 +472,7 @@ function call(type) {
             onerror: onError,
             //				mediaConstraints: constraints
         }
-
+        options.configuration = configuration;
         webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
             function(error) {
                 if (error) {
