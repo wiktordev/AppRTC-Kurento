@@ -75,10 +75,10 @@ const IN_PLAY = 4; // client is replaying a record
 function setCallState(nextState) {
     switch (nextState) {
         case NO_CALL:
-            //enableButton('#call', 'call()');
-            enableButton('#audio-call', 'call("audio")');
+            enableButton('#call', 'call()');
+            /*enableButton('#audio-call', 'call("audio")');
             enableButton('#video-call', 'call("video")');
-            enableButton('#screen-call', 'call("screen")');
+            enableButton('#screen-call', 'call("screen")');*/
             disableButton('#terminate');
             disableButton('#play');
             break;
@@ -376,9 +376,7 @@ function register() {
     document.getElementById('peer').focus();
 }
 
-function call(type) {
-    console.log(type);
-
+function call() {
     if (document.getElementById('peer').value == '') {
         window.alert('You must specify the peer name');
         return;
@@ -386,11 +384,11 @@ function call(type) {
     setCallState(PROCESSING_CALL);
     showSpinner(videoInput, videoOutput);
 
-    var isWebcam = type == 'video';
-    var isAudio = type == 'audio';
-    var isScreen = type == 'screen';
+    //var isWebcam = type == 'video';
+    //var isAudio = type == 'audio';
+    var isScreen = false;
 
-    isVideoEnabled = !isAudio;
+    isVideoEnabled = true;
 
     /*var width, height;
     //var resolution = document.getElementById('resolution').value;
