@@ -72,8 +72,13 @@ There are also:
 - STUN-Server Test (if clients are behind a firewall or in different networks)
 - TURN-Server Relay Test ??? 
 
-###Todo:
-- add 3 buttons (video, audio, screensharing to index.html  (user standard icons if possible bootstrap or other sources!)
+###Todo/Bugs
+- (Bug) IPv6 only networks need to be tested. 
+	http://www.brianjcoleman.com/tutorial-how-to-test-your-app-for-ipv6-compatibility/
+	https://github.com/Anakros/WebRTC/issues/7
+	http://stackoverflow.com/questions/40078763/has-anyone-managed-to-get-group-calls-working-with-kurento-on-ios-with-ipv6-only
+	
+- (CR) add 3 buttons (video, audio, screensharing to index.html  (user standard icons if possible bootstrap or other sources!)
 - display message for non-webrtc-browser instead of displaying call buttons
 - if screensharing extension, depending on the browser, is not installed, change button screen-sharing, to button "install screensharing extension"
 - screen firefox screensharing without audio
