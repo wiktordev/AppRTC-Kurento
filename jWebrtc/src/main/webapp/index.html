@@ -1,35 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<meta http-equiv="cache-control" content="no-cache">
-<meta http-equiv="pragma" content="no-cache">
-<meta http-equiv="expires" content="0">
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="shortcut icon" href="img/kurento.png" type="image/png" />
+	<meta charset="utf-8">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="shortcut icon" href="img/kurento.png" type="image/png" />
 
-<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
-<link rel="stylesheet"
-	href="bower_components/ekko-lightbox/dist/ekko-lightbox.min.css">
-<link rel="stylesheet" href="bower_components/demo-console/index.css">
-<link rel="stylesheet" href="css/kurento.css">
+	<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet"
+		href="bower_components/ekko-lightbox/dist/ekko-lightbox.min.css" />
+	<link rel="stylesheet" href="bower_components/demo-console/index.css" />
+	<link rel="stylesheet" href="css/kurento.css" />
+	<link rel="stylesheet" href="css/font-awesome-4.7.0/css/font-awesome.min.css" />
 
-<script src="bower_components/jquery/dist/jquery.min.js"></script>
-<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="bower_components/ekko-lightbox/dist/ekko-lightbox.min.js"></script>
-<script src="bower_components/draggabilly/dist/draggabilly.pkgd.min.js"></script>
-<script src="bower_components/adapter.js/adapter.js"></script>
-<script src="bower_components/demo-console/index.js"></script>
+	<link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/cpnlknclehfhfldcbmcalmobceenfjfd">
 
-<script src="bower_components/kurento-utils/js/kurento-utils.js"></script>
-<script src="bower_components/detectrtc/DetectRTC.js"></script>
+	<script src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="bower_components/ekko-lightbox/dist/ekko-lightbox.min.js"></script>
+	<script src="bower_components/draggabilly/dist/draggabilly.pkgd.min.js"></script>
+	<script src="bower_components/adapter.js/adapter.js"></script>
+	<script src="bower_components/demo-console/index.js"></script>
 
-<script src="js/index.js"></script>
+	<script src="bower_components/kurento-utils/js/kurento-utils.js"></script>
+	<script src="bower_components/detectrtc/DetectRTC.js"></script>
 
-<title>WebRTC Kurento one2one call to browser, Android and iOS</title>
-<!-- Screen sharing -->
-<!--<script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>-->
-<script src="js/getScreenId.js"></script>
+	<script src="js/index.js"></script>
+
+	<title>WebRTC Kurento one2one call to browser, Android and iOS</title>
+	<!-- Screen sharing -->
+	<!--<script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>-->
+	<script src="js/getScreenId.js"></script>
 </head>
 <body>
 	<header>
@@ -82,25 +85,32 @@
 					</div>
 				
 					<div id="call-buttons" class="row">
-						<div class="col-md-3">
-							<a id="audio-call" href="#" class="btn btn-success">
-								<span	class="glyphicon glyphicon-earphone"></span> Audio call</a>
-                                                </div>	
-                                                <div class="col-md-3">
-							<a id="video-call" href="#" class="btn btn-success">
-								<span	class="glyphicon glyphicon-facetime-video"></span> Video call</a>
-                                                </div>	
-                                                <div class="col-md-3">
-                                                        <a id="screen-call" href="#" class="btn btn-success">
-                                                            <span class="glyphicon glyphicon-blackboard"></span> Share screen
-                                                        </a>
-                                                </div>	
-                                                
-                                                <div class="col-md-3">
-                                                        <a id="terminate" href="#" class="btn btn-danger">
-                                                        <span class="glyphicon glyphicon-stop"></span> Stop</a>
-                                                </div>	
-						
+						<div class="col-md-12 text-center">
+
+							<div class="btn-group" data-toggle="buttons">
+								<a id="call" href="#" class="btn btn-success" title="Start call">
+									<i class="fa fa-phone fa-fw"></i>
+								</a>
+								<button type="button" id="audioEnabled" class="btn btn-primary" title="Mute/unmute">
+									<i class="fa fa-microphone fa-fw"></i>
+								</button>
+								<button type="button" id="videoEnabled" class="btn btn-primary" title="Enable/disable video">
+									<i class="fa fa-video-camera fa-fw"></i>
+								</button>
+								<button type="button" id="screenEnabled" class="btn btn-primary">
+									<i class="fa fa-desktop fa-fw"></i>
+								</button>
+
+								<a id="terminate"	href="#" class="btn btn-danger" title="End call">
+									<i class="fa fa-stop fa-fw"></i>
+								</a>
+							</div>
+							<!--<a id="video-call" href="#" class="btn btn-success">
+								<span	class="glyphicon glyphicon-facetime-video"></span> Video call</a>-->
+							<!--<a id="screen-call" href="#" class="btn btn-success">
+								<i class="fa fa-desktop fa-fw"></i> Share screen</a>-->
+
+						</div>
 					</div>
 				</div>
 				<br /> <label class="control-label" for="console">Console</label><br>
