@@ -22,13 +22,14 @@ var webRtcPeer;
 var response;
 var callerMessage;
 
-var isAudioEnabled = true;
-var isVideoEnabled = false;
-var isScreenSharingEnabled = false;
+var isAudioEnabled;
+var isWebcamEnabled;
+var isScreenSharingEnabled;
 var isScreenSharingAvailable = false;
+var isVideoStreamEnabled = isWebcamEnabled || isScreenSharingEnabled;
 
 var chkAudioEnabled;
-var chkVideoEnabled;
+var chkWebcamEnabled;
 var chkScreenEnabled;
 
 var from;
@@ -118,40 +119,40 @@ window.onload = function() {
 
   isExtensionInstalled();
 
-    console = new Console();
-    setRegisterState(NOT_REGISTERED);
-    var drag = new Draggabilly(document.getElementById('videoSmall'));
-    videoInput = document.getElementById('videoInput'); // <video>-element
-    videoOutput = document.getElementById('videoOutput'); // <video>-element
-    document.getElementById('name').focus();
+  console = new Console();
+  setRegisterState(NOT_REGISTERED);
+  var drag = new Draggabilly(document.getElementById('videoSmall'));
+  videoInput = document.getElementById('videoInput'); // <video>-element
+  videoOutput = document.getElementById('videoOutput'); // <video>-element
+  document.getElementById('name').focus();
 
-    ws.onopen = function() {
-        console.log("ws connection now open");
-        requestAppConfig();
-    }
+  ws.onopen = function() {
+      console.log("ws connection now open");
+      requestAppConfig();
+  }
 }
 
 $(function() {
   // Handler for .ready() called.
 
   chkAudioEnabled = $("#audioEnabled");
-  chkVideoEnabled = $("#videoEnabled");
+  chkWebcamEnabled = $("#videoEnabled");
   chkScreenEnabled = $("#screenEnabled");
 
   chkAudioEnabled.on("click", function () {
     toggleAudio();
   });
-  setAudioEnabled(isAudioEnabled);
+  setAudioEnabled(true);
 
-  chkVideoEnabled.on("click", function() {
-    toggleVideo();
+  chkWebcamEnabled.on("click", function() {
+    toggleWebcam();
   })
-  setVideoEnabled(isVideoEnabled);
+  setWebcamEnabled(false);
 
   chkScreenEnabled.on("click", function() {
     toggleScreenSharing();
   })
-  setScreenSharingEnabled(isScreenSharingEnabled);
+  setScreenSharingEnabled(false);
 });
 
 window.onbeforeunload = function() {
@@ -258,12 +259,15 @@ function updateRegisteredUsers(userList) {
 
 // toggle audio stream
 function toggleAudio() {
-    isAudioEnabled = !isAudioEnabled;
-    setAudioEnabled(isAudioEnabled);
+    setAudioEnabled(!isAudioEnabled);
 }
 
 // enable or disable the audio stream
 function setAudioEnabled(enabled) {
+  if (isAudioEnabled == enabled) {
+    return;
+  }
+
   isAudioEnabled = enabled;
   if (webRtcPeer != undefined) {
     var localStream = webRtcPeer.getLocalStream();
@@ -277,45 +281,64 @@ function setAudioEnabled(enabled) {
 }
 
 // toggle video stream
-function toggleVideo() {
-  isVideoEnabled = !isVideoEnabled;
-  setVideoEnabled(isVideoEnabled);
+function toggleWebcam() {
+  setWebcamEnabled(!isWebcamEnabled);
 }
 
 // enable or disable the video stream
-function setVideoEnabled(enabled) {
-  isVideoEnabled = enabled;
-  if (webRtcPeer != undefined) {
-    webRtcPeer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].enabled = enabled;
+function setWebcamEnabled(enabled) {
+  if (isWebcamEnabled == enabled) {
+    return;
   }
 
-  $(chkVideoEnabled).toggleClass('active', isVideoEnabled);
+  isWebcamEnabled = enabled;
 
-  console.log("Video enabled: " + isVideoEnabled);
+  $(chkWebcamEnabled).toggleClass('active', isWebcamEnabled);
 
-  if(isScreenSharingEnabled && isVideoEnabled) {
-    // if screen sharing is active, then disable screen sharing to show video
-    setScreenSharingEnabled(false);
+  console.log("Video enabled: " + isWebcamEnabled);
+
+  setVideoStreamEnabled(isWebcamEnabled || isScreenSharingEnabled);
+
+  if(isWebcamEnabled) {
+    switchToWebcam();
   }
 }
 
 // toggle screen sharing
 function toggleScreenSharing() {
-  isScreenSharingEnabled = !isScreenSharingEnabled;
-
-  setScreenSharingEnabled(isScreenSharingEnabled);
+  setScreenSharingEnabled(!isScreenSharingEnabled);
 }
 
 // enable or disable screen sharing
 function setScreenSharingEnabled(enabled) {
+  if (isScreenSharingEnabled == enabled) {
+    return;
+  }
+
   isScreenSharingEnabled = enabled && isScreenSharingAvailable;
 
   $(chkScreenEnabled).toggleClass('active', isScreenSharingEnabled);
   console.log("Screen sharing enabled: " + isScreenSharingEnabled);
 
-  if(isScreenSharingEnabled && isVideoEnabled) {
-    // if video is recorded, then disable video to show desktop
-    setVideoEnabled(false);
+  setVideoStreamEnabled(isWebcamEnabled || isScreenSharingEnabled);
+
+  if(isScreenSharingEnabled) {
+    switchToScreenSharing();
+  }
+}
+
+function switchToScreenSharing() {
+  console.log("Start screen sharing...");
+}
+
+function switchToWebcam() {
+  console.log("Start video from webcam...");
+}
+
+function setVideoStreamEnabled(enabled) {
+  isVideoStreamEnabled = enabled;
+  if (webRtcPeer != undefined) {
+    webRtcPeer.peerConnection.getLocalStreams()[0].getVideoTracks()[0].enabled = isVideoStreamEnabled;
   }
 }
 
@@ -351,7 +374,7 @@ function callResponse(message) {
                 return console.error(error);
         });
         console.log("answer processed");
-        setVideoEnabled(isVideoEnabled);
+        setVideoStreamEnabled(isWebcamEnabled || isScreenSharingEnabled);
     }
 }
 
@@ -364,6 +387,7 @@ function startCommunication(message) {
             return console.error(error);
     });
     console.log("answer processed");
+    setVideoStreamEnabled(isWebcamEnabled || isScreenSharingEnabled);
 }
 
 /*
@@ -692,8 +716,8 @@ function isExtensionInstalled() {
       console.info("Chrome extension: " + status);
       if(status == 'installed') {
           // chrome extension is installed.
-          $("#screen-call").toggleClass("disabled", false);
-          isScreenSharingAvailable = true;
+          handleScreenSharingAvailable();
+
       }
 
       if(status == 'installed-disabled') {
@@ -737,8 +761,8 @@ function isExtensionInstalled() {
             // addonMessage.domains === [array-of-your-domains]
             console.info("Firefox AddOn available");
             console.log(JSON.stringify(addonMessage.domains) + ' are enabled for screen capturing.');
-            $("#screen-call").toggleClass("disabled", false);
-            isScreenSharingAvailable = true;
+
+            handleScreenSharingAvailable();
         }
         else {
             // reason === 'user-rejected'
@@ -756,7 +780,7 @@ function handleMissingChromeExtension() {
   isScreenSharingAvailable = false;
 
   // show message "install extension"
-  var buttonStr = "<button onclick='installChromeExtension()' id='install-button' class='btn btn-warning' title='Install Screen Sharing extension to show your desktop'><i class='fa fa-download fa-fw'></i></button>";
+  var buttonStr = "<button id='installButton' onclick='installChromeExtension()' id='install-button' class='btn btn-warning' title='Install Screen Sharing extension to present your desktop'><i class='fa fa-download fa-fw'></i></button>";
 
   $("#screenEnabled").replaceWith(buttonStr);
 }
@@ -766,7 +790,17 @@ function handleMissingFirefoxAddon() {
   isScreenSharingAvailable = false;
 
   // show message "install addon"
-  var buttonStr = "<button onclick='installFirefoxAddOn(); this.disabled = true;' class='btn btn-warning' title='Install Screen Sharing extension to show your desktop'><i class='fa fa-download fa-fw'></i></button>";
+  var buttonStr = "<button id='installButton' onclick='installFirefoxAddOn(); this.disabled = true;' class='btn btn-warning' title='Install Screen Sharing extension to present your desktop'><i class='fa fa-download fa-fw'></i></button>";
+
+  //$("#screenEnabled").replaceWith(buttonStr);
+  $("#screenEnabled").hide();
+  $("#screenEnabled").after(buttonStr);
+}
+
+function handleScreenSharingAvailable() {
+  $("#screenEnabled").show();
+  $("#installButton").remove();
+  isScreenSharingAvailable = true;
 }
 
 function installFirefoxAddOn() {
@@ -800,16 +834,4 @@ function getChromeExtensionStatus(callback) {
     }).fail(function() {
       callback('not-installed');
     });
-
-    /*image.src = 'chrome-extension://' + extensionid + '/icon.png';
-    image.onload = function () {
-        //window.postMessage('are-you-there', '*');
-        console.log('extension loaded.');
-        setTimeout(function () {
-            callback('installed');
-        }, 2000);
-    };
-    image.onerror = function () {
-        callback('not-installed');
-    };*/
 }
