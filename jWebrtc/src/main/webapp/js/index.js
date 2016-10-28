@@ -382,7 +382,7 @@ function callResponse(message) {
 function startCommunication(message) {
   console.log("startCommunication");
     setCallState(IN_CALL);
-    
+
     webRtcPeer.processAnswer(message.sdpAnswer, function(error) {
         if (error)
             return console.error(error);
@@ -783,7 +783,14 @@ function handleMissingChromeExtension() {
   // show message "install extension"
   var buttonStr = "<button id='installButton' onclick='installChromeExtension()' id='install-button' class='btn btn-warning' title='Install Screen Sharing extension to present your desktop'><i class='fa fa-download fa-fw'></i></button>";
 
-  $("#screenEnabled").replaceWith(buttonStr);
+
+  $("#screenEnabled").hide();
+  $("#screenEnabled").after(buttonStr);
+
+  $("#installScreenSharingLink").on("click", function() {
+    installChromeExtension();
+  });
+  $("#warningScreenSharing").show();
 }
 
 function handleMissingFirefoxAddon() {
@@ -793,14 +800,19 @@ function handleMissingFirefoxAddon() {
   // show message "install addon"
   var buttonStr = "<button id='installButton' onclick='installFirefoxAddOn(); this.disabled = true;' class='btn btn-warning' title='Install Screen Sharing extension to present your desktop'><i class='fa fa-download fa-fw'></i></button>";
 
-  //$("#screenEnabled").replaceWith(buttonStr);
   $("#screenEnabled").hide();
   $("#screenEnabled").after(buttonStr);
+
+  $("#installScreenSharingLink").on("click", function() {
+    installFirefoxAddOn();
+  });
+  $("#warningScreenSharing").show();
 }
 
 function handleScreenSharingAvailable() {
   $("#screenEnabled").show();
   $("#installButton").remove();
+  $("#warningScreenSharing").hide();
   isScreenSharingAvailable = true;
 }
 
