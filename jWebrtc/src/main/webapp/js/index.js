@@ -22,7 +22,7 @@ var webRtcPeer;
 var response;
 var callerMessage;
 
-var isAudioEnabled;
+var isAudioEnabled = true;
 var isWebcamEnabled = true;
 var isScreenSharingEnabled;
 var isScreenSharingAvailable = false;
@@ -108,7 +108,7 @@ function setCallState(nextState) {
             showButton('#terminate');
             showButton('#audioEnabled');
             showButton('#videoEnabled');
-            hideButton('#screenEnabled');
+          //  hideButton('#screenEnabled');
             disableButton('#play');
             break;
         case IN_PLAY:
@@ -385,7 +385,7 @@ function callResponse(message) {
                 return console.error(error);
         });
         console.log("answer processed");
-        setVideoStreamEnabled(isWebcamEnabled || isScreenSharingEnabled);
+      //  setVideoStreamEnabled(isWebcamEnabled || isScreenSharingEnabled);
     }
 }
 
@@ -399,7 +399,7 @@ function startCommunication(message) {
             return console.error(error);
     });
     console.log("answer processed");
-    setVideoStreamEnabled(isWebcamEnabled || isScreenSharingEnabled);
+  //  setVideoStreamEnabled(isWebcamEnabled || isScreenSharingEnabled);
 }
 
 /*
@@ -736,7 +736,6 @@ function isExtensionInstalled() {
         if(status == 'installed') {
           // chrome extension is installed.
           handleScreenSharingAvailable();
-
       }
 
       if(status == 'installed-disabled') {
@@ -780,7 +779,7 @@ function isExtensionInstalled() {
             // addonMessage.domains === [array-of-your-domains]
             console.info("Firefox AddOn available");
             console.log(JSON.stringify(addonMessage.domains) + ' are enabled for screen capturing.');
-
+            $("#warningScreenSharingFirefox").hide();
             handleScreenSharingAvailable();
         }
         else {
