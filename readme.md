@@ -77,22 +77,13 @@ There are also:
 	http://www.brianjcoleman.com/tutorial-how-to-test-your-app-for-ipv6-compatibility/
 	https://github.com/Anakros/WebRTC/issues/7
 	http://stackoverflow.com/questions/40078763/has-anyone-managed-to-get-group-calls-working-with-kurento-on-ios-with-ipv6-only
-	
-- (CR) add 3 buttons (video, audio, screensharing to index.html  (user standard icons if possible bootstrap or other sources!)
-- display message for non-webrtc-browser instead of displaying call buttons
-- if screensharing extension, depending on the browser, is not installed, change button screen-sharing, to button "install screensharing extension"
-- screen firefox screensharing without audio
-- screensharing chrome tries to load a localhost url into iframe - needs to be the current server if possible.
 
-- enable screensharing
-	- (done) publish own extension on chrome and mozilla store
-	- check if extension is installed - provide installation button for extension
-	- firefox https://addons.mozilla.org/en-US/firefox/addon/support-screensharing/
-	- chrome https://chrome.google.com/webstore/detail/screen-capturing/cpnlknclehfhfldcbmcalmobceenfjfd
+- screen firefox screensharing without audio
 - add 3 buttons (video, audio, screensharing to status.html (support widget)
-	- add screensharing during a running call 
+
 
 ###Nice2Haves
+- display message for non-webrtc-browser instead of displaying call buttons
 - display download webrtc-plugin for non-webrtc browsers like safari and internet explorer. 
 - improve busy messages if somebody starts a call (or wants to call somebody)
 - error-message-improvents
@@ -129,7 +120,16 @@ There are also:
 - (P1) Tomcat does not create nice session IDs for the websockts - use HTTP-SessionId? SecurityProblem? 
 
 ###Done
+- 2016-10-31 - screensharing chrome tries to load a localhost url into iframe - needs to be the current server if possible.
 
+- 2016-10-31 - enable screensharing
+- 2016-10-31 - (done) publish own extension on chrome and mozilla store
+- 2016-10-31 - check if extension is installed - provide installation button for extension
+- 2016-10-31 - firefox https://addons.mozilla.org/en-US/firefox/addon/support-screensharing/
+- 2016-10-31 - chrome https://chrome.google.com/webstore/detail/screen-capturing/cpnlknclehfhfldcbmcalmobceenfjfd
+- add screensharing during a running call 
+- 2016-10-31 - (CR) add 3 buttons (video, audio, screensharing to index.html  (user standard icons if possible bootstrap or other sources!)
+- 2016-10-31 - if screensharing extension, depending on the browser, is not installed, change button screen-sharing, to button "install screensharing extension"
 - 2016-10-21 - screensharing: 
 	- chrome: 
 		- https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
