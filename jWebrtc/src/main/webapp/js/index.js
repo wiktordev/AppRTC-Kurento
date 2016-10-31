@@ -123,20 +123,14 @@ function setCallState(nextState) {
 }
 
 window.onload = function() {
-  if (!DetectRTC.isWebRTCSupported) {
-    console.log("WebRTC not supported");
-    showCompatibilityWarning("#rtc-area");
-  }
-
-  isExtensionInstalled();
-
   console = new Console();
   setRegisterState(NOT_REGISTERED);
   var drag = new Draggabilly(document.getElementById('videoSmall'));
-  videoInput = document.getElementById('videoInput'); // <video>-element
-  videoOutput = document.getElementById('videoOutput'); // <video>-element
+  videoInput = document.getElementById('videoInput'); 
+  videoOutput = document.getElementById('videoOutput');
+  $("#warningScreenSharing").hide();
+  
   document.getElementById('name').focus();
-
   ws.onopen = function() {
       console.log("ws connection now open");
       requestAppConfig();
@@ -322,11 +316,13 @@ function toggleScreenSharing() {
 
 // enable or disable screen sharing
 function setScreenSharingEnabled(enabled) {
-  if (isScreenSharingEnabled == enabled) {
-    return;
-  }
-
-  isScreenSharingEnabled = enabled && isScreenSharingAvailable;
+  if(enabled) isExtensionInstalled();
+ // if (isScreenSharingEnabled == enabled) {
+   // return;
+ // }
+  
+  
+  isScreenSharingEnabled = enabled; //&& isScreenSharingAvailable;
 
   $(chkScreenEnabled).toggleClass('btn-danger', isScreenSharingEnabled);
   console.log("Screen sharing enabled: " + isScreenSharingEnabled);
@@ -334,6 +330,11 @@ function setScreenSharingEnabled(enabled) {
   setVideoStreamEnabled(isWebcamEnabled || isScreenSharingEnabled);
 
   if(isScreenSharingEnabled) {
+      if (!DetectRTC.isWebRTCSupported) {
+        console.log("WebRTC not supported");
+        showCompatibilityWarning("#rtc-area");
+      }
+     
     switchToScreenSharing();
   }
 }
@@ -732,7 +733,8 @@ function isExtensionInstalled() {
     // Check for chrome extension
     getChromeExtensionStatus(function(status) {
       console.info("Chrome extension: " + status);
-      if(status == 'installed') {
+     
+        if(status == 'installed') {
           // chrome extension is installed.
           handleScreenSharingAvailable();
 
