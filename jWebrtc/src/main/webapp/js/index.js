@@ -128,7 +128,6 @@ window.onload = function() {
   var drag = new Draggabilly(document.getElementById('videoSmall'));
   videoInput = document.getElementById('videoInput'); 
   videoOutput = document.getElementById('videoOutput');
-  $("#warningScreenSharing").hide();
   
   document.getElementById('name').focus();
   ws.onopen = function() {
@@ -802,14 +801,14 @@ function handleMissingChromeExtension() {
   // show message "install extension"
   var buttonStr = "<button id='installButton' onclick='installChromeExtension()' id='install-button' class='btn btn-warning' title='Install Screen Sharing extension to present your desktop'><i class='fa fa-download fa-fw'></i></button>";
 
-
+  $("#warningScreenSharingChrome").removeClass("hidden");
   $("#screenEnabled").hide();
   $("#screenEnabled").after(buttonStr);
 
   $("#installScreenSharingLink").on("click", function() {
     installChromeExtension();
   });
-  $("#warningScreenSharing").show();
+ 
 }
 
 function handleMissingFirefoxAddon() {
@@ -818,14 +817,14 @@ function handleMissingFirefoxAddon() {
 
   // show message "install addon"
   var buttonStr = "<button id='installButton' onclick='installFirefoxAddOn(); this.disabled = true;' class='btn btn-warning' title='Install Screen Sharing extension to present your desktop'><i class='fa fa-download fa-fw'></i></button>";
-
+  $("#warningScreenSharingFirefox").removeClass("hidden");
   $("#screenEnabled").hide();
   $("#screenEnabled").after(buttonStr);
 
   $("#installScreenSharingLink").on("click", function() {
     installFirefoxAddOn();
   });
-  $("#warningScreenSharing").show();
+  $("#warningScreenSharingFirefox").show();
 }
 
 function handleScreenSharingAvailable() {
@@ -838,7 +837,6 @@ function handleScreenSharingAvailable() {
 function installFirefoxAddOn() {
     InstallTrigger.install({
         'Foo': {
-            //URL: 'https://addons.mozilla.org/en-US/firefox/addon/support-screensharing/',
             URL: 'https://addons.mozilla.org/firefox/downloads/latest/enable-screen-capturing/addon-655146-latest.xpi?src=dp-btn-primary',
             toString: function() {
                 return this.URL;
