@@ -23,7 +23,7 @@ var response;
 var callerMessage;
 
 var isAudioEnabled;
-var isWebcamEnabled;
+var isWebcamEnabled = true;
 var isScreenSharingEnabled;
 var isScreenSharingAvailable = false;
 var isVideoStreamEnabled = isWebcamEnabled || isScreenSharingEnabled;
@@ -58,6 +58,9 @@ function setRegisterState(nextState) {
     switch (nextState) {
         case NOT_REGISTERED:
             enableButton('#register', 'register()');
+            hideButton('#call');
+            hideButton('#screenEnabled');
+             hideButton('#peers');
             setCallState(NO_CALL);
             break;
         case REGISTERING:
@@ -65,6 +68,12 @@ function setRegisterState(nextState) {
             break;
         case REGISTERED:
             disableButton('#register');
+            showButton('#terminate');
+            showButton('#audioEnabled');
+            showButton('#call');
+            showButton('#screenEnabled');
+            showButton('#peers');
+            
             setCallState(NO_CALL);
             break;
         default:
@@ -83,21 +92,23 @@ function setCallState(nextState) {
     switch (nextState) {
         case NO_CALL:
             enableButton('#call', 'call()');
-            /*enableButton('#audio-call', 'call("audio")');
-            enableButton('#video-call', 'call("video")');
-            enableButton('#screen-call', 'call("screen")');*/
             disableButton('#terminate');
+            hideButton('#terminate');
+            hideButton('#audioEnabled');
+            hideButton('#videoEnabled');
             disableButton('#play');
             break;
         case PROCESSING_CALL:
             disableButton('#call');
-
-            disableButton('#terminate');
             disableButton('#play');
             break;
         case IN_CALL:
             disableButton('#call');
             enableButton('#terminate', 'stop()');
+            showButton('#terminate');
+            showButton('#audioEnabled');
+            showButton('#videoEnabled');
+            hideButton('#screenEnabled');
             disableButton('#play');
             break;
         case IN_PLAY:
@@ -317,7 +328,7 @@ function setScreenSharingEnabled(enabled) {
 
   isScreenSharingEnabled = enabled && isScreenSharingAvailable;
 
-  $(chkScreenEnabled).toggleClass('active', isScreenSharingEnabled);
+  $(chkScreenEnabled).toggleClass('btn-danger', isScreenSharingEnabled);
   console.log("Screen sharing enabled: " + isScreenSharingEnabled);
 
   setVideoStreamEnabled(isWebcamEnabled || isScreenSharingEnabled);
@@ -685,6 +696,12 @@ function hideSpinner() {
         arguments[i].style.background = '';
     }
 }
+function hideButton(id){
+    $(id).addClass("hidden");
+}
+function showButton(id){
+    $(id).removeClass( "hidden" );
+}
 
 function disableButton(id) {
     $(id).attr('disabled', true);
@@ -699,7 +716,7 @@ function enableButton(id, functionName) {
 }
 
 function showCompatibilityWarning(id) {
-  $(id).html("Please use a browser that supports WebRTC, like Firefox or Chrome");
+  $(id).html("Please use a browser that supports WebRTC, like Firefox or Chrome or install WebRTC-Plugin https://github.com/sarandogou/webrtc-everywhere");
 }
 
 /**
@@ -743,7 +760,7 @@ function isExtensionInstalled() {
     // request addon to enable screen capturing for your domains
     window.postMessage({
         enableScreenCapturing: true,
-        domains: ['localhost', '127.0.0.1']
+        domains: ['localhost', '127.0.0.1','*.a-fk.de', '*.le-space.de', '*.nicokrause.com']
     }, "*");
 
     // watch addon's response
@@ -819,8 +836,8 @@ function handleScreenSharingAvailable() {
 function installFirefoxAddOn() {
     InstallTrigger.install({
         'Foo': {
-            // URL: 'https://addons.mozilla.org/en-US/firefox/addon/support-screensharing/',
-            URL: 'https://addons.mozilla.org/firefox/downloads/file/355418/enable_screen_capturing_in_firefox-1.0.006-fx.xpi?src=cb-dl-hotness',
+            //URL: 'https://addons.mozilla.org/en-US/firefox/addon/support-screensharing/',
+            URL: 'https://addons.mozilla.org/firefox/downloads/latest/enable-screen-capturing/addon-655146-latest.xpi?src=dp-btn-primary',
             toString: function() {
                 return this.URL;
             }
