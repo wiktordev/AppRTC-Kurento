@@ -32,6 +32,8 @@ var chkAudioEnabled;
 var chkWebcamEnabled;
 var chkScreenEnabled;
 
+var audioStream;
+
 var from;
 var myConsultant = {
     name: '',
@@ -272,14 +274,20 @@ function toggleAudio() {
 function setAudioEnabled(enabled) {
   isAudioEnabled = enabled;
   if (webRtcPeer != undefined) {
-    var audioTracks = webRtcPeer.peerConnection.getLocalStreams()[0].getAudioTracks();
+    var localStreams = webRtcPeer.peerConnection.getLocalStreams();
+    console.log(localStreams.length + " local streams");
+    localStreams.forEach(function(localStream, index, array) {
+      var audioTracks = localStream.getAudioTracks();
 
-    // if MediaStream has reference to microphone
-    if (audioTracks[0]) {
-        audioTracks[0].enabled = enabled;
-    } else {
-      console.error("No reference to microphone set!");
-    }
+      console.log(audioTracks.length + " audio tracks");
+
+      // if MediaStream has reference to microphone
+      if (audioTracks[0]) {
+          audioTracks[0].enabled = enabled;
+      } else {
+        console.error("No reference to microphone set!");
+      }
+    })
 
   } else {
     console.error("webRtcPeer is undefined! Cannot mute.");
@@ -538,35 +546,22 @@ function call() {
         // Der Weg über die mediaSource funktioniert aus unbekannten Gründen nicht,
         // daher ermittle ich den Videostream und übergebe ihn direkt an den WebRtcPeer
         // options.videoStream
-        getScreenId(function(error, sourceId, screen_constraints) {
-            // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
-            // sourceId == null || 'string' || 'firefox'
 
-            navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-            navigator.getUserMedia(screen_constraints, function(stream) {
 
-                var options = {
-                    localVideo: videoInput,
-                    remoteVideo: videoOutput,
-                    videoStream: stream,
-                    onicecandidate: onIceCandidate,
-                    onError: onError,
-                    sendSource: 'window',
-                     //				mediaConstraints: constraints
-                }
-                 options.configuration = configuration;
-                webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
-                    function(error) {
-                        if (error) {
-                            return console.error(error);
-                        }
-                        webRtcPeer.generateOffer(onOfferCall);
-                    });
+        // first get audio stream
+        var audioConstraints = {
+          audio: true,
+          video: false
+        };
 
-            }, function(error) {
-                console.error(error);
-            });
+        navigator.getUserMedia(audioConstraints, function(stream) {
+          audioStream = stream;
+          //audioStream.src = URL.createObjectURL(audioStream);
+          initiateScreenSharing();
+        }, function(error) {
+          console.error("Could not get audio stream! " + error);
         });
+
     } else {
         var options = {
             localVideo: videoInput,
@@ -584,6 +579,39 @@ function call() {
                 webRtcPeer.generateOffer(onOfferCall);
             });
     }
+}
+
+function initiateScreenSharing() {
+  getScreenId(function(error, sourceId, screen_constraints) {
+      // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
+      // sourceId == null || 'string' || 'firefox'
+
+      navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+      navigator.getUserMedia(screen_constraints, function(stream) {
+
+          var options = {
+              localVideo: videoInput,
+              remoteVideo: videoOutput,
+              videoStream: stream,
+              audioStream: audioStream,
+              onicecandidate: onIceCandidate,
+              onError: onError,
+              sendSource: 'window',
+               //				mediaConstraints: constraints
+          }
+           options.configuration = configuration;
+          webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
+              function(error) {
+                  if (error) {
+                      return console.error(error);
+                  }
+                  webRtcPeer.generateOffer(onOfferCall);
+              });
+
+      }, function(error) {
+          console.error(error);
+      });
+  });
 }
 
 function play() {
