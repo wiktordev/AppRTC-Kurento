@@ -73,7 +73,7 @@ function setRegisterState(nextState) {
             showButton('#call');
             showButton('#screenEnabled');
             showButton('#peers');
-            
+
             setCallState(NO_CALL);
             break;
         default:
@@ -126,9 +126,9 @@ window.onload = function() {
   console = new Console();
   setRegisterState(NOT_REGISTERED);
   var drag = new Draggabilly(document.getElementById('videoSmall'));
-  videoInput = document.getElementById('videoInput'); 
+  videoInput = document.getElementById('videoInput');
   videoOutput = document.getElementById('videoOutput');
-  
+
   document.getElementById('name').focus();
   ws.onopen = function() {
       console.log("ws connection now open");
@@ -151,7 +151,7 @@ $(function() {
   chkWebcamEnabled.on("click", function() {
     toggleWebcam();
   })
-  setWebcamEnabled(false);
+  setWebcamEnabled(true);
 
   chkScreenEnabled.on("click", function() {
     toggleScreenSharing();
@@ -274,8 +274,22 @@ function setAudioEnabled(enabled) {
 
   isAudioEnabled = enabled;
   if (webRtcPeer != undefined) {
-    var localStream = webRtcPeer.getLocalStream();
-    localStream.muted = enabled;
+    //var localStream = webRtcPeer.getLocalStream();
+    //localStream.muted = enabled;
+    //webRtcPeer.peerConnection.getLocalStreams()[0].getAudioTracks()[0].enabled = enabled;
+
+    var audioTracks = webRtcPeer.peerConnection.getLocalStreams()[0].getAudioTracks();
+
+
+    // if MediaStream has reference to microphone
+    if (audioTracks[0]) {
+        audioTracks[0].enabled = enabled;
+    } else {
+      console.error("No reference to microphone set!");
+    }
+
+  } else {
+    console.error("webRtcPeer is undefined! Cannot mute.");
   }
 
   $(chkAudioEnabled).toggleClass('active', isAudioEnabled);
@@ -319,8 +333,8 @@ function setScreenSharingEnabled(enabled) {
  // if (isScreenSharingEnabled == enabled) {
    // return;
  // }
-  
-  
+
+
   isScreenSharingEnabled = enabled; //&& isScreenSharingAvailable;
 
   $(chkScreenEnabled).toggleClass('btn-danger', isScreenSharingEnabled);
@@ -333,7 +347,7 @@ function setScreenSharingEnabled(enabled) {
         console.log("WebRTC not supported");
         showCompatibilityWarning("#rtc-area");
       }
-     
+
     switchToScreenSharing();
   }
 }
@@ -732,7 +746,7 @@ function isExtensionInstalled() {
     // Check for chrome extension
     getChromeExtensionStatus(function(status) {
       console.info("Chrome extension: " + status);
-     
+
         if(status == 'installed') {
           // chrome extension is installed.
           handleScreenSharingAvailable();
@@ -807,7 +821,7 @@ function handleMissingChromeExtension() {
   $("#installScreenSharingLink").on("click", function() {
     installChromeExtension();
   });
- 
+
 }
 
 function handleMissingFirefoxAddon() {
