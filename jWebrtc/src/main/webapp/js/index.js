@@ -107,7 +107,9 @@ function setCallState(nextState) {
             enableButton('#terminate', 'stop()');
             showButton('#terminate');
             showButton('#audioEnabled');
+            setAudioEnabled(isAudioEnabled);
             showButton('#videoEnabled');
+            setWebcamEnabled(isWebcamEnabled);
           //  hideButton('#screenEnabled');
             disableButton('#play');
             break;
@@ -146,17 +148,17 @@ $(function() {
   chkAudioEnabled.on("click", function () {
     toggleAudio();
   });
-  setAudioEnabled(true);
+  //setAudioEnabled(true);
 
   chkWebcamEnabled.on("click", function() {
     toggleWebcam();
   })
-  setWebcamEnabled(true);
+  //setWebcamEnabled(true);
 
   chkScreenEnabled.on("click", function() {
     toggleScreenSharing();
   })
-  setScreenSharingEnabled(false);
+  //setScreenSharingEnabled(false);
 });
 
 window.onbeforeunload = function() {
@@ -268,18 +270,9 @@ function toggleAudio() {
 
 // enable or disable the audio stream
 function setAudioEnabled(enabled) {
-  if (isAudioEnabled == enabled) {
-    return;
-  }
-
   isAudioEnabled = enabled;
   if (webRtcPeer != undefined) {
-    //var localStream = webRtcPeer.getLocalStream();
-    //localStream.muted = enabled;
-    //webRtcPeer.peerConnection.getLocalStreams()[0].getAudioTracks()[0].enabled = enabled;
-
     var audioTracks = webRtcPeer.peerConnection.getLocalStreams()[0].getAudioTracks();
-
 
     // if MediaStream has reference to microphone
     if (audioTracks[0]) {
@@ -305,10 +298,6 @@ function toggleWebcam() {
 
 // enable or disable the video stream
 function setWebcamEnabled(enabled) {
-  if (isWebcamEnabled == enabled) {
-    return;
-  }
-
   isWebcamEnabled = enabled;
 
   $(chkWebcamEnabled).toggleClass('active', isWebcamEnabled);
