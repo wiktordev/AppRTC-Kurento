@@ -62,7 +62,7 @@ var srcGetScreenIdHtml = 'https://' + location.host + '/jWebrtc/getScreenId.html
 
     function getScreenConstraints(error, sourceId) {
         var screen_constraints = {
-            audio: false,
+            audio: true,  // this flag does not seem to have any effect
             video: {
                 mandatory: {
                     chromeMediaSource: error ? 'screen' : 'desktop',
@@ -174,7 +174,7 @@ var srcGetScreenIdHtml = 'https://' + location.host + '/jWebrtc/getScreenId.html
 
     function getScreenConstraints(error, sourceId) {
         var screen_constraints = {
-            audio: false,
+            audio: true,  // this flag does not seem to have any effect
             video: {
                 mandatory: {
                     chromeMediaSource: error ? 'screen' : 'desktop',
