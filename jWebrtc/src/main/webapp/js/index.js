@@ -32,7 +32,7 @@ var chkAudioEnabled;
 var chkWebcamEnabled;
 var chkScreenEnabled;
 
-var audioStream;
+//var audioStream;
 
 var from;
 var myConsultant = {
@@ -276,6 +276,10 @@ function setAudioEnabled(enabled) {
   if (webRtcPeer != undefined) {
     var localStreams = webRtcPeer.peerConnection.getLocalStreams();
     console.log(localStreams.length + " local streams");
+
+    // in case of screen sharing there are two streams:
+    // first for screen
+    // second for audio
     localStreams.forEach(function(localStream, index, array) {
       var audioTracks = localStream.getAudioTracks();
 
@@ -499,54 +503,7 @@ function call() {
     setCallState(PROCESSING_CALL);
     showSpinner(videoInput, videoOutput);
 
-
-    /*var width, height;
-    //var resolution = document.getElementById('resolution').value;
-    var resolution = 'HD';
-    switch(resolution)
-    {
-    	case 'VGA':
-    		width = 640;
-    		height = 480;
-    		break;
-    	case 'HD':
-    		width = 1280;
-    		height = 720;
-    		break;
-    	case 'Full HD':
-    		width = 1920;
-    		height = 1080;
-    		break;
-
-    	default:
-    		return console.error('Unknown resolution',resolution);
-    }
-
-    var constraints = {
-    	audio: true,
-    	video: {
-    		width: 640,
-    		framerate: 15,
-    		mandatory: {
-    			maxWidth: width,
-    			maxHeight: height,
-    			maxFrameRate : 15,
-    			minFrameRate: 15
-    		}
-    	}
-    };
-
-    if(!isWebcam)
-    {
-    	constraints.video.mediaSource = 'screen';
-    	constraints.video.chromeMediaSource = 'screen';
-    }*/
-
     if (isScreenSharingEnabled) {
-        // Der Weg über die mediaSource funktioniert aus unbekannten Gründen nicht,
-        // daher ermittle ich den Videostream und übergebe ihn direkt an den WebRtcPeer
-        // options.videoStream
-
 
         // first get audio stream
         var audioConstraints = {
@@ -554,13 +511,21 @@ function call() {
           video: false
         };
 
-        navigator.getUserMedia(audioConstraints, function(stream) {
-          audioStream = stream;
-          //audioStream.src = URL.createObjectURL(audioStream);
-          initiateScreenSharing();
+        // <<--- SCREEN WITH AUDIO
+        // this solution breaks after first call -> restart of computer needed
+        // on more calls no video or audio is transmitted, but no error is thrown
+        /*navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+        navigator.getUserMedia(audioConstraints, function(audioStream) {
+          initiateScreenSharing(audioStream);
         }, function(error) {
           console.error("Could not get audio stream! " + error);
-        });
+        });*/
+        // --->>
+
+        // <<--- SCREEN WITHOUT AUDIO
+        // this one works, but has no audio
+        initiateScreenSharing();
+        // --->>
 
     } else {
         var options = {
@@ -581,11 +546,8 @@ function call() {
     }
 }
 
-function initiateScreenSharing() {
+function initiateScreenSharing(audioStream) {
   getScreenId(function(error, sourceId, screen_constraints) {
-      // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
-      // sourceId == null || 'string' || 'firefox'
-
       navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
       navigator.getUserMedia(screen_constraints, function(stream) {
 
@@ -599,7 +561,7 @@ function initiateScreenSharing() {
               sendSource: 'window',
                //				mediaConstraints: constraints
           }
-           options.configuration = configuration;
+          options.configuration = configuration;
           webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
               function(error) {
                   if (error) {
@@ -609,7 +571,7 @@ function initiateScreenSharing() {
               });
 
       }, function(error) {
-          console.error(error);
+          console.error("Could not get screen stream! " + error);
       });
   });
 }
