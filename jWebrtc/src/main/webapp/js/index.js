@@ -32,8 +32,6 @@ var chkAudioEnabled;
 var chkWebcamEnabled;
 var chkScreenEnabled;
 
-var audioStream;
-
 var from;
 var myConsultant = {
     name: '',
@@ -499,49 +497,6 @@ function call() {
     setCallState(PROCESSING_CALL);
     showSpinner(videoInput, videoOutput);
 
-
-    /*var width, height;
-    //var resolution = document.getElementById('resolution').value;
-    var resolution = 'HD';
-    switch(resolution)
-    {
-    	case 'VGA':
-    		width = 640;
-    		height = 480;
-    		break;
-    	case 'HD':
-    		width = 1280;
-    		height = 720;
-    		break;
-    	case 'Full HD':
-    		width = 1920;
-    		height = 1080;
-    		break;
-
-    	default:
-    		return console.error('Unknown resolution',resolution);
-    }
-
-    var constraints = {
-    	audio: true,
-    	video: {
-    		width: 640,
-    		framerate: 15,
-    		mandatory: {
-    			maxWidth: width,
-    			maxHeight: height,
-    			maxFrameRate : 15,
-    			minFrameRate: 15
-    		}
-    	}
-    };
-
-    if(!isWebcam)
-    {
-    	constraints.video.mediaSource = 'screen';
-    	constraints.video.chromeMediaSource = 'screen';
-    }*/
-
     if (isScreenSharingEnabled) {
         // Der Weg über die mediaSource funktioniert aus unbekannten Gründen nicht,
         // daher ermittle ich den Videostream und übergebe ihn direkt an den WebRtcPeer
@@ -555,9 +510,7 @@ function call() {
         };
 
         navigator.getUserMedia(audioConstraints, function(stream) {
-          audioStream = stream;
-          //audioStream.src = URL.createObjectURL(audioStream);
-          initiateScreenSharing();
+          initiateScreenSharing(stream);
         }, function(error) {
           console.error("Could not get audio stream! " + error);
         });
@@ -581,7 +534,7 @@ function call() {
     }
 }
 
-function initiateScreenSharing() {
+function initiateScreenSharing(audioStream) {
   getScreenId(function(error, sourceId, screen_constraints) {
       // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
       // sourceId == null || 'string' || 'firefox'

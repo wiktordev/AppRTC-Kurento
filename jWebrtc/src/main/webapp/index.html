@@ -80,12 +80,15 @@
 					<div id="peers" class="row">
 						<div class="col-md-12">
 							<label class="control-label" for="peer">Peer</label>
-                                                        <select id="peer"></select>
+
 						</div>
 					</div>
 
 					<div id="call-buttons" class="row">
-						<div class="col-md-12 text-center">
+						<div class="col-md-4 text-center">
+							<select id="peer" size="5"></select>
+						</div>
+						<div class="col-md-8 text-center">
 
 							<div class="btn-group" data-toggle="buttons">
 								<a id="call" href="#" class="btn btn-success" title="Start call">
@@ -109,28 +112,28 @@
 						</div>
 					</div>
 					<br />
-                                        
+
                                         <div id="warningScreenSharingChrome" class="row hidden">
 						<div class="col-md-12">
 							<div class="alert alert-warning alert-dismissible" role="alert">
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 								<strong>Warning!</strong> Screen sharing extension is not installed! Please install and reload page!
-                                                                
-                                                                Please click <a id="installScreenSharingLink" 
+
+                                                                Please click <a id="installScreenSharingLink"
                                                                                 target="_blank"
                                                                                 href="https://chrome.google.com/webstore/detail/screen-capturing/cpnlknclehfhfldcbmcalmobceenfjfd"
                                                                                 class="alert-link">install</a> to add screen sharing capability to your browser.
 							</div>
 						</div>
 					</div>
-                                        
-                                     
+
+
 					<div id="warningScreenSharingFirefox" class="row hidden">
 						<div class="col-md-12">
 							<div class="alert alert-warning alert-dismissible" role="alert">
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 								<strong>Warning!</strong> Screen sharing extension is not installed! Please click yellow button again to install and reload page after installation!
-                                                                
+
                                                                 <!--Please click <a id="installScreenSharingLink" href="#" class="alert-link">install</a> to add screen sharing capability to your browser.-->
 							</div>
 						</div>
