@@ -9,7 +9,7 @@ All calls are beeing pipelined and recorded by Kurento Media Server to the confi
 - implements Kurento-Media-Server API. 
 - records all calls on server (by default - one file per peer)
 - support widget 
-- screensharing support on firefox and chrome via chrome/firefox exentension 
+- screensharing support on firefox and chrome via chrome/firefox extension 
 - iOS-native App (see github repository: AppRTC-iOS)
 - Android-native App   (see github repository: AppRTC-Android)
 
