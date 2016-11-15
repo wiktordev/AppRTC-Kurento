@@ -4,9 +4,14 @@
 This project is a webrtc signaling server written in Java.
 All calls are beeing pipelined and recorded by Kurento Media Server to the configured directory. 
 
-There are also:
-- a pure websocket AppRTC for iOS: AppRTC-iOS and
-- a pure websocket AppRTC for Android: AppRTC-Android 
+##Features
+- signaling server written in Java which communicates via websockets to Browser, Android and iOS
+- implements Kurento-Media-Server API. 
+- records all calls on server (by default - one file per peer)
+- support widget 
+- screensharing support on firefox and chrome via chrome/firefox exentension 
+- iOS-native App (see github repository: AppRTC-iOS)
+- Android-native App   (see github repository: AppRTC-Android)
 
 ##Documentation:
 -----------------
@@ -71,6 +76,10 @@ There are also:
 - iOS2AndroidApp in local-LAN and to remote LANs
 - STUN-Server Test (if clients are behind a firewall or in different networks)
 - TURN-Server Relay Test ??? 
+- Screensharing - Tests 
+		https://www.webrtc-experiment.com/getScreenId/
+		https://mozilla.github.io/webrtc-landing/gum_test.html
+
 
 ###Todo/Bugs
 - (Bug) IPv6 only networks need to be tested. 
@@ -83,6 +92,9 @@ There are also:
 
 
 ###Nice2Haves
+- show splash for microphone, video, microphone permission
+- choose audio, video devices in browser https://webrtc.github.io/samples/src/content/devices/input-output/
+	https://webrtc.github.io/samples/
 - display message for non-webrtc-browser instead of displaying call buttons
 - display download webrtc-plugin for non-webrtc browsers like safari and internet explorer. 
 - improve busy messages if somebody starts a call (or wants to call somebody)
