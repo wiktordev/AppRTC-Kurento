@@ -134,6 +134,7 @@ public class WebSocketServer {
 		}
 
 		switch (jsonMessage.get("id").getAsString()) {
+                    
 		case "appConfig":
 			try {
 				appConfig(session, jsonMessage);
@@ -142,6 +143,7 @@ public class WebSocketServer {
 				handleErrorResponse(e, session, "appConfigResponse");
 			}
 			break;
+                        
 		case "register":
 			try {
                             
@@ -156,6 +158,7 @@ public class WebSocketServer {
 				handleErrorResponse(e, session, "registerResponse");
 			}
 			break;
+                        
 		case "call":
 			try {
 				call(userSession, jsonMessage);
@@ -164,15 +167,34 @@ public class WebSocketServer {
 				handleErrorResponse(e, session, "callResponse");
 			}
 			break;
-		case "incomingCallResponse":
-			try {
-				incomingCallResponse(userSession, jsonMessage);
-			} catch (IOException ex) {
-				// Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE,
-				// null, ex);
-				log.error(ex.getLocalizedMessage(), ex);
-			}
+                case "callScreen":
+                    try {
+				callScreen(userSession, jsonMessage);
+                                printCurrentUsage();
+                    } catch (Exception e) {
+				handleErrorResponse(e, session, "callResponse");
+                    }
 			break;
+		case "incomingCallResponse":
+                    try {
+                            incomingCallResponse(userSession, jsonMessage);
+                    } catch (IOException ex) {
+                            // Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE,
+                            // null, ex);
+                            log.error(ex.getLocalizedMessage(), ex);
+                    }
+                    break;  
+                        
+                case "incomingScreenCallResponse":
+                    try {
+                            incomingScreenCallResponse(userSession, jsonMessage);
+                    } catch (IOException ex) {
+                            // Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE,
+                            // null, ex);
+                            log.error(ex.getLocalizedMessage(), ex);
+                    }
+		break;        
+                        
 		case "onIceCandidate":
 
 			if (userSession != null) {
@@ -196,6 +218,32 @@ public class WebSocketServer {
 				
                                 log.debug(candidate.getCandidate());
                                 userSession.addCandidate(candidate);
+			}
+			break;
+                        
+               	case "onIceCandidateScreen":
+
+			if (userSession != null) {
+				JsonObject candidateJson = null;
+				IceCandidate candidate = null;
+
+				if (jsonMessage.has("sdpMLineIndex") && jsonMessage.has("sdpMLineIndex")) {
+					// this is how it works when it comes from a android
+					log.debug("apprtcWs candidate is coming from android or ios");
+					candidateJson = jsonMessage;
+
+				} else {
+					// this is how it works when it comes from a browser
+					log.debug("apprtcWs candidate is coming from web");
+					candidateJson = jsonMessage.get("candidate").getAsJsonObject();
+				}
+                              //  log.info(jsonMessage.toString());
+
+				candidate = new IceCandidate(candidateJson.get("candidate").getAsString(),
+						candidateJson.get("sdpMid").getAsString(), candidateJson.get("sdpMLineIndex").getAsInt());
+				
+                                log.debug(candidate.getCandidate());
+                                userSession.addCandidateScreen(candidate);
 			}
 			break;
 		case "stop":
@@ -303,7 +351,7 @@ public class WebSocketServer {
 
 			String sdpOffer = jsonMessage.get("sdpOffer").getAsString();
 
-			userSession.setPlayingWebRtcEndpoint(playMediaPipeline.getWebRtc());
+			//userSession.setPlayingWebRtcEndpoint(playMediaPipeline.getWebRtc());
 
 			playMediaPipeline.getPlayer().addEndOfStreamListener(new EventListener<EndOfStreamEvent>() {
 				@Override
@@ -544,7 +592,6 @@ public class WebSocketServer {
 		JsonObject response = new JsonObject();
 
 		UserSession callee = registry.getByName(to);
-
 		if (callee != null) {
 			caller.setSdpOffer(jsonMessage.getAsJsonPrimitive("sdpOffer").getAsString());
 			caller.setCallingTo(to);
@@ -565,6 +612,36 @@ public class WebSocketServer {
 			caller.sendMessage(response);
 		}
 	}
+       
+        private void callScreen(UserSession caller, JsonObject jsonMessage) throws IOException {
+            
+                String to = jsonMessage.get("to").getAsString();
+		String from = jsonMessage.get("from").getAsString();
+
+		// System.out.println("call from :" + from + " to:" + to);
+		log.info("screen call from [{}] to [{}]", from, to);
+
+		JsonObject response = new JsonObject();
+
+		UserSession callee = registry.getByName(to);
+		if (callee != null) {
+			caller.setSdpOfferScreen(jsonMessage.getAsJsonPrimitive("sdpOffer").getAsString());
+			///caller.setCallingTo(to);
+
+			response.addProperty("id", "incomingScreenCall");
+			response.addProperty("from", from);
+
+			log.debug("Sending response [{}] to callee [{}]", response.toString(), callee.getName());
+
+			callee.sendMessage(response);
+			callee.setCallingFrom(from);
+		} 
+            
+        }
+        
+        private void removeScreen(UserSession caller, JsonObject jsonMessage) throws IOException {
+            
+        }
 
 	private void incomingCallResponse(final UserSession callee, JsonObject jsonMessage) throws IOException {
 		String callResponse = jsonMessage.get("callResponse").getAsString();
@@ -685,7 +762,131 @@ public class WebSocketServer {
 			caller.sendMessage(response);
 		}
 	}
-        
+        private void incomingScreenCallResponse(final UserSession callee, JsonObject jsonMessage) throws IOException {
+		
+            String callResponse = jsonMessage.get("callResponse").getAsString();
+	    String from = jsonMessage.get("from").getAsString();
+	    final UserSession caller = registry.getByName(from);
+            String to = caller.getCallingTo();
+
+		if ("accept".equals(callResponse)) {
+			log.info("Accepted Screen call from [{}] to [{}]", from, to);
+
+			CallMediaPipeline pipeline = null;
+			try {
+				pipeline = new CallMediaPipeline(Utils.kurentoClient(), from, to);
+				pipelines.put(caller.getSessionId()+"S", pipeline.getPipeline());
+				pipelines.put(callee.getSessionId()+"S", pipeline.getPipeline());
+				log.info("created both  screen pipelines...");
+
+				// give the callee his webRtcEp from the pipeline
+				callee.setWebRtcScreenEndpoint(pipeline.getCalleeWebRtcEp());
+
+				pipeline.getCalleeWebRtcEp().addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
+					@Override
+					public void onEvent(OnIceCandidateEvent event) {
+						JsonObject response = new JsonObject();
+						response.addProperty("id", "iceCandidateScreen");
+						response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
+						try {
+							synchronized (callee.getSession()) {
+                                                              log.debug(response.toString());
+								callee.getSession().getBasicRemote().sendText(response.toString());
+							}
+						} catch (IOException e) {
+							log.error(e.getMessage(), e);
+						}
+					}
+				});
+
+				caller.setWebRtcScreenEndpoint(pipeline.getCallerWebRtcEp());
+
+				pipeline.getCallerWebRtcEp().addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
+
+					@Override
+					public void onEvent(OnIceCandidateEvent event) {
+						JsonObject response = new JsonObject();
+						response.addProperty("id", "iceCandidateScreen");
+						response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
+						try {
+							synchronized (caller.getSession()) {
+                                                            log.debug(response.toString());
+                                                            caller.getSession().getBasicRemote().sendText(response.toString());
+							}
+						} catch (IOException e) {
+							log.error(e.getMessage(), e);
+						}
+					}
+				});
+				log.info("created both webrtcendpoints...");
+
+				log.info("preparing sending startCommunication to called person...");
+                                
+                                log.info(jsonMessage.toString());
+				String calleeSdpOffer = jsonMessage.get("sdpOffer").getAsString();
+                                log.info("calleeSdpOffer:"+calleeSdpOffer);
+                                
+				String calleeSdpAnswer = pipeline.generateSdpAnswerForCallee(calleeSdpOffer);
+                                log.info("calleeSdpAnswerForCallee:"+calleeSdpAnswer);
+                                
+				log.info("we have callee offer and answer as it seems");
+
+				JsonObject startCommunication = new JsonObject();
+				startCommunication.addProperty("id", "startScreenCommunication");
+				startCommunication.addProperty("sdpAnswer", calleeSdpAnswer);
+
+				synchronized (callee) {
+					log.info("sending startScreenCommunication message to callee");
+					callee.sendMessage(startCommunication);
+				}
+
+				pipeline.getCalleeWebRtcEp().gatherCandidates();
+
+				String callerSdpOffer = registry.getByName(from).getSdpOfferScreen();
+				String callerSdpAnswer = pipeline.generateSdpAnswerForCaller(callerSdpOffer);
+				JsonObject response = new JsonObject();
+				response.addProperty("id", "callScreenResponse");
+				response.addProperty("response", "accepted");
+				response.addProperty("sdpAnswer", callerSdpAnswer);
+
+				synchronized (caller) {
+					log.info("sending callResponse message to caller");
+					caller.sendMessage(response);
+				}
+
+				pipeline.getCallerWebRtcEp().gatherCandidates();
+
+				pipeline.record();
+
+			} catch (Throwable t) {
+
+				log.error("Rejecting call! Reason: {}", t.getMessage());
+
+				if (pipeline != null) {
+					pipeline.release();
+				}
+
+				pipelines.remove(caller.getSessionId()+"S");
+				pipelines.remove(callee.getSessionId()+"S");
+
+				JsonObject response = new JsonObject();
+				response.addProperty("id", "callScreenResponse");
+				response.addProperty("response", "rejected");
+                                response.addProperty("message", "server could not connect peers");
+				caller.sendMessage(response);
+
+				response = new JsonObject();
+				response.addProperty("id", "stopScreenCommunication");
+				callee.sendMessage(response);
+			}
+
+		} else { // "reject"
+			JsonObject response = new JsonObject();
+			response.addProperty("id", "callResponse");
+			response.addProperty("response", "rejected");
+			caller.sendMessage(response);
+		}
+	}
         public void killUserSession(Session session) throws IOException{
             String sessionId = session.getId();
             log.debug("Killing usersession from of websocket id [{}]", sessionId);
@@ -749,6 +950,41 @@ public class WebSocketServer {
                 //else{ //piplines not yet have been created - but a user tried to call another and the other hangs up instead of answers the call
             
                // }
+	}
+        
+        public void stopScreen(Session session) throws IOException {
+
+		String sessionId = session.getId();
+                
+                
+                UserSession stopperUser = registry.getBySession(session);
+                log.error("stopperUser: "+stopperUser.getName());
+
+                UserSession stoppedUserFrom = (stopperUser.getCallingFrom() != null) ? registry.getByName(stopperUser.getCallingFrom()) : null;
+
+                UserSession stoppedUserTo = (stopperUser.getCallingTo() != null )? registry.getByName(stopperUser.getCallingTo()) : null;
+                UserSession stopUser = null;
+
+                if(stoppedUserFrom !=null && stoppedUserFrom.getSession()!=null && !stoppedUserFrom.getSession().getId().equals(session.getId())){
+                    stopUser = stoppedUserFrom;                      
+                }      
+                else if(stoppedUserTo!=null && stoppedUserTo.getSession()!=null){
+                    log.debug("die id des stoppenden IST! die des anrufenden");
+                    //wenn der anrufer auflegt. (wird anschließend, die pipeline des anrufenden gesucht und exisitert nicht mehr) 
+                   stopUser = stoppedUserTo;                  
+               }
+
+                if (pipelines.containsKey(sessionId+"S")) {
+                    log.debug("Stopping media connection of websocket id [{}]", sessionId+"S");
+               
+                    MediaPipeline pipeline1 = pipelines.remove(sessionId+"S");
+                    pipeline1.release();
+
+                    MediaPipeline pipeline2 = pipelines.remove(stopUser.getSession().getId()+"S");
+                    pipeline2.release();
+                }
+                log.info("Stopped Screensharing", sessionId);
+
 	}
 
 }

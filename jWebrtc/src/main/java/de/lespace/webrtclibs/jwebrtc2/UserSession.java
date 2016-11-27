@@ -34,20 +34,24 @@ public class UserSession {
   private final Session session;
 
   private String sdpOffer;
+  private String sdpOfferScreen;
   private String callingTo;
   private String callingFrom;
   private WebRtcEndpoint webRtcEndpoint;
+  private WebRtcEndpoint webRtcScreenEndpoint;
   private final List<IceCandidate> candidateList = new ArrayList<IceCandidate>();
+  
+  private final List<IceCandidate> candidateListScreen = new ArrayList<IceCandidate>();
 
   public UserSession(Session session, String name) {
     this.session = session;
     this.name = name;
   }
-
+  
   public Session getSession() {
     return session;
   }
-
+  
   public String getName() {
     return name;
   }
@@ -59,7 +63,13 @@ public class UserSession {
   public void setSdpOffer(String sdpOffer) {
     this.sdpOffer = sdpOffer;
   }
+  public String getSdpOfferScreen() {
+    return sdpOfferScreen;
+  }
 
+  public void setSdpOfferScreen(String sdpOffer) {
+    this.sdpOfferScreen = sdpOffer;
+  }
   public String getCallingTo() {
     return callingTo;
   }
@@ -98,6 +108,15 @@ public class UserSession {
     }
     this.candidateList.clear();
   }
+  
+ public void setWebRtcScreenEndpoint(WebRtcEndpoint webRtcEndpoint) {
+    this.webRtcScreenEndpoint = webRtcEndpoint;
+
+    for (IceCandidate e : candidateListScreen) {
+      this.webRtcScreenEndpoint.addIceCandidate(e);
+    }
+    this.candidateListScreen.clear();
+  }
 
   public void addCandidate(IceCandidate candidate) {
     if (this.webRtcEndpoint != null) {
@@ -106,19 +125,26 @@ public class UserSession {
       candidateList.add(candidate);
     }
   }
+  
+ public void addCandidateScreen(IceCandidate candidate) {
+    if (this.webRtcScreenEndpoint != null) {
+      this.webRtcScreenEndpoint.addIceCandidate(candidate);
+    } else {
+      candidateListScreen.add(candidate);
+    }
+  }
 
   public void clear() {
     this.webRtcEndpoint = null;
+    this.webRtcScreenEndpoint = null;
     this.candidateList.clear();
+    this.candidateListScreen.clear();
   }
   
     public boolean isBusy() {
             return this.webRtcEndpoint != null;
     }
 
-public void setPlayingWebRtcEndpoint(WebRtcEndpoint webRtcEndpoint) {
-	// TODO Auto-generated method stub
-	
-}
+  
 }
 

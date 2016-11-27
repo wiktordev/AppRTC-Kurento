@@ -73,6 +73,18 @@ div#videoSmall {
 	padding: 0px;
 }
 
+div#screenSmall {
+	width: 240px;
+	height: 180px;
+	padding: 0px;
+	position: absolute;
+	bottom: 15px;
+	left: 400px;
+	cursor: pointer;
+	z-index: 10;
+	padding: 0px;
+}
+
 div.dragged {
 	cursor: all-scroll !important;
 	border-color: blue !important;

@@ -5,10 +5,10 @@ This project is a webrtc signaling server written in Java.
 All calls are beeing pipelined and recorded by Kurento Media Server to the configured directory. 
 
 ##Features
-- signaling server written in Java which communicates via websockets to Browser, Android and iOS
+- signaling server written in Java which communicates via websockets to browser, Android and iOS webrtc peers
 - implements Kurento-Media-Server API. 
 - records all calls on server (by default - one file per peer)
-- support widget 
+- support widget (predefined support can be configured and called by web users)
 - screensharing support on firefox and chrome via chrome/firefox extension 
 - iOS-native App (see github repository: AppRTC-iOS)
 - Android-native App   (see github repository: AppRTC-Android)
@@ -82,6 +82,12 @@ All calls are beeing pipelined and recorded by Kurento Media Server to the confi
 
 
 ###Todo/Bugs
+- Websocket clients needs to send heartbeat to server: 
+	- http://django-websocket-redis.readthedocs.io/en/latest/heartbeats.html
+	- server must constantly check for new heartbeat messages (if a heartbeat is older then x seconds - swith offline)
+
+- Widget: When a web user hits the call button - it should be possible to hangup.
+- Widget: When a web user is offline - try to wake up the user 
 - (Bug) IPv6 only networks need to be tested. 
 	http://www.brianjcoleman.com/tutorial-how-to-test-your-app-for-ipv6-compatibility/
 	https://github.com/Anakros/WebRTC/issues/7
