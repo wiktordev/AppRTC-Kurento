@@ -87,17 +87,18 @@ All calls are beeing pipelined and recorded by Kurento Media Server to the confi
 	- server must constantly check for new heartbeat messages (if a heartbeat is older then x seconds - swith offline)
 
 - Widget: When a web user hits the call button - it should be possible to hangup.
-- Widget: When a web user is offline - try to wake up the user 
+
 - (Bug) IPv6 only networks need to be tested. 
 	http://www.brianjcoleman.com/tutorial-how-to-test-your-app-for-ipv6-compatibility/
 	https://github.com/Anakros/WebRTC/issues/7
 	http://stackoverflow.com/questions/40078763/has-anyone-managed-to-get-group-calls-working-with-kurento-on-ios-with-ipv6-only
 
-- screen firefox screensharing without audio
 - add 3 buttons (video, audio, screensharing to status.html (support widget)
 
 
 ###Nice2Haves
+- Widget: When a web user is offline - try to wake up the user 
+- allow both partys to transmit screen same time - (as an extension)
 - show splash for microphone, video, microphone permission
 - choose audio, video devices in browser https://webrtc.github.io/samples/src/content/devices/input-output/
 	https://webrtc.github.io/samples/
@@ -120,24 +121,13 @@ All calls are beeing pipelined and recorded by Kurento Media Server to the confi
 	- change Turn-Authentication with every appConfig call
   
 ###Bugs
-- (P1) Strange Execption on production server, causes complete server crash?!
-		java.io.EOFException
-        at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1222)
-        at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.isReadyForRead(NioEndpoint.java:1128)
-        at org.apache.tomcat.websocket.server.WsFrameServer.onDataAvailable(WsFrameServer.java:58)
-        at org.apache.tomcat.websocket.server.WsHttpUpgradeHandler.upgradeDispatch(WsHttpUpgradeHandler.java:148)
-        at org.apache.coyote.http11.upgrade.UpgradeProcessorInternal.dispatch(UpgradeProcessorInternal.java:54)
-        at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:53)
-        at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:785)
-        at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1425)
-        at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
-        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
-        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
-        at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
-        at java.lang.Thread.run(Thread.java:745)
 - (P1) Tomcat does not create nice session IDs for the websockts - use HTTP-SessionId? SecurityProblem? 
 
 ###Done
+- 2016-11-29 - screensharing: fixed stop-screensharing fromboth sides
+- 2016-11-29 - screensharing: only one party can do streamsharing 
+			 - disable button if other party is broadcasting screen
+- 2016-11-27 - screensharing now over seperate stream into new window.
 - 2016-10-31 - screensharing chrome tries to load a localhost url into iframe - needs to be the current server if possible.
 
 - 2016-10-31 - enable screensharing

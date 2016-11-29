@@ -98,6 +98,7 @@ function setCallState(nextState) {
             hideButton('#terminate');
             hideButton('#audioEnabled');
             hideButton('#videoEnabled');
+            hideButton('#screenEnabled');
             disableButton('#play');
             break;
         case PROCESSING_CALL:
@@ -207,8 +208,8 @@ ws.onmessage = function(message) {
                 stop(true);
                 break;
             case 'stopScreenCommunication':
-                console.info('Communication ended by remote peer');
-                //stop(true);
+                console.info('Screen Communication ended by remote peer');
+                stopScreen(true);
             break;
             case 'iceCandidate':
                 webRtcPeer.addIceCandidate(parsedMessage.candidate, function(error) {
@@ -547,6 +548,7 @@ function incomingScreenCall(message) {
                 }
               webRtcPeer2.generateOffer(onOfferIncomingScreenCall);
               //onIncomingScreenCall(error);
+              hideButton('#screenEnabled');
             });
 }
 
@@ -728,7 +730,7 @@ function onOfferCallScreen(error, offerSdp) {
     var message = {
         id: 'callScreen',
         from: document.getElementById('name').value,
-        to: $('#peer').val(),
+        to: from,
         sdpOffer: offerSdp
     };
     sendMessage(message);
@@ -773,8 +775,8 @@ function stop(message) {
         stopScreen(screen);
     }
 }
-function stopScreen(message) {
-    var stopMessageId = (callState == IN_CALL || callState == PROCESSING_CALL) ? 'stop' : 'stopPlay';
+function stopScreen(message) {  //message true means: stopScreen was called from websocket (by other party) so it the party does not need to be informed
+    //var stopMessageId = (callState == IN_CALL || callState == PROCESSING_CALL) ? 'stop' : 'stopPlay';
    // setCallState(NO_CALL);
     if (webRtcPeer2) {
         isScreenSharingEnabled = false;
@@ -791,6 +793,8 @@ function stopScreen(message) {
                 id: 'stopScreen'
             }
             sendMessage(message);
+        }else{
+             showButton('#screenEnabled');
         }
     }
 }

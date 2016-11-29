@@ -255,6 +255,15 @@ public class WebSocketServer {
 				log.error(ex.getLocalizedMessage(), ex);
 			}
 			break;
+               case "stopScreen":
+			try {
+                                log.error("received stop closing media piplines");
+				stopScreen(session);
+                                printCurrentUsage();
+                            } catch (IOException ex) {
+				log.error(ex.getLocalizedMessage(), ex);
+			}
+			break;
                 case "checkOnlineStatus":
 			try {
 				queryOnlineStatus(session, jsonMessage);
@@ -958,7 +967,7 @@ public class WebSocketServer {
                 
                 
                 UserSession stopperUser = registry.getBySession(session);
-                log.error("stopperUser: "+stopperUser.getName());
+                log.info("stopperUser: "+stopperUser.getName());
 
                 UserSession stoppedUserFrom = (stopperUser.getCallingFrom() != null) ? registry.getByName(stopperUser.getCallingFrom()) : null;
 
@@ -966,16 +975,27 @@ public class WebSocketServer {
                 UserSession stopUser = null;
 
                 if(stoppedUserFrom !=null && stoppedUserFrom.getSession()!=null && !stoppedUserFrom.getSession().getId().equals(session.getId())){
-                    stopUser = stoppedUserFrom;                      
+                      log.info("die id des stoppenden  NICHT! die des anrufenden");
+                    stopUser = stoppedUserFrom;
+                    JsonObject message = new JsonObject();
+                    message.addProperty("id", "stopScreenCommunication");
+                    stopUser.sendMessage(message);
+                    stopUser.clear();                       
+                          
                 }      
                 else if(stoppedUserTo!=null && stoppedUserTo.getSession()!=null){
-                    log.debug("die id des stoppenden IST! die des anrufenden");
+                    log.info("die id des stoppenden IST! die des anrufenden");
                     //wenn der anrufer auflegt. (wird anschließend, die pipeline des anrufenden gesucht und exisitert nicht mehr) 
-                   stopUser = stoppedUserTo;                  
+                   stopUser = stoppedUserTo;
+                   
+                   JsonObject message = new JsonObject();
+                   message.addProperty("id", "stopScreenCommunication");
+                   stopUser.sendMessage(message);
+                   stopUser.clear(); 
                }
 
                 if (pipelines.containsKey(sessionId+"S")) {
-                    log.debug("Stopping media connection of websocket id [{}]", sessionId+"S");
+                    log.info("Stopping media connection of websocket id [{}]", sessionId+"S");
                
                     MediaPipeline pipeline1 = pipelines.remove(sessionId+"S");
                     pipeline1.release();
