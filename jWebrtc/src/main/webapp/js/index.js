@@ -730,7 +730,7 @@ function onOfferCallScreen(error, offerSdp) {
     var message = {
         id: 'callScreen',
         from: document.getElementById('name').value,
-        to: from,
+        to: $('#peer').val()?$('#peer').val():from,  //this should be read from a local variable which is written 
         sdpOffer: offerSdp
     };
     sendMessage(message);
