@@ -248,7 +248,7 @@ public class WebSocketServer {
 			break;
 		case "stop":
 			try {
-                                log.error("received stop closing media piplines");
+                                log.info("received stop closing media piplines");
 				stop(session);
                                 printCurrentUsage();
                             } catch (IOException ex) {
@@ -257,7 +257,7 @@ public class WebSocketServer {
 			break;
                case "stopScreen":
 			try {
-                                log.error("received stop closing media piplines");
+                                log.info("received stop closing media piplines");
 				stopScreen(session);
                                 printCurrentUsage();
                             } catch (IOException ex) {
@@ -776,7 +776,7 @@ public class WebSocketServer {
             String callResponse = jsonMessage.get("callResponse").getAsString();
 	    String from = jsonMessage.get("from").getAsString();
 	    final UserSession caller = registry.getByName(from);
-            String to = caller.getCallingTo();
+                String to = caller.getCallingTo();
 
 		if ("accept".equals(callResponse)) {
 			log.info("Accepted Screen call from [{}] to [{}]", from, to);
@@ -967,7 +967,7 @@ public class WebSocketServer {
                 
                 
                 UserSession stopperUser = registry.getBySession(session);
-                log.info("stopperUser: "+stopperUser.getName());
+                log.debug("stopperUser: "+stopperUser.getName());
 
                 UserSession stoppedUserFrom = (stopperUser.getCallingFrom() != null) ? registry.getByName(stopperUser.getCallingFrom()) : null;
 
@@ -975,35 +975,39 @@ public class WebSocketServer {
                 UserSession stopUser = null;
 
                 if(stoppedUserFrom !=null && stoppedUserFrom.getSession()!=null && !stoppedUserFrom.getSession().getId().equals(session.getId())){
-                      log.info("die id des stoppenden  NICHT! die des anrufenden");
                     stopUser = stoppedUserFrom;
                     JsonObject message = new JsonObject();
                     message.addProperty("id", "stopScreenCommunication");
-                    stopUser.sendMessage(message);
-                    stopUser.clear();                       
-                          
+                    stopUser.sendMessage(message);                 
+                     log.debug("die id des stoppenden IST NICHT! die des anrufenden. "+stopUser.getName() +" session is open:"+stopUser.getSession().isOpen());                 
                 }      
                 else if(stoppedUserTo!=null && stoppedUserTo.getSession()!=null){
-                    log.info("die id des stoppenden IST! die des anrufenden");
+                  
                     //wenn der anrufer auflegt. (wird anschließend, die pipeline des anrufenden gesucht und exisitert nicht mehr) 
                    stopUser = stoppedUserTo;
                    
                    JsonObject message = new JsonObject();
                    message.addProperty("id", "stopScreenCommunication");
                    stopUser.sendMessage(message);
-                   stopUser.clear(); 
+                   log.info("die id des stoppenden IST! die des anrufenden. "+stopUser.getName() +" session is open:"+stopUser.getSession().isOpen());
+                 //   stopUser.clear(); 
                }
 
                 if (pipelines.containsKey(sessionId+"S")) {
-                    log.info("Stopping media connection of websocket id [{}]", sessionId+"S");
-               
                     MediaPipeline pipeline1 = pipelines.remove(sessionId+"S");
-                    pipeline1.release();
-
-                    MediaPipeline pipeline2 = pipelines.remove(stopUser.getSession().getId()+"S");
-                    pipeline2.release();
+                 //  pipeline1.release();  //in tomcat this seems to release the other piplines of video and audio too! we don't want this. in glassfish this seems to be a correct behavior           
+                    log.info("stopped media connection of websocket id [{}]", sessionId+"S");
                 }
-                log.info("Stopped Screensharing", sessionId);
+                
+                if (pipelines.containsKey(stopUser.getSession().getId()+"S")) {
+                    MediaPipeline pipeline2 = pipelines.remove(stopUser.getSession().getId()+"S");
+                    if(pipeline2!=null && pipeline2.isCommited())
+                  //  pipeline2.release();  //in tomcat this seems to release the other piplines of video and audio too! we don't want this. in glassfish this seems to be a correct behavior
+                     
+                    log.info("stopped media connection of websocket id [{}]", stopUser.getSession().getId()+"S");
+                }
+                log.info("Stopped Screensharing - session is open:"+session.isOpen(), sessionId);
+                log.info("pipelines registered:"+pipelines.keySet().toString());
 
 	}
 
