@@ -62,6 +62,7 @@ function setRegisterState(nextState) {
             enableButton('#register', 'register()');
             hideButton('#call');
             hideButton('#screenEnabled');
+            hideButton('#screenOutput');
              hideButton('#peers');
             setCallState(NO_CALL);
             break;
@@ -99,6 +100,7 @@ function setCallState(nextState) {
             hideButton('#audioEnabled');
             hideButton('#videoEnabled');
             hideButton('#screenEnabled');
+             hideButton('#screenOutput');
             disableButton('#play');
             break;
         case PROCESSING_CALL:
@@ -164,7 +166,11 @@ $(function() {
   chkScreenEnabled.on("click", function() {
     toggleScreenSharing();
   })
-  //setScreenSharingEnabled(false);
+  
+  $( "#screenOutput" ).dblclick(function() {
+    fullscreen() ;
+  });
+  
 });
 
 window.onbeforeunload = function() {
@@ -464,6 +470,7 @@ function startScreenCommunication(message) {
   console.log("startScreenCommunication");
   
     webRtcPeer2.processAnswer(message.sdpAnswer, function(error) {
+        showButton('#screenOutput');
         if (error)
             return console.error(error);
     });
@@ -627,7 +634,7 @@ function additionalScreenCall() {
         // daher ermittle ich den Videostream und übergebe ihn direkt an den WebRtcPeer
         // options.videoStream
 
-
+            showButton('#screenOutput');
         // first get audio stream
         var audioConstraints = {
           audio: false,  //turn this true in case you want to share this in a single stream 
@@ -697,6 +704,7 @@ function play() {
         remoteVideo: videoOutput,
         onicecandidate: onIceCandidate
     }
+    
     webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
         function(error) {
             if (error) {
@@ -781,7 +789,7 @@ function stopScreen(message) {  //message true means: stopScreen was called from
     if (webRtcPeer2) {
         isScreenSharingEnabled = false;
         $(chkScreenEnabled).toggleClass('btn-danger', false);
-        
+        hideButton('#screenOutput');
         console.log('message is:' + message);
        
         document.getElementById('screenSmall').display = 'block';
@@ -1009,4 +1017,40 @@ function getChromeExtensionStatus(callback) {
     }).fail(function() {
       callback('not-installed');
     });
+}
+
+
+function fullscreen(){
+  if (
+    document.fullscreenElement ||
+    document.webkitFullscreenElement ||
+    document.mozFullScreenElement ||
+    document.msFullscreenElement
+  ) {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+  } else {
+    element = $('#screenOutput').get(0);
+    if (element.requestFullscreen) {
+      req = element.requestFullscreen();
+      call(req);
+    } else if (element.mozRequestFullScreen) {
+     req =  element.mozRequestFullScreen();
+     call(req);
+    } else if (element.webkitRequestFullscreen) {
+      req = element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+  
+      call(req);
+    } else if (element.msRequestFullscreen) {
+      req =  element.msRequestFullscreen();
+      call(req);
+    }
+  }
 }

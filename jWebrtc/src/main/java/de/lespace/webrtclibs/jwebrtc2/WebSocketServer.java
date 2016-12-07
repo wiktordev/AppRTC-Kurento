@@ -995,14 +995,14 @@ public class WebSocketServer {
 
                 if (pipelines.containsKey(sessionId+"S")) {
                     MediaPipeline pipeline1 = pipelines.remove(sessionId+"S");
-                 //  pipeline1.release();  //in tomcat this seems to release the other piplines of video and audio too! we don't want this. in glassfish this seems to be a correct behavior           
+                    // pipeline1.release();  //in tomcat this seems to release the other piplines of video and audio too! we don't want this. in glassfish this seems to be a correct behavior           
                     log.info("stopped media connection of websocket id [{}]", sessionId+"S");
                 }
                 
                 if (pipelines.containsKey(stopUser.getSession().getId()+"S")) {
                     MediaPipeline pipeline2 = pipelines.remove(stopUser.getSession().getId()+"S");
                     if(pipeline2!=null && pipeline2.isCommited())
-                  //  pipeline2.release();  //in tomcat this seems to release the other piplines of video and audio too! we don't want this. in glassfish this seems to be a correct behavior
+                    // pipeline2.release();  //in tomcat this seems to release the other piplines of video and audio too! we don't want this. in glassfish this seems to be a correct behavior
                      
                     log.info("stopped media connection of websocket id [{}]", stopUser.getSession().getId()+"S");
                 }
