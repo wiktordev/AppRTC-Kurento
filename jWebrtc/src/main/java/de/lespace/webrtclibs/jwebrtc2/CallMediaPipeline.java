@@ -19,7 +19,6 @@ import java.util.Date;
  * limitations under the License.
  *
  */
-
 import org.kurento.client.KurentoClient;
 import org.kurento.client.MediaPipeline;
 import org.kurento.client.RecorderEndpoint;
@@ -30,82 +29,83 @@ import org.slf4j.LoggerFactory;
 /**
  * Media Pipeline (WebRTC endpoints, i.e. Kurento Media Elements) and
  * connections for the 1 to 1 video communication.
- * 
+ *
  * @author Boni Garcia (bgarcia@gsyc.es)
  * @author Micael Gallego (micael.gallego@gmail.com)
  * @since 4.3.1
  */
 public class CallMediaPipeline {
-	private static final Logger log = LoggerFactory.getLogger(CallMediaPipeline.class);
-	
-	private static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-S");
 
-	// TODO define as environment variables
-	public static final String RECORDING_DIR = "file:///var/kurento/";
-	
+    private static final Logger log = LoggerFactory.getLogger(CallMediaPipeline.class);
+
+    private static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-S");
+
+    // TODO define as environment variables
+    public static final String RECORDING_DIR = "file:///var/kurento/";
+
 //	public static final String RECORDING_PATH = RECORDING_DIR + df.format(new Date()) + "-";
-	public static final String RECORDING_EXT = ".webm";
+    public static final String RECORDING_EXT = ".webm";
 
-	private MediaPipeline pipeline;
-	private WebRtcEndpoint callerWebRtcEp;
-	private WebRtcEndpoint calleeWebRtcEp;
-	private RecorderEndpoint calleeRecorder;
-	private RecorderEndpoint callerRecorder;
+    private MediaPipeline pipeline;
+    private WebRtcEndpoint callerWebRtcEp;
+    private WebRtcEndpoint calleeWebRtcEp;
+    private RecorderEndpoint calleeRecorder;
+    private RecorderEndpoint callerRecorder;
 
-	public CallMediaPipeline(KurentoClient kurento, String from, String to) {
-		String date = df.format(new Date());
-		
-		try {
-			this.pipeline = kurento.createMediaPipeline();
-			this.callerWebRtcEp = new WebRtcEndpoint.Builder(pipeline).build();
-			this.calleeWebRtcEp = new WebRtcEndpoint.Builder(pipeline).build();
-			
-			this.callerRecorder = new RecorderEndpoint.Builder(pipeline, RECORDING_DIR + date + "-" + from + RECORDING_EXT).build();
-			this.calleeRecorder = new RecorderEndpoint.Builder(pipeline, RECORDING_DIR + date + "-" + to + RECORDING_EXT).build();
+    public CallMediaPipeline(KurentoClient kurento, String from, String to) {
+        String date = df.format(new Date());
 
-			this.callerWebRtcEp.connect(this.calleeWebRtcEp);
-			this.callerWebRtcEp.connect(this.callerRecorder);
-			
-			this.calleeWebRtcEp.connect(this.callerWebRtcEp);
-			this.calleeWebRtcEp.connect(this.calleeRecorder);
-		} catch (Throwable t) {
-			if (this.pipeline != null) {
-				pipeline.release();
-			}
-			log.error("Unable to create instance of CallMediaPipeline!", t.getMessage());
-		}
-	}
+        try {
+            this.pipeline = kurento.createMediaPipeline();
+            this.callerWebRtcEp = new WebRtcEndpoint.Builder(pipeline).build();
+            this.calleeWebRtcEp = new WebRtcEndpoint.Builder(pipeline).build();
 
-	public String generateSdpAnswerForCaller(String sdpOffer) {
-		return callerWebRtcEp.processOffer(sdpOffer);
-	}
+            this.callerRecorder = new RecorderEndpoint.Builder(pipeline, RECORDING_DIR + date + "-" + from + RECORDING_EXT).build();
+            this.calleeRecorder = new RecorderEndpoint.Builder(pipeline, RECORDING_DIR + date + "-" + to + RECORDING_EXT).build();
 
-	public String generateSdpAnswerForCallee(String sdpOffer) {
-		return calleeWebRtcEp.processOffer(sdpOffer);
-	}
+            this.callerWebRtcEp.connect(this.calleeWebRtcEp);
+            this.callerWebRtcEp.connect(this.callerRecorder);
 
-	public void release() {
-		if (pipeline != null) {
-			pipeline.release();
-		}
-	}
+            this.calleeWebRtcEp.connect(this.callerWebRtcEp);
+            this.calleeWebRtcEp.connect(this.calleeRecorder);
+        } catch (Throwable t) {
+            if (this.pipeline != null) {
+                pipeline.release();
+            }
+            log.error("Unable to create instance of CallMediaPipeline!", t.getMessage());
+        }
+    }
 
-	public WebRtcEndpoint getCallerWebRtcEp() {
-		return callerWebRtcEp;
-	}
+    public String generateSdpAnswerForCaller(String sdpOffer) {
+        return callerWebRtcEp.processOffer(sdpOffer);
+    }
 
-	public WebRtcEndpoint getCalleeWebRtcEp() {
-		return calleeWebRtcEp;
-	}
+    public String generateSdpAnswerForCallee(String sdpOffer) {
+        return calleeWebRtcEp.processOffer(sdpOffer);
+    }
 
-	public void record() {
-		log.debug("Start recording...");
-		calleeRecorder.record();
-		callerRecorder.record();
-	}
+    public void release() {
+        if (pipeline != null) {
+            pipeline.release();
+        }
+    }
 
-	public MediaPipeline getPipeline() {
-		return pipeline;
-	}
+    public WebRtcEndpoint getCallerWebRtcEp() {
+        return callerWebRtcEp;
+    }
+
+    public WebRtcEndpoint getCalleeWebRtcEp() {
+        return calleeWebRtcEp;
+    }
+
+    public void record() {
+        log.debug("Start recording...");
+        calleeRecorder.record();
+        callerRecorder.record();
+    }
+
+    public MediaPipeline getPipeline() {
+        return pipeline;
+    }
 
 }

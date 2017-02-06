@@ -13,49 +13,50 @@ import org.kurento.client.WebRtcEndpoint;
 
 /**
  * Room!
+ *
  * @author Nico Krause (nico@le-space.de)
  */
-    class Room {
+class Room {
 
-        public String roomName;
-        public Sender sender;
-        public String senderSdpOffer;
-        public MediaPipeline pipeline;
-        public Map<String, Receiver> receivers;  
-                
-        public Room(String roomName) {
-            this.roomName = roomName;
-            this.sender = new Sender();
-            this.receivers = new HashMap();
-        }
-                    
-        /**
-         * @return the roomName
-         */
-        public String getRoomName() {
-            return roomName;
-        }
+    public String roomName;
+    public Sender sender;
+    public String senderSdpOffer;
+    public MediaPipeline pipeline;
+    public Map<String, Receiver> receivers;
 
-        /**
-         * @param roomName the roomName to set
-         */
-        public void setRoomName(String roomName) {
-            this.roomName = roomName;
-        }
+    public Room(String roomName) {
+        this.roomName = roomName;
+        this.sender = new Sender();
+        this.receivers = new HashMap();
+    }
 
-        /**
-         * @return the sender
-         */
-        public Sender getSender() {
-            return sender;
-        }
+    /**
+     * @return the roomName
+     */
+    public String getRoomName() {
+        return roomName;
+    }
 
-        /**
-         * @param sender the sender to set
-         */
-        public void setSender(Sender sender) {
-            this.sender = sender;
-        }
+    /**
+     * @param roomName the roomName to set
+     */
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
+
+    /**
+     * @return the sender
+     */
+    public Sender getSender() {
+        return sender;
+    }
+
+    /**
+     * @param sender the sender to set
+     */
+    public void setSender(Sender sender) {
+        this.sender = sender;
+    }
 
     /**
      * @return the senderSdpOffer
@@ -84,24 +85,19 @@ import org.kurento.client.WebRtcEndpoint;
     public void setPipeline(MediaPipeline pipeline) {
         this.pipeline = pipeline;
     }
-    
-    public Receiver getOrCreateReceiver(String sessionId, Session websocket, WebRtcEndpoint endpoint){
-        if(receivers.containsKey(sessionId)){
+
+    public Receiver getOrCreateReceiver(String sessionId, Session websocket, WebRtcEndpoint endpoint) {
+        if (receivers.containsKey(sessionId)) {
             return receivers.get(sessionId);
+        } else {
+            Receiver receiver = new Receiver();
+            receiver.websocket = websocket;
+            receiver.sessionId = sessionId;
+            receiver.endpoint = endpoint;
+            this.receivers.put(sessionId, receiver);
+            return receiver;
         }
-        else{
-                Receiver receiver = new Receiver();
-                receiver.websocket = websocket;
-                receiver.sessionId = sessionId;
-                receiver.endpoint = endpoint;
-                this.receivers.put(sessionId,receiver);
-                return receiver;
-        }
-        
-        
-    }
-    
+
     }
 
-
-    
+}

@@ -16,12 +16,13 @@ import org.kurento.client.WebRtcEndpoint;
  * @author nico
  */
 public class Receiver {
-    
-    public Receiver(){}
-    
-	public String sessionId;
-	public Session websocket;
-        public WebRtcEndpoint endpoint;
-	public List<IceCandidate> candidateQueue = new ArrayList();
-        
+
+    public Receiver() {
+    }
+
+    public String sessionId;
+    public Session websocket;
+    public WebRtcEndpoint endpoint;
+    public List<IceCandidate> candidateQueue = new ArrayList();
+
 }
