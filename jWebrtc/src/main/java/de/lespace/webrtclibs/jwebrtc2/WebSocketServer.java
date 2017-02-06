@@ -278,6 +278,10 @@ public class WebSocketServer {
             case "stopPlay":
                 releasePipeline(userSession);
                 break;
+            case "disconnect":
+                log.info("apprtcWs disconnect by command [{}]", session.getId());
+                disconnectSession(session);
+                break;
             default:
                 break;
         }
