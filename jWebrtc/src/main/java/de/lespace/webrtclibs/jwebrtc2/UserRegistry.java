@@ -40,6 +40,13 @@ public class UserRegistry {
             usersByName.remove(unRegisteredUserSession.getName());
             usersBySessionId.remove(unRegisteredUserSession.getSession().getId());
         }
+        
+        UserSession existedUserSession = usersByName.get(user.getName());
+        if (existedUserSession != null) {
+            log.debug("removing existedUserSession with name: " + existedUserSession.getName());
+            usersByName.remove(existedUserSession.getName());
+            usersBySessionId.remove(existedUserSession.getSession().getId());
+        }
 
         usersByName.put(user.getName(), user);
         usersBySessionId.put(user.getSession().getId(), user);
