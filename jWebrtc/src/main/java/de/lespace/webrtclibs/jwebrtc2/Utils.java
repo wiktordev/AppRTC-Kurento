@@ -32,8 +32,8 @@ public class Utils {
         }
         log.debug("using kms.url: " + kmsURL);
 
-//        return KurentoClient.create(System.getProperty("kms.url", kmsURL));
-        return KurentoClient.create(kmsURL);
+//        return KurentoClient.create(kmsURL);
+        return KurentoClient.create(System.getProperty("kms.url", kmsURL));
     }
 
     public static MediaPipeline getPipeline(Room room) {
