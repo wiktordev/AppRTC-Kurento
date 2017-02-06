@@ -2,11 +2,19 @@
 <Configuration status="info">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
+<!--        <File name="File" fileName="E:\\temp\\error.log">
+            <PatternLayout pattern="[%d{ISO8601} %-5level] %logger{36} - %msg%n"/>
+        </File>-->
     </Appenders>
     <Loggers>
+<!--        <Logger name="de.lespace.webrtclibs.jwebrtc2" level="all">
+            <AppenderRef ref="File"/>
+            <AppenderRef ref="Console"/>
+        </Logger>-->
         <Root level="info">
+<!--            <AppenderRef ref="File"/>-->
             <AppenderRef ref="Console" />
         </Root>
     </Loggers>
