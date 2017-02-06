@@ -11,6 +11,7 @@ package de.lespace.webrtclibs.jwebrtc2;
  */
 public class Config {
 
+    public static final boolean RECORD_ENABLE = false;
     
     public static String DEFAULT_KMS_WS_URI = "ws://192.168.6.67:8888/kurento";
     

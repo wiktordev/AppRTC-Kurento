@@ -613,13 +613,13 @@ public class WebSocketServer {
         String to = jsonMessage.get("to").getAsString();
         String from = jsonMessage.get("from").getAsString();
 
-//            caller.clearCandidates();
         log.info("call from [{}] to [{}]", from, to);
 
         JsonObject response = new JsonObject();
 
         UserSession callee = registry.getByName(to);
         if (callee != null) {
+//            caller.clearCandidates();
             caller.setSdpOffer(jsonMessage.getAsJsonPrimitive("sdpOffer").getAsString());
             caller.setCallingTo(to);
 
@@ -760,7 +760,9 @@ public class WebSocketServer {
 
                 pipeline.getCallerWebRtcEp().gatherCandidates();
 
-                pipeline.record();
+                if (Config.RECORD_ENABLE) {
+                    pipeline.record();
+                }
 
             } catch (Throwable t) {
 
