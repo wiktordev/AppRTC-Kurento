@@ -29,20 +29,20 @@ public class UserRegistry {
     private static final Logger log = LoggerFactory.getLogger(UserRegistry.class);
 
     public void register(UserSession user) {
-        log.debug("registering user:", user.getName());
+        log.debug("registering user:" + user.getName());
+        
         UserSession unRegisteredUserSession = usersBySessionId.get(user.getSession().getId());
 
         //delete old sessions without name and replace with the same session but with name
         //it is necessary for the status which can be queried also in unregistered state
         if (unRegisteredUserSession != null) {
-            log.debug("removing unregisteredUserSession with name:" + unRegisteredUserSession.getName());
+            log.debug("removing unregisteredUserSession with name: " + unRegisteredUserSession.getName());
             usersByName.remove(unRegisteredUserSession.getName());
             usersBySessionId.remove(unRegisteredUserSession.getSession().getId());
         }
 
         usersByName.put(user.getName(), user);
         usersBySessionId.put(user.getSession().getId(), user);
-
     }
 
     public UserSession getByName(String name) {
@@ -78,7 +78,7 @@ public class UserRegistry {
     }
 
     public List<UserSession> getUserSessions() {
-        return new ArrayList<UserSession>(usersByName.values());
+        return new ArrayList<>(usersByName.values());
     }
 
 }

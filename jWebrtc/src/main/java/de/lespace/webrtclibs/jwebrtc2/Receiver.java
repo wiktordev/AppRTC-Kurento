@@ -17,12 +17,43 @@ import org.kurento.client.WebRtcEndpoint;
  */
 public class Receiver {
 
-    public Receiver() {
+    private String sessionId;
+    private Session websocket;
+    private WebRtcEndpoint endpoint;
+    private List<IceCandidate> candidateQueue = new ArrayList();
+
+    public Receiver() {}
+
+    public String getSessionId() {
+        return sessionId;
     }
 
-    public String sessionId;
-    public Session websocket;
-    public WebRtcEndpoint endpoint;
-    public List<IceCandidate> candidateQueue = new ArrayList();
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public Session getWebsocket() {
+        return websocket;
+    }
+
+    public void setWebsocket(Session websocket) {
+        this.websocket = websocket;
+    }
+
+    public WebRtcEndpoint getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(WebRtcEndpoint endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    public List<IceCandidate> getCandidateQueue() {
+        return candidateQueue;
+    }
+
+    public void setCandidateQueue(List<IceCandidate> candidateQueue) {
+        this.candidateQueue = candidateQueue;
+    }
 
 }

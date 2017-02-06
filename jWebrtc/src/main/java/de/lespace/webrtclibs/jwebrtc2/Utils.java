@@ -30,9 +30,10 @@ public class Utils {
         if (kmsURL == null || kmsURL.equals("")) {
             kmsURL = Config.DEFAULT_KMS_WS_URI;
         }
-        log.debug("using kms.url:", kmsURL);
+        log.debug("using kms.url: " + kmsURL);
 
-        return KurentoClient.create(System.getProperty("kms.url", kmsURL));
+//        return KurentoClient.create(System.getProperty("kms.url", kmsURL));
+        return KurentoClient.create(kmsURL);
     }
 
     public static MediaPipeline getPipeline(Room room) {
@@ -46,13 +47,13 @@ public class Utils {
         }
 
         log.debug("creating new pipeline to kurento server: ");
-        room.pipeline = kurentoClient().createMediaPipeline();
-        return room.pipeline;
+        room.setPipeline(kurentoClient().createMediaPipeline());
+        return room.getPipeline();
     }
 
     public static String getBody(HttpServletRequest request) throws IOException {
 
-        String body = null;
+        String body;
         StringBuilder stringBuilder = new StringBuilder();
         BufferedReader bufferedReader = null;
 

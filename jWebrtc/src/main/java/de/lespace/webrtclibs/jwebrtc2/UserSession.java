@@ -37,9 +37,8 @@ public class UserSession {
     private String callingFrom;
     private WebRtcEndpoint webRtcEndpoint;
     private WebRtcEndpoint webRtcScreenEndpoint;
-    private final List<IceCandidate> candidateList = new ArrayList<IceCandidate>();
-
-    private final List<IceCandidate> candidateListScreen = new ArrayList<IceCandidate>();
+    private final List<IceCandidate> candidateList = new ArrayList<>();
+    private final List<IceCandidate> candidateListScreen = new ArrayList<>();
 
     public UserSession(Session session, String name) {
         this.session = session;
@@ -77,7 +76,7 @@ public class UserSession {
     public void setCallingTo(String callingTo) {
         this.callingTo = callingTo;
     }
-
+    
     public String getCallingFrom() {
         return callingFrom;
     }
@@ -85,11 +84,11 @@ public class UserSession {
     public void setCallingFrom(String callingFrom) {
         this.callingFrom = callingFrom;
     }
-
+    
     public void sendMessage(JsonObject message) throws IOException {
 
         if (session.isOpen()) {
-            log.debug("Sending message from user '{}': {}", name, message);
+            log.debug("Sending message to user '{}': {}", name, message);
             session.getBasicRemote().sendText(message.toString());
         } else {
             log.debug("session of user '{}' is closed.", name);
@@ -133,8 +132,15 @@ public class UserSession {
             candidateListScreen.add(candidate);
         }
     }
+    
+    public void clearCandidates() {
+        this.candidateList.clear();
+        this.candidateListScreen.clear();
+    }
 
     public void clear() {
+        this.callingTo = null;
+        this.callingFrom = null;
         this.webRtcEndpoint = null;
         this.webRtcScreenEndpoint = null;
         this.candidateList.clear();

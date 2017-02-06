@@ -15,17 +15,15 @@ import org.kurento.client.WebRtcEndpoint;
  *
  * @author Nico Krause
  */
-class Sender {
+public class Sender {
 
-    public String sessionId;
-    public String clientId;
-    public Session websocket;
-    public WebRtcEndpoint endpoint;
-    public List<IceCandidate> candidateQueue = new ArrayList();
+    private String sessionId;
+    private String clientId;
+    private Session websocket;
+    private WebRtcEndpoint endpoint;
+    private List<IceCandidate> candidateQueue = new ArrayList();
 
-    public Sender() {
-
-    }
+    public Sender() {}
 
     /**
      * @return the sessionId

@@ -16,12 +16,12 @@ import org.kurento.client.WebRtcEndpoint;
  *
  * @author Nico Krause (nico@le-space.de)
  */
-class Room {
+public class Room {
 
-    public String roomName;
-    public Sender sender;
-    public String senderSdpOffer;
-    public MediaPipeline pipeline;
+    private String roomName;
+    private Sender sender;
+    private String senderSdpOffer;
+    private MediaPipeline pipeline;
     public Map<String, Receiver> receivers;
 
     public Room(String roomName) {
@@ -91,13 +91,12 @@ class Room {
             return receivers.get(sessionId);
         } else {
             Receiver receiver = new Receiver();
-            receiver.websocket = websocket;
-            receiver.sessionId = sessionId;
-            receiver.endpoint = endpoint;
+            receiver.setWebsocket(websocket);
+            receiver.setSessionId(sessionId);
+            receiver.setEndpoint(endpoint);
             this.receivers.put(sessionId, receiver);
             return receiver;
         }
-
     }
 
 }
